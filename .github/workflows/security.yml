@@ -1,0 +1,32 @@
+name: Security Checking
+
+on:
+    pull_request:
+        branches:
+        - main
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  security-check:
+      runs-on: ubuntu-latest
+      container:
+        image: semgrep/semgrep
+
+      steps:
+
+        # step 1
+        - name: clone application source code
+          uses: actions/checkout@v3
+
+        # step 2
+        - name: full scan
+          run: |
+            semgrep scan \
+              --error \
+              --metrics=off \
+              --config="p/default" \
+              --exclude=*.yml

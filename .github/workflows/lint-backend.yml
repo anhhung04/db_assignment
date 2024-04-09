@@ -1,0 +1,14 @@
+name: Linter Frontend
+on:
+  pull_request:
+jobs:
+  lint:
+    runs-on: ubuntu-latest 
+    if:
+      startsWith(github.event.pull_request.head.ref, 'backend/')
+    steps:
+        - uses: actions/checkout@v4
+        - name: Install dependencies
+          run: cd backend && npm install
+        - name: Lint
+          run: cd backend && npm run lint
