@@ -14,7 +14,14 @@ const getConn = () => {
     return pool.connect();
 };
 
+const execQuery = async (query, args) => {
+    let conn = await getConn();
+    let result = await conn.query(query, args);
+    conn.release();
+    return result;
+};
+
 module.exports = {
-    pool,
-    getConn
+    getConn,
+    execQuery
 };

@@ -1,10 +1,6 @@
 const router = require('express').Router();
-const { HTTP_200_OK } = require("../code");
+const demoRouter = require('./demo');
 
-router.get('/demo', (req, res) => {
-    return res.status(HTTP_200_OK).json({
-        message: "Hello, World!"
-    });
-});
+router.use('/demo', demoRouter)
 
 module.exports = router;

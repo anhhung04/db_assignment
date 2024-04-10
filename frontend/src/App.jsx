@@ -5,7 +5,7 @@ export default function App() {
   useEffect(() => {
     async function fetchData(){
       const data = await fetch("/api/demo").then(res => res.json())
-      if(data?.message) setState(data.message)
+      if(data?.data) setState(data.data.message)
     }
     fetchData()
   }, [state])
