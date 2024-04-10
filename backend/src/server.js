@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const cors = require('cors');
 const process = require('node:process');
+const __dirname = process.cwd();
 const crypto = require('crypto');
 const expressJSDocSwagger = require('express-jsdoc-swagger');
 const cookieSecret = crypto.randomBytes(128).toString('base64');
@@ -19,7 +20,6 @@ const redisClient = redis.createClient({
 require('dotenv').config();
 const app = express();
 const mainRoute = require('./routes');
-const { version } = require('node:os');
 
 app.use(logger('dev'));
 app.use(express.json());
