@@ -6,7 +6,8 @@ const cors = require('cors');
 const process = require('node:process');
 const crypto = require('crypto');
 const cookieSecret = crypto.randomBytes(128).toString('base64');
-const { HTTP_404_NOT_FOUND, HTTP_500_INTERNAL_SERVER_ERROR } = require('./code');
+const { HTTP_404_NOT_FOUND, HTTP_500_INTERNAL_SERVER_ERROR } = require('./utils/code');
+const { wrapResponse } = require('./utils/response')
 
 const redis = require('redis');
 const RedisStore = require('connect-redis').default;
@@ -42,15 +43,17 @@ app.use(session({
 app.use('/api', mainRoute);
 
 app.all('*', (req, res) => {
-    return res.status(HTTP_404_NOT_FOUND).json({
-        error: 'Not Found',
+    return wrapResponse(res, {
+        code: HTTP_404_NOT_FOUND,
+        error: 'Not Found'
     });
 });
 
-app.use(function (err, req, res, next) {
-    next(res.status(HTTP_500_INTERNAL_SERVER_ERROR).json({
-        error: 'Internal Server Error',
-    }));
+app.use(function (err, req, res, next) { // eslint-disable-line no-unused-vars
+    return wrapResponse(res, {
+        code: HTTP_500_INTERNAL_SERVER_ERROR,
+        error: err.message
+    });
 });
 
 module.exports = {
