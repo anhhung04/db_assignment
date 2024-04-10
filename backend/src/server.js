@@ -4,7 +4,6 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const cors = require('cors');
 const process = require('node:process');
-const __dirname = process.cwd();
 const crypto = require('crypto');
 const expressJSDocSwagger = require('express-jsdoc-swagger');
 const cookieSecret = crypto.randomBytes(128).toString('base64');
@@ -50,7 +49,7 @@ expressJSDocSwagger(app)({
         description: 'API Documentation',
     },
     filesPattern: './**/*.js',
-    baseDir: __dirname,
+    baseDir: __dirname, //eslint-disable-line
     security: {
         CookieAuth: {
             type: 'apiKey',
