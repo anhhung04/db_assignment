@@ -1,4 +1,4 @@
-name: Linter Frontend
+name: Linter Backend
 on:
   pull_request:
 jobs:
