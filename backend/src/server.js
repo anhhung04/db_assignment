@@ -36,7 +36,8 @@ app.use(session({
         maxAge: 1000 * 60 * 60,
     },
     store: new RedisStore({
-        client: redisClient
+        client: redisClient,
+        prefix: 'session:',
     }),
 }));
 
