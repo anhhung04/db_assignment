@@ -1,16 +1,15 @@
-const { wrapResponse } = require('../utils/response');
-const { HTTP_200_OK } = require("../utils/code");
+const { IService } = require("../utils/service");
 
-function index(req, res) {
-    return wrapResponse(res, {
-        code: HTTP_200_OK,
-        message: "Fetch data successfully",
-        data: {
-            message: "Hello, World!"
-        }
-    });
+class DemoService extends IService {
+    constructor(request) {
+        super(request);
+    }
+
+    async index() {
+        return "Hello, World!";
+    }
 }
 
 module.exports = {
-    index
+    DemoService
 };
