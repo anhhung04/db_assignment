@@ -1,169 +1,181 @@
 -- Up Migration
-create type account_type as enum ('operator', 'teacher', 'student');
+CREATE TYPE account_type AS ENUM ('operator', 'teacher', 'student');
 
-alter type account_type owner to dev_user;
+ALTER TYPE account_type OWNER TO dev_user;
 
-create type status as enum ('active', 'inactive');
+CREATE TYPE status AS ENUM ('active', 'inactive');
 
-alter type status owner to dev_user;
+ALTER TYPE status OWNER TO dev_user;
 
-create table users
+CREATE TABLE users 
 (
-    username     text         not null,
-    password     varchar(100) not null,
-    fname        varchar(100) not null,
-    lname        varchar(100) not null,
-    email        varchar(100) not null,
-    address      text         not null,
-    id           uuid         not null
-        constraint id
-            primary key,
-    avatar_url   text,
-    account_type account_type not null,
-    status       status       not null,
-    manager_id   uuid,
-    phone_no     varchar(11),
-    birthday     date,
-    created_at   timestamp,
-    updated_at   timestamp
+    username     TEXT         NOT NULL,
+    password     VARCHAR(100) NOT NULL,
+    fname        VARCHAR(100) NOT NULL,
+    lname        VARCHAR(100) NOT NULL,
+    email        VARCHAR(100) NOT NULL,
+    address      TEXT         NOT NULL,
+    id           UUID         NOT NULL
+        CONSTRAINT id
+            PRIMARY KEY,
+    avatar_url   TEXT,
+    account_type account_type NOT NULL,
+    status       status       NOT NULL,
+    manager_id   UUID,
+    phone_no     VARCHAR(11),
+    birthday     DATE,
+    created_at   TIMESTAMP,
+    updated_at   TIMESTAMP
 );
 
-alter table users
-    owner to dev_user;
+ALTER TABLE users
+    OWNER TO dev_user;
 
-create table students
+CREATE TABLE students
 (
-    english_level varchar(50),
-    study_history varchar(150),
-    target        varchar(15),
-    student_id    uuid not null
-        constraint student_id
-            primary key,
-    user_id       uuid
-        constraint user_id
-            references users,
-    created_at    timestamp,
-    updated_at    timestamp
+    english_level VARCHAR(50),
+    study_history VARCHAR(150),
+    target        VARCHAR(15),
+    student_id    UUID NOT NULL
+        CONSTRAINT student_id
+            PRIMARY KEY,
+    user_id       UUID
+        CONSTRAINT user_id
+            REFERENCES users,
+    created_at    TIMESTAMP,
+    updated_at    TIMESTAMP
 );
 
-alter table students
-    owner to dev_user;
+ALTER TABLE students
+    OWNER TO dev_user;
 
-create table activities
+CREATE TABLE activities
 (
-    activity_id uuid not null
-        constraint activity_id
-            primary key,
-    occur_at    timestamp,
-    created_by  varchar(50),
-    action      varchar(50),
-    dest        varchar(50),
-    note        varchar(100),
-    user_id     uuid
-        constraint user_id
-            references users,
-    created_at  timestamp,
-    updated_at  timestamp
+    activity_id UUID NOT NULL
+        CONSTRAINT activity_id
+            PRIMARY KEY,
+    occur_at    TIMESTAMP,
+    created_by  VARCHAR(50),
+    action      VARCHAR(50),
+    dest        VARCHAR(50),
+    note        VARCHAR(100),
+    user_id     UUID
+        CONSTRAINT user_id
+            REFERENCES users,
+    created_at  TIMESTAMP,
+    updated_at  TIMESTAMP
 );
 
-alter table activities
-    owner to dev_user;
+ALTER TABLE activities
+    OWNER TO dev_user;
 
-create table exams
+CREATE TABLE exams
 (
-    exam_id    uuid    not null
-        constraint exam_id
-            primary key,
-    questions  text    not null,
-    answers    text    not null,
-    duration   integer not null,
-    library_id uuid    not null,
-    create_at  timestamp,
-    "publish " date    not null,
-    update_at  timestamp
+    exam_id    UUID    NOT NULL
+        CONSTRAINT exam_id
+            PRIMARY KEY,
+    questions  TEXT    NOT NULL,
+    answers    TEXT    NOT NULL,
+    duration   INTEGER NOT NULL,
+    library_id UUID    NOT NULL,
+    create_at  TIMESTAMP,
+    "publish " DATE    NOT NULL,
+    update_at  TIMESTAMP
 );
 
-alter table exams
-    owner to dev_user;
+ALTER TABLE exams
+    OWNER TO dev_user;
 
-create table teachers
+CREATE TABLE teachers
 (
-    teacher_id        uuid not null
-        constraint teacher_id
-            primary key,
-    user_id           uuid not null
-        constraint user_id
-            references users,
-    educational_level text,
-    rating            double precision,
-    created_at        timestamp,
-    updated_at        timestamp
+    teacher_id        UUID NOT NULL
+        CONSTRAINT teacher_id
+            PRIMARY KEY,
+    user_id           UUID NOT NULL
+        CONSTRAINT user_id
+            REFERENCES users,
+    educational_level TEXT,
+    rating            DOUBLE PRECISION,
+    created_at        TIMESTAMP,
+    updated_at        TIMESTAMP
 );
 
-alter table teachers
-    owner to dev_user;
+ALTER TABLE teachers
+    OWNER TO dev_user;
 
-create table assistant
+CREATE TABLE assistant
 (
-    teacher_id   uuid not null
-        constraint teacher_id
-            references teachers,
-    assistant_id uuid not null,
-    created_at   timestamp,
-    updated_at   timestamp,
-    constraint assistant_id
-        primary key (teacher_id, assistant_id)
+    teacher_id   UUID NOT NULL
+        CONSTRAINT teacher_id
+            REFERENCES teachers,
+    assistant_id UUID NOT NULL,
+    created_at   TIMESTAMP,
+    updated_at   TIMESTAMP,
+    CONSTRAINT assistant_id
+        PRIMARY KEY (teacher_id, assistant_id)
 );
 
-alter table assistant
-    owner to dev_user;
+ALTER TABLE assistant
+    OWNER TO dev_user;
 
-create table libraries
+CREATE TABLE libraries
 (
-    library_id uuid        not null
-        constraint library_id
-            primary key,
-    name       varchar(50) not null,
-    create_at  timestamp,
-    update_at  timestamp
+    library_id UUID        NOT NULL
+        CONSTRAINT library_id
+            PRIMARY KEY,
+    name       VARCHAR(50) NOT NULL,
+    create_at  TIMESTAMP,
+    update_at  TIMESTAMP
 );
 
-alter table libraries
-    owner to dev_user;
+ALTER TABLE libraries
+    OWNER TO dev_user;
 
-create table permissions
+CREATE TABLE permissions
 (
-    user_id     uuid
-        constraint user_id
-            references users,
-    read        boolean not null,
-    "create"    boolean,
-    update      boolean,
-    delete      boolean not null,
-    resource_id uuid,
-    create_at   timestamp,
-    update_at   timestamp
+    user_id     UUID
+        CONSTRAINT user_id
+            REFERENCES users,
+    read        BOOLEAN NOT NULL,
+    "create"    BOOLEAN,
+    update      BOOLEAN,
+    delete      BOOLEAN NOT NULL,
+    resource_id UUID,
+    create_at   TIMESTAMP,
+    update_at   TIMESTAMP
 );
 
-alter table permissions
-    owner to dev_user;
+ALTER TABLE permissions
+    OWNER TO dev_user;
 
-create table taking_exam
+CREATE TABLE taking_exam
 (
-    student_id uuid    not null
-        constraint taking_exam_students_student_id_fk
-            references students,
-    exam_id    uuid    not null
-        constraint taking_exam_exams_exam_id_fk
-            references exams,
-    score      numeric not null,
-    ranking    numeric not null,
-    create_at  timestamp,
-    update_at  timestamp,
-    constraint taking_id
-        primary key (student_id, exam_id)
+    student_id UUID    NOT NULL
+        CONSTRAINT taking_exam_students_student_id_fk
+            REFERENCES students,
+    exam_id    UUID    NOT NULL
+        CONSTRAINT taking_exam_exams_exam_id_fk
+            REFERENCES exams,
+    score      NUMERIC NOT NULL,
+    ranking    NUMERIC NOT NULL,
+    create_at  TIMESTAMP,
+    update_at  TIMESTAMP,
+    CONSTRAINT taking_id
+        PRIMARY KEY (student_id, exam_id)
 );
 
-alter table taking_exam
-    owner to dev_user;
+ALTER TABLE taking_exam
+    OWNER TO dev_user;
+
 -- Down Migration
+DROP TABLE IF EXISTS taking_exam;
+DROP TABLE IF EXISTS permissions;
+DROP TABLE IF EXISTS libraries;
+DROP TABLE IF EXISTS assistant;
+DROP TABLE IF EXISTS teachers;
+DROP TABLE IF EXISTS exams;
+DROP TABLE IF EXISTS activities;
+DROP TABLE IF EXISTS students;
+DROP TABLE IF EXISTS users;
+DROP TYPE IF EXISTS status;
+DROP TYPE IF EXISTS account_type;
