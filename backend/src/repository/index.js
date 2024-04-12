@@ -1,4 +1,5 @@
 const { Pool } = require('pg');
+const logger = require('../utils/log');
 const process = require('node:process');
 require('dotenv').config();
 
@@ -21,7 +22,51 @@ const execQuery = async (query, args) => {
     return result;
 };
 
+class IRepo {
+    constructor() {
+        this._session = null;
+    }
+    /**
+     * @typedef {object} QueryObject
+     * @property {string} query - Query string
+     * @property {Array} args - Query arguments
+     */
+    /**
+     * Execute query in database
+     * @param {QueryObject} param0
+     * @returns {Promise<Array>} - Query result
+     */
+    async exec({ query, args }) {
+        try {
+            if (!this._session) {
+                throw new Error("Session not found! Please start transaction first.");
+            }
+            return this._session.query(query, args);
+        } catch (err) {
+            logger.error(err);
+            return null;
+        }
+    }
+    /**
+     * Close repository
+     */
+    close() {
+        this._session.release();
+    }
+    /**
+     * Start transaction
+     */
+    async begin() {
+        try {
+            this._session = await getConn();
+        } catch (err) {
+            logger.error(err);
+        }
+    }
+}
+
 module.exports = {
     getConn,
-    execQuery
+    execQuery,
+    IRepo
 };

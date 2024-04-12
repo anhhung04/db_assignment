@@ -1,5 +1,11 @@
 const router = require('express').Router();
-const { index } = require("../services/demo");
+const { DemoService } = require("../services/demo");
+const { wrapResponse, STATUS_CODE, } = require('../utils/response');
+
+router.use((req, _, next) => {
+    req.service = new DemoService(req);
+    next();
+});
 
 /**
  * Demo response
@@ -27,6 +33,23 @@ const { index } = require("../services/demo");
  *  }
  * }
  */
-router.get('/', index);
+router.get('/', async (req, res, next) => {
+    /**
+     * @type {DemoService}
+     */
+    try {
+        const service = req.service;
+        let result = await service.index();
+        return wrapResponse(res, {
+            code: STATUS_CODE.HTTP_200_OK,
+            message: "Fetch data successfully",
+            data: {
+                message: result
+            }
+        });
+    } catch (err) {
+        next(err);
+    }
+});
 
 module.exports = router;

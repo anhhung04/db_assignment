@@ -7,8 +7,7 @@ const process = require('node:process');
 const crypto = require('crypto');
 const expressJSDocSwagger = require('express-jsdoc-swagger');
 const cookieSecret = crypto.randomBytes(128).toString('base64');
-const { HTTP_404_NOT_FOUND, HTTP_500_INTERNAL_SERVER_ERROR } = require('./utils/code');
-const { wrapResponse } = require('./utils/response')
+const { wrapResponse, STATUS_CODE } = require('./utils/response')
 
 const redis = require('redis');
 const RedisStore = require('connect-redis').default;
@@ -65,14 +64,21 @@ app.use('/api', mainRoute);
 
 app.all('*', (req, res) => {
     return wrapResponse(res, {
-        code: HTTP_404_NOT_FOUND,
-        error: 'Not Found'
+        code: STATUS_CODE.HTTP_404_NOT_FOUND,
+        error: 'Resource not Found'
     });
 });
 
 app.use(function (err, req, res, next) { // eslint-disable-line no-unused-vars
+    if (err.status_code && err?.status_code !== STATUS_CODE.HTTP_500_INTERNAL_SERVER_ERROR) {
+        return wrapResponse(res, {
+            code: err.status_code,
+            error: err.message,
+            details: err.details
+        });
+    }
     return wrapResponse(res, {
-        code: HTTP_500_INTERNAL_SERVER_ERROR,
+        code: STATUS_CODE.HTTP_500_INTERNAL_SERVER_ERROR,
         error: err.message
     });
 });
