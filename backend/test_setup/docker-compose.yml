@@ -17,8 +17,3 @@ services:
       - "${POSTGRES_PORT}:5432"
     security_opt:
       - no-new-privileges:true
-    volumes:
-      - tmp_data:/var/lib/postgresql/data
-
-volumes:
-  tmp_data:

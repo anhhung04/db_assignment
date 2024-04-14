@@ -1,5 +1,5 @@
 -- Up Migration
-CREATE TYPE account_type AS ENUM ('operator', 'teacher', 'student');
+CREATE TYPE account_type AS ENUM ('operator', 'teacher', 'student', 'user');
 
 CREATE TYPE status AS ENUM ('active', 'inactive');
 
@@ -111,10 +111,10 @@ CREATE TABLE permissions
     user_id     UUID
         CONSTRAINT user_id
             REFERENCES users,
-    read        BOOLEAN NOT NULL,
-    "create"    BOOLEAN,
-    update      BOOLEAN,
-    delete      BOOLEAN NOT NULL,
+    read        BOOLEAN DEFAULT FALSE,
+    "create"    BOOLEAN DEFAULT FALSE,
+    update      BOOLEAN DEFAULT FALSE,
+    delete      BOOLEAN DEFAULT FALSE,
     resource_id UUID,
     created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at   TIMESTAMP NOT NULL DEFAULT NOW(),

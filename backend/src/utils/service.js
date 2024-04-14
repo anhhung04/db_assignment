@@ -1,6 +1,7 @@
 const { UserRepo } = require("../repository/user");
+const { ActivityRepo } = require("../repository/activity");
 const { HTTPException } = require("../utils/error");
-const { STATUS_CODE } = require("../utils/response");
+const { STATUS_CODE } = require("./http");
 const logger = require("./log");
 
 const UserRole = Object.freeze({
@@ -21,14 +22,16 @@ const ActionType = Object.freeze({
 class IService {
     /**
      * @param {Request} request
-     * @returns {Service}
+     * @returns {IService}
      */
     constructor(request) {
         this._currentUser = request.session.user;
+        this._activityRepo = new ActivityRepo();
+        this._request = request;
         return new Proxy(this, {
             /**
              * 
-             * @param {Service} target 
+             * @param {IService} target 
              * @param {String} prop 
              */
             get(target, prop) {
@@ -48,22 +51,29 @@ class IService {
                             || acl.indexOf(userRole) !== -1
                             || currentUser.generalPermissions[inputArgs?.actionType] === true
                         ) {
-                            return await originMethod.apply(target, args);
+                            return originMethod.apply(target, args);
                         }
                         if (inputArgs.resourceId && inputArgs.actionType && currentUser.id) {
                             const userRepo = new UserRepo();
                             await userRepo.begin();
-                            const permissions = await userRepo.fetchUserPermissions({
+                            const { permissions, error } = await userRepo.fetchUserPermissions({
                                 userId: currentUser.id,
                                 resourceId: inputArgs.resourceId
                             });
                             userRepo.close();
+                            if (error) {
+                                throw new Error(error);
+                            }
                             if (permissions[inputArgs.actionType]) {
-                                return await originMethod.apply(target, args);
+                                return originMethod.apply(target, args);
                             }
                         }
                     } catch (err) {
-                        logger.error(err);
+                        logger.debug(err);
+                        throw new HTTPException({
+                            code: STATUS_CODE.HTTP_500_INTERNAL_SERVER_ERROR,
+                            message: "Internal server error",
+                        });
                     }
                     throw new HTTPException({
                         code: STATUS_CODE.HTTP_401_UNAUTHORIZED,
@@ -72,6 +82,58 @@ class IService {
                 };
             }
         });
+    }
+
+    /**
+     * Start service
+     * @returns {Promise<boolean>}
+     */
+    async start(...repos) {
+        let startSuccess = true;
+        try {
+            startSuccess = startSuccess && (await this._activityRepo.begin());
+            for (let repo of repos) {
+                startSuccess = startSuccess && (await repo.begin());
+            }
+        } catch (err) {
+            logger.debug(err);
+            throw new HTTPException({
+                code: STATUS_CODE.HTTP_500_INTERNAL_SERVER_ERROR,
+                message: "Connect database error",
+            });
+        }
+        return startSuccess;
+    }
+
+    /**
+     * Stop service
+     */
+    stop(...repos) {
+        this._activityRepo.end();
+        for (let repo of repos) {
+            repo.end();
+        }
+    }
+
+    /**
+     * Log activity
+     */
+    async logActivity({ action, resourceId, note = "" }) {
+        try {
+            let { activity, error } = await this._activityRepo.create({
+                activistId: this._currentUser?.id || '00000000-00000000-00000000-00000000',
+                action,
+                resourceId,
+                note
+            });
+            if (error) {
+                throw new Error(error);
+            }
+            return activity !== null;
+        } catch (err) {
+            logger.debug(err);
+            return false;
+        }
     }
 }
 

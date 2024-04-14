@@ -1,7 +1,8 @@
 const { IRepo } = require('./index');
-const { UUID } = require('../typedef/validator');
+const { v4: uuidv4 } = require('uuid');
+const { UUID } = require("../typedef/validator");
 const logger = require("../utils/log");
-
+const { convertObjectToFilterQuery, convertObjectToInsertQuery } = require("../utils/db");
 class UserRepo extends IRepo {
     /** 
      * Initialize user repository
@@ -42,7 +43,7 @@ class UserRepo extends IRepo {
                         WHERE permissions.user_id = $1
                             AND permissions.resource_id = '00000000-0000-0000-0000-000000000000'
                     ) as user_permissions 
-                ON users.id = user_permissions.user_id;';
+                ON users.id = user_permissions.user_id;
                 `,
                 args: [id]
             });
@@ -106,10 +107,74 @@ class UserRepo extends IRepo {
             let row = results.rows[0];
             delete row.user_id;
             delete row.resource_id;
-            return row;
+            return {
+                permissions: row,
+                error: null
+            };
         } catch (err) {
-            logger.error(err);
-            return null;
+            logger.debug(err);
+            return {
+                permissions: null,
+                error: err
+            };
+        }
+    }
+    /**
+     * @param {Object} findObject
+     * @returns {Promise<UserQueryResponse>}
+     */
+    async find(findObject) {
+        try {
+            let { filterQuery, args } = convertObjectToFilterQuery(findObject);
+            let results = await this.exec({
+                query: `
+                    SELECT *
+                    FROM users
+                    WHERE ${filterQuery};
+                `,
+                args
+            });
+            if (results?.rowCount !== 1) {
+                throw new Error("Query database error");
+            }
+            let userId = results.rows[0].id;
+            return this.findById(userId);
+        } catch (err) {
+            logger.debug(err);
+            return {
+                user: null,
+                error: err
+            };
+        }
+    }
+
+    async create(newUser) {
+        Object.assign(newUser, {
+            id: uuidv4(),
+            account_type: "user",
+            status: "active",
+        });
+        let { columns, values, args } = convertObjectToInsertQuery(newUser);
+        try {
+            let results = await this.exec({
+                query: `
+                    INSERT INTO users(${columns})
+                    VALUES(${values})
+                    RETURNING *;
+                `,
+                args
+            });
+            if (results.rowCount !== 1) {
+                throw new Error("Query database error");
+            }
+            let userId = results.rows[0].id;
+            return this.findById(userId);
+        } catch (err) {
+            logger.debug(err);
+            return {
+                user: null,
+                error: err
+            };
         }
     }
 }
