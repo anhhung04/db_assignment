@@ -1,11 +1,7 @@
 -- Up Migration
 CREATE TYPE account_type AS ENUM ('operator', 'teacher', 'student');
 
-ALTER TYPE account_type OWNER TO dev_user;
-
 CREATE TYPE status AS ENUM ('active', 'inactive');
-
-ALTER TYPE status OWNER TO dev_user;
 
 CREATE TABLE users 
 (
@@ -24,12 +20,9 @@ CREATE TABLE users
     manager_id   UUID,
     phone_no     VARCHAR(11),
     birthday     DATE,
-    created_at   TIMESTAMP,
-    updated_at   TIMESTAMP
+    created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at   TIMESTAMP NOT NULL DEFAULT NOW()
 );
-
-ALTER TABLE users
-    OWNER TO dev_user;
 
 CREATE TABLE students
 (
@@ -42,19 +35,16 @@ CREATE TABLE students
     user_id       UUID
         CONSTRAINT user_id
             REFERENCES users,
-    created_at    TIMESTAMP,
-    updated_at    TIMESTAMP
+    created_at    TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at    TIMESTAMP NOT NULL DEFAULT NOW()
 );
-
-ALTER TABLE students
-    OWNER TO dev_user;
 
 CREATE TABLE activities
 (
     activity_id UUID NOT NULL
         CONSTRAINT activity_id
             PRIMARY KEY,
-    occur_at    TIMESTAMP,
+    occur_at    TIMESTAMP NOT NULL DEFAULT NOW(),
     created_by  VARCHAR(50),
     action      VARCHAR(50),
     dest        VARCHAR(50),
@@ -62,12 +52,9 @@ CREATE TABLE activities
     user_id     UUID
         CONSTRAINT user_id
             REFERENCES users,
-    created_at  TIMESTAMP,
-    updated_at  TIMESTAMP
+    created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
 );
-
-ALTER TABLE activities
-    OWNER TO dev_user;
 
 CREATE TABLE exams
 (
@@ -78,13 +65,10 @@ CREATE TABLE exams
     answers    TEXT    NOT NULL,
     duration   INTEGER NOT NULL,
     library_id UUID    NOT NULL,
-    create_at  TIMESTAMP,
+    created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
     "publish " DATE    NOT NULL,
-    update_at  TIMESTAMP
+    updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
 );
-
-ALTER TABLE exams
-    OWNER TO dev_user;
 
 CREATE TABLE teachers
 (
@@ -96,12 +80,9 @@ CREATE TABLE teachers
             REFERENCES users,
     educational_level TEXT,
     rating            DOUBLE PRECISION,
-    created_at        TIMESTAMP,
-    updated_at        TIMESTAMP
+    created_at        TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at        TIMESTAMP NOT NULL DEFAULT NOW()
 );
-
-ALTER TABLE teachers
-    OWNER TO dev_user;
 
 CREATE TABLE assistant
 (
@@ -109,14 +90,11 @@ CREATE TABLE assistant
         CONSTRAINT teacher_id
             REFERENCES teachers,
     assistant_id UUID NOT NULL,
-    created_at   TIMESTAMP,
-    updated_at   TIMESTAMP,
+    created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at   TIMESTAMP NOT NULL DEFAULT NOW(),
     CONSTRAINT assistant_id
         PRIMARY KEY (teacher_id, assistant_id)
 );
-
-ALTER TABLE assistant
-    OWNER TO dev_user;
 
 CREATE TABLE libraries
 (
@@ -124,12 +102,9 @@ CREATE TABLE libraries
         CONSTRAINT library_id
             PRIMARY KEY,
     name       VARCHAR(50) NOT NULL,
-    create_at  TIMESTAMP,
-    update_at  TIMESTAMP
+    created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
 );
-
-ALTER TABLE libraries
-    OWNER TO dev_user;
 
 CREATE TABLE permissions
 (
@@ -141,12 +116,11 @@ CREATE TABLE permissions
     update      BOOLEAN,
     delete      BOOLEAN NOT NULL,
     resource_id UUID,
-    create_at   TIMESTAMP,
-    update_at   TIMESTAMP
+    created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at   TIMESTAMP NOT NULL DEFAULT NOW(),
+    CONSTRAINT permissions_id
+        PRIMARY KEY (user_id, resource_id)
 );
-
-ALTER TABLE permissions
-    OWNER TO dev_user;
 
 CREATE TABLE taking_exam
 (
@@ -158,14 +132,12 @@ CREATE TABLE taking_exam
             REFERENCES exams,
     score      NUMERIC NOT NULL,
     ranking    NUMERIC NOT NULL,
-    create_at  TIMESTAMP,
-    update_at  TIMESTAMP,
+    created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at  TIMESTAMP NOT NULL DEFAULT NOW(),
     CONSTRAINT taking_id
         PRIMARY KEY (student_id, exam_id)
 );
 
-ALTER TABLE taking_exam
-    OWNER TO dev_user;
 
 -- Down Migration
 DROP TABLE IF EXISTS taking_exam;
