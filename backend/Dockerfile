@@ -6,6 +6,7 @@ COPY bin /app/bin
 COPY src /app/src
 COPY package.json /app
 
-RUN npm install --frozen-lockfile --skip-integrity-check
+RUN npm install --production --frozen-lockfile --skip-integrity-check
+RUN npm run migrate:up
 
 CMD ["npm", "run", "start"]

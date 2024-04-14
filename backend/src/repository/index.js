@@ -9,9 +9,11 @@ const pool = new Pool({
     database: process.env.POSTGRES_DB || 'dev_learning_platform',
     password: process.env.POSTGRES_PASSWORD || 'secret',
     port: process.env.POSTGRES_PORT || 5432,
+    min: 20,
+    max: 100,
 });
 
-const getConn = () => {
+const getConn = async () => {
     return pool.connect();
 };
 
@@ -23,9 +25,8 @@ const execQuery = async (query, args) => {
 };
 
 class IRepo {
-    constructor() {
-        this._session = null;
-    }
+    TIMEOUT = 10_000;
+    constructor() { }
     /**
      * @typedef {object} QueryObject
      * @property {string} query - Query string
@@ -50,17 +51,29 @@ class IRepo {
     /**
      * Close repository
      */
-    close() {
-        this._session.release();
+    end() {
+        if (this._session) {
+            this._session.release();
+            this._session = null;
+        }
     }
     /**
      * Start transaction
+     * @returns {boolean} - Connection status
      */
     async begin() {
         try {
-            this._session = await getConn();
+            let startTime = Date.now();
+            while (!this._session) {
+                this._session = await getConn();
+                if (Date.now() - startTime > this.TIMEOUT) {
+                    throw new Error("Timeout when starting transaction");
+                }
+            }
+            return true;
         } catch (err) {
-            logger.error(err);
+            logger.debug(err);
+            return false
         }
     }
 }

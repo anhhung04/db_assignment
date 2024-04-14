@@ -1,0 +1,24 @@
+{
+    "testEnvironment": "node",
+    "setupFilesAfterEnv": [
+        "./jest.setup.js"
+    ],
+    "testPathIgnorePatterns": [
+        "<rootDir>/node_modules/"
+    ],
+    "coverageThreshold": {
+        "global": {
+            "statements": 82,
+            "branches": 82,
+            "functions": 82,
+            "lines": 82
+        }
+    },
+    "roots": [
+        "test"
+    ],
+    "testMatch": [
+        "**/*_test.js"
+    ],
+    "globalSetup": "./test_setup/global-setup.js"
+}

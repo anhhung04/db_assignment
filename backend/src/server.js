@@ -7,7 +7,7 @@ const process = require('node:process');
 const crypto = require('crypto');
 const expressJSDocSwagger = require('express-jsdoc-swagger');
 const cookieSecret = crypto.randomBytes(128).toString('base64');
-const { wrapResponse, STATUS_CODE } = require('./utils/response')
+const { wrapResponse, STATUS_CODE } = require('./utils/http')
 
 const redis = require('redis');
 const RedisStore = require('connect-redis').default;
@@ -62,7 +62,7 @@ expressJSDocSwagger(app)({
 
 app.use('/api', mainRoute);
 
-app.all('*', (req, res) => {
+app.all('*', (_, res) => {
     return wrapResponse(res, {
         code: STATUS_CODE.HTTP_404_NOT_FOUND,
         error: 'Resource not Found'

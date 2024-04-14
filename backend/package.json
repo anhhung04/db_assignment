@@ -3,7 +3,7 @@
     "start": "node bin/www",
     "dev": "nodemon bin/www",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
-    "test": "jest --runInBand --testMatch='**/*_test.js'",
+    "test": "jest --silent --forceExit --detectOpenHandles --ci --config ./jest.config.json",
     "migrate:up": "node-pg-migrate up",
     "migrate:down": "node-pg-migrate down",
     "migrate:redo": "node-pg-migrate redo",
@@ -13,6 +13,7 @@
   "version": "1.0.0",
   "license": "MIT",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "connect-redis": "^7.1.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
@@ -25,12 +26,15 @@
     "pg": "^8.11.5",
     "pino": "^8.20.0",
     "pino-pretty": "^11.0.0",
-    "redis": "^4.6.13"
+    "redis": "^4.6.13",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
+    "@faker-js/faker": "^8.4.1",
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
+    "docker-compose": "^0.24.8",
     "eslint": "^9.0.0",
     "eslint-plugin-jest": "^28.2.0",
     "globals": "^15.0.0",
