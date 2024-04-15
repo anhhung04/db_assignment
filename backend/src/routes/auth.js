@@ -26,7 +26,7 @@ router.use(async (req, _, next) => {
  */
 /**
  * WrapResponse
- * @typedef {object} WrapResponse
+ * @typedef {object} WrapResponseLogin
  * @property {number} status_code - HTTP status code
  * @property {string} message - Message to be response if exists
  * @property {LoginResponse} data - Express response object
@@ -35,7 +35,11 @@ router.use(async (req, _, next) => {
  * POST /api/auth/login
  * @summary Login route
  * @tags auth
- * @return {WrapResponse} 200 - success response - application/json
+ * @param {object} body.body.required - Login body
+ * @param {string} body.username - Username
+ * @param {string} body.email - Email
+ * @param {string} body.password.required - Password
+ * @return {WrapResponseLogin} 200 - success response - application/json
  * @example response - 200 - success response example
  * {
  *  "status_code": 200,
@@ -76,22 +80,32 @@ router.post('/login', async (req, res, next) => {
 });
 
 /**
- * Regis response
+ * Register response
  * @typedef {object} RegisterResponse
  * @property {Boolean} success - Register status
  */
 /**
  * WrapResponse
- * @typedef {object} WrapResponse
+ * @typedef {object} WrapResponseRegister
  * @property {number} status_code - HTTP status code
  * @property {string} message - Message to be response if exists
  * @property {RegisterResponse} data - Express response object
  */
 /**
- * POST /api/auth/login
+ * POST /api/auth/register
  * @summary Login route
  * @tags auth
- * @return {WrapResponse} 200 - success response - application/json
+ * @param {object} body.body.required - Register body
+ * @param {string} body.username.required - Username
+ * @param {string} body.password.required - Password
+ * @param {string} body.email.required - Email
+ * @param {string} body.phone_no.required - Phone number
+ * @param {string} body.address.required - Address
+ * @param {string} body.avatar_url.required - Avatar URL
+ * @param {string} body.birthday.required - Birthday
+ * @param {string} body.fname.required - First name
+ * @param {string} body.lname.required - Last name
+ * @return {WrapResponseRegister} 200 - success response - application/json
  * @example response - 200 - success response example
  * {
  *  "status_code": 200,
@@ -156,7 +170,7 @@ router.post('/register', async (req, res, next) => {
 });
 /**
  * WrapResponse
- * @typedef {object} WrapResponse
+ * @typedef {object} WrapResponseMe
  * @property {number} status_code - HTTP status code
  * @property {string} message - Message to be response if exists
  * @property {import("../typedef/user").User} data - Express response object
@@ -165,7 +179,7 @@ router.post('/register', async (req, res, next) => {
  * GET /api/auth/me
  * @summary Get current user
  * @tags auth
- * @return {WrapResponse} 200 - success response - application/json
+ * @return {WrapResponseMe} 200 - success response - application/json
  * @example response - 200 - success response example
  */
 router.get("/me", async (req, res, next) => {
