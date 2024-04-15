@@ -35,7 +35,7 @@ services:
     security_opt:
       - no-new-privileges:true
     volumes:
-      - /tmp/postgres_data:/var/lib/postgresql/data
+      - database_data:/var/lib/postgresql/data
   cloudflare_tunnel:
       image: cloudflare/cloudflared:latest
       command: tunnel --no-autoupdate run --token ${CF_TOKEN}
@@ -44,3 +44,5 @@ services:
         - CF_TOKEN
       depends_on:
         - proxy
+volumes:
+  database_data:
