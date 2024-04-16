@@ -60,7 +60,7 @@ class IService {
                                 userId: currentUser.id,
                                 resourceId: inputArgs.resourceId
                             });
-                            userRepo.close();
+                            userRepo.end();
                             if (error) {
                                 throw new Error(error);
                             }
