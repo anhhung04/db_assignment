@@ -26,7 +26,27 @@ const execQuery = async (query, args) => {
 
 class IRepo {
     TIMEOUT = 10_000;
+    IS_TRANSACTION = false;
     constructor() { }
+    /**
+     * Connect to database
+     * @returns {boolean} - Connection status
+     */
+    async connectToDB() {
+        try {
+            let startTime = Date.now();
+            while (!this._session) {
+                this._session = await getConn();
+                if (Date.now() - startTime > this.TIMEOUT) {
+                    throw new Error("Timeout when starting transaction");
+                }
+            }
+            return true;
+        } catch (err) {
+            logger.debug(err);
+            return false;
+        }
+    }
     /**
      * @typedef {object} QueryObject
      * @property {string} query - Query string
@@ -39,20 +59,31 @@ class IRepo {
      */
     async exec({ query, args }) {
         try {
-            if (!this._session) {
-                throw new Error("Session not found! Please start transaction first.");
+            if (!this.IS_TRANSACTION) {
+                return pool.query(query, args);
             }
-            return this._session.query(query, args);
+            try {
+                if (!this._session) {
+                    throw new Error("Transaction not started");
+                }
+                let result = await this._session.query(query, args);
+                await this._session.query('COMMIT');
+                return result;
+            } catch (err) {
+                await this._session.query('ROLLBACK');
+                throw err;
+            }
         } catch (err) {
             logger.error(err);
             return null;
         }
     }
     /**
-     * Close repository
+     * End transaction
      */
     end() {
         if (this._session) {
+            this.IS_TRANSACTION = false;
             this._session.release();
             this._session = null;
         }
@@ -63,17 +94,12 @@ class IRepo {
      */
     async begin() {
         try {
-            let startTime = Date.now();
-            while (!this._session) {
-                this._session = await getConn();
-                if (Date.now() - startTime > this.TIMEOUT) {
-                    throw new Error("Timeout when starting transaction");
-                }
-            }
+            this.IS_TRANSACTION = await this.connectToDB();
+            this._session.query('BEGIN');
             return true;
         } catch (err) {
             logger.debug(err);
-            return false
+            return false;
         }
     }
 }
@@ -81,5 +107,6 @@ class IRepo {
 module.exports = {
     getConn,
     execQuery,
-    IRepo
+    IRepo,
+    pool
 };

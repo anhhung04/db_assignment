@@ -11,20 +11,6 @@ class AuthService extends IService {
         super(request);
         this.userRepo = new UserRepo();
     }
-    /**
-     * Start service
-     * @returns {Promise<boolean>}
-     */
-    async start() {
-        return await super.start(this.userRepo);
-    }
-
-    /**
-     * Stop service
-     */
-    stop() {
-        super.stop(this.userRepo);
-    }
 
     /**
      * Login user

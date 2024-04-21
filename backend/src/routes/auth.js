@@ -3,17 +3,10 @@ const { AuthService } = require('../services/auth');
 const { wrapResponse, STATUS_CODE, saveSession } = require('../utils/http');
 const { HTTPException } = require('../utils/error');
 
-router.use(async (req, _, next) => {
-    req.authService = new AuthService(req);
+router.use(async (req, res, next) => {
     try {
-        let startSuccess = await req.authService.start();
-        if (!startSuccess) {
-            throw new HTTPException({
-                code: STATUS_CODE.HTTP_500_INTERNAL_SERVER_ERROR,
-                message: "Start service error",
-            });
-        }
-        next();
+        Object.assign(req, { authService: new AuthService(req) });
+        next()
     } catch (err) {
         next(err);
     }
