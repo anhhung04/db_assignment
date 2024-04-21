@@ -83,7 +83,7 @@ CREATE TABLE teachers
     updated_at        TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE assistant
+CREATE TABLE assistants
 (
     teacher_id   UUID NOT NULL
         CONSTRAINT teacher_id
@@ -142,7 +142,7 @@ CREATE TABLE taking_exam
 DROP TABLE IF EXISTS taking_exam;
 DROP TABLE IF EXISTS permissions;
 DROP TABLE IF EXISTS libraries;
-DROP TABLE IF EXISTS assistant;
+DROP TABLE IF EXISTS assistants;
 DROP TABLE IF EXISTS teachers;
 DROP TABLE IF EXISTS exams;
 DROP TABLE IF EXISTS activities;
