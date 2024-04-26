@@ -4,8 +4,8 @@ CREATE TYPE document_type AS ENUM ('book', 'dictionary', 'mock_test');
 CREATE TYPE ebook_type AS ENUM ('theory', 'practical');
 CREATE TYPE currency_type AS ENUM ('usd', 'vnd', 'eur');
 CREATE TYPE level_type AS ENUM ('A1', 'A2', 'B1', 'B2', 'C1', 'C2');
-CREATE TABLE courses
 
+CREATE TABLE courses
 (
     course_id   UUID NOT NULL
         CONSTRAINT course_pk
@@ -22,6 +22,7 @@ CREATE TABLE courses
     amount DOUBLE PRECISION,
     currency currency_type,
     title_slug VARCHAR(100)
+    num_of_students integer
 );
 
 ALTER TABLE exams
