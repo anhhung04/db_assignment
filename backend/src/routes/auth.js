@@ -2,6 +2,7 @@ const router = require('express').Router();
 const { AuthService } = require('../services/auth');
 const { wrapResponse, STATUS_CODE, saveSession } = require('../utils/http');
 const { HTTPException } = require('../utils/error');
+const { validate } = require('../utils/validate');
 
 router.use(async (req, res, next) => {
     try {
@@ -12,7 +13,11 @@ router.use(async (req, res, next) => {
     }
 });
 
-router.post('/login', async (req, res, next) => {
+router.post('/login', validate({
+    username: `optional=${JSON.stringify({ nullable: true })}&isString`,
+    email: `optional=${JSON.stringify({ nullable: true })}&isEmail`,
+    password: "not&isEmpty&isString"
+}), async (req, res, next) => {
     try {
         const { username, password, email } = req.body;
         /**
@@ -42,7 +47,18 @@ router.post('/login', async (req, res, next) => {
     }
 });
 
-router.post('/register', async (req, res, next) => {
+router.post('/register', validate({
+    username: "isString",
+    email: "isEmail",
+    password: "isString",
+    phone_no: "isString",
+    address: "isString",
+    avatar_url: `isString&optional=${JSON.stringify({ nullable: true })}`,
+    birthday: `isISO8601=${JSON.stringify('yyyy-mm-dd')}`,
+    fname: "isString",
+    lname: "isString"
+
+}), async (req, res, next) => {
     try {
         const {
             username,
