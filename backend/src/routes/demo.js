@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const { DemoService } = require("../services/demo");
-const { wrapResponse, STATUS_CODE, } = require('../utils/http');
+const { wrapResponse, STATUS_CODE } = require('../utils/http');
 
 router.use((req, _, next) => {
     req.service = new DemoService(req);
