@@ -29,12 +29,12 @@ CREATE TABLE students
     english_level VARCHAR(50),
     study_history VARCHAR(150),
     target        VARCHAR(30),
-    student_id    UUID NOT NULL
-        CONSTRAINT student_id
-            PRIMARY KEY,
-    user_id       UUID
+    user_id       UUID  NOT NULL
         CONSTRAINT user_id
-            REFERENCES users,
+            PRIMARY KEY
+                REFERENCES users
+                ON DELETE CASCADE
+                ON UPDATE CASCADE,
     created_at    TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at    TIMESTAMP NOT NULL DEFAULT NOW()
 );
@@ -45,11 +45,14 @@ CREATE TABLE activities
     activity_id SERIAL NOT NULL
         CONSTRAINT activity_id
             PRIMARY KEY,
-    occur_at  VARCHAR(50),
-    action      VARCHAR(100),
+    action      VARCHAR(200),
     resource_id        UUID,
-    note        VARCHAR(100),
-    activist_id     UUID,
+    note        TEXT,
+    activist_id     UUID
+        CONSTRAINT activist_id
+            REFERENCES users
+            ON DELETE CASCADE
+            ON UPDATE CASCADE,
     created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
 );
@@ -62,55 +65,57 @@ CREATE TABLE exams
     questions  TEXT    NOT NULL,
     answers    TEXT    NOT NULL,
     duration   INTEGER NOT NULL,
-    library_id UUID    NOT NULL,
+    course_id UUID    NOT NULL,
     created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
-    "publish" DATE    NOT NULL,
+    publish     DATE    NOT NULL,
     updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 
 CREATE TABLE teachers
 (
-    teacher_id        UUID NOT NULL
-        CONSTRAINT teacher_id
-            PRIMARY KEY,
     user_id           UUID NOT NULL
-        CONSTRAINT user_id
-            REFERENCES users,
-    educational_level TEXT,
+        CONSTRAINT teacher_id
+            PRIMARY KEY
+                REFERENCES users
+                ON DELETE CASCADE
+                ON UPDATE CASCADE,
+    educational_level VARCHAR(150),
     rating            DOUBLE PRECISION,
     created_at        TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at        TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE assistant
-(
-    teacher_id   UUID NOT NULL
-        CONSTRAINT teacher_id
-            REFERENCES teachers,
-    assistant_id UUID NOT NULL,
-    created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at   TIMESTAMP NOT NULL DEFAULT NOW(),
-    CONSTRAINT assistant_id
-        PRIMARY KEY (teacher_id, assistant_id)
-);
+-- CREATE TABLE assistants
+-- (
+--     teacher_id   UUID NOT NULL
+--         CONSTRAINT teacher_id
+--             REFERENCES teachers,
+--     assistant_id UUID NOT NULL,
+--     created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
+--     updated_at   TIMESTAMP NOT NULL DEFAULT NOW(),
+--     CONSTRAINT assistant_id
+--         PRIMARY KEY (teacher_id, assistant_id)
+-- );
 
-CREATE TABLE libraries
-(
-    library_id UUID        NOT NULL
-        CONSTRAINT library_id
-            PRIMARY KEY,
-    name       VARCHAR(50) NOT NULL,
-    created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
-);
+-- CREATE TABLE libraries
+-- (
+--     library_id UUID        NOT NULL
+--         CONSTRAINT library_id
+--             PRIMARY KEY,
+--     name       VARCHAR(50) NOT NULL,
+--     created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
+--     updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
+-- );
 
 
 CREATE TABLE permissions
 (
     user_id     UUID
-        CONSTRAINT user_id
-            REFERENCES users,
+        CONSTRAINT permission_id
+            REFERENCES users
+            ON DELETE CASCADE
+            ON UPDATE CASCADE,
     read        BOOLEAN DEFAULT FALSE,
     "create"    BOOLEAN DEFAULT FALSE,
     update      BOOLEAN DEFAULT FALSE,
@@ -124,25 +129,29 @@ CREATE TABLE permissions
 
 CREATE TABLE taking_exam
 (
-    student_id UUID    NOT NULL
+    user_id UUID    NOT NULL
         CONSTRAINT taking_exam_students_student_id_fk
-            REFERENCES students,
+            REFERENCES students
+            ON DELETE CASCADE
+            ON UPDATE CASCADE,
     exam_id    UUID    NOT NULL
         CONSTRAINT taking_exam_exams_exam_id_fk
-            REFERENCES exams,
+            REFERENCES exams
+            ON DELETE CASCADE
+            ON UPDATE CASCADE,
     score      NUMERIC NOT NULL,
     ranking    NUMERIC NOT NULL,
     created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at  TIMESTAMP NOT NULL DEFAULT NOW(),
     CONSTRAINT taking_id
-        PRIMARY KEY (student_id, exam_id)
+        PRIMARY KEY (user_id, exam_id)
 );
 
 -- Down Migration
 DROP TABLE IF EXISTS taking_exam;
 DROP TABLE IF EXISTS permissions;
 DROP TABLE IF EXISTS libraries;
-DROP TABLE IF EXISTS assistant;
+DROP TABLE IF EXISTS assistants;
 DROP TABLE IF EXISTS teachers;
 DROP TABLE IF EXISTS exams;
 DROP TABLE IF EXISTS activities;
