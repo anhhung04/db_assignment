@@ -1,5 +1,5 @@
 -- Up Migration
-CREATE TYPE account_type AS ENUM ('operator', 'teacher', 'student', 'user');
+CREATE TYPE account_type AS ENUM ('operator', 'teacher', 'student', 'user', 'admin');
 
 CREATE TYPE status AS ENUM ('active', 'inactive');
 
