@@ -5,6 +5,7 @@ const STATUS_CODE = Object.freeze({
     HTTP_400_BAD_REQUEST: 400,
     HTTP_401_UNAUTHORIZED: 401,
     HTTP_403_FORBIDDEN: 403,
+    HTTP_422_UNPROCESSABLE_ENTITY: 422
 });
 
 function wrapResponse(res, { code, message, error, data }) {
