@@ -13,7 +13,7 @@ CREATE TABLE courses
     title        VARCHAR(50),
     type        course_type,
     description VARCHAR(200),
-    rating      DOUBLE PRECISION,
+    rating      FLOAT,
     price    DECIMAL,
     level       level_type,
     thumbnail_url TEXT,
@@ -22,7 +22,7 @@ CREATE TABLE courses
     amount DOUBLE PRECISION NOT NULL,
     currency currency_type NOT NULL,
     title_slug VARCHAR(100) NOT NULL UNIQUE,
-    total_students integer NOT NULL DEFAULT 0,
+    total_students integer NOT NULL DEFAULT 0
 );
 
 -- ALTER TABLE exams
@@ -52,7 +52,7 @@ CREATE TABLE documents
     title        VARCHAR(200),
     material     VARCHAR(200),
     author       VARCHAR(50),
-    format       VARCHAR(50),s
+    format       VARCHAR(50),
     type         document_type,
     download_uri VARCHAR(200),
     course_id    UUID
@@ -95,7 +95,7 @@ CREATE TABLE videos
 -- DROP TABLE IF EXISTS ebooks;
 DROP TABLE IF EXISTS videos;
 DROP TABLE IF EXISTS documents;
-DROP TABLE IF EXISTS classes;
+-- DROP TABLE IF EXISTS classes;
 DROP TABLE IF EXISTS courses;
 
 DROP TYPE IF EXISTS ebook_type;

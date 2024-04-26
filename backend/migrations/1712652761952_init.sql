@@ -9,7 +9,7 @@ CREATE TABLE users
     password     VARCHAR(100) NOT NULL,
     fname        VARCHAR(100) NOT NULL,
     lname        VARCHAR(100) NOT NULL,
-    display_name VARCHAR(100) NOT NULL,
+    display_name VARCHAR(100) NOT NULL DEFAULT '',
     email        VARCHAR(100) NOT NULL,
     address      TEXT         NOT NULL,
     id           UUID         NOT NULL
