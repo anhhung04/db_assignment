@@ -12,13 +12,6 @@ class AuthService extends IService {
         this.userRepo = new UserRepo();
     }
 
-    /**
-     * Login user
-     * @param {Object} data
-     * @param {string} data.username
-     * @param {string} data.password
-     * @param {string} data.email
-     */
     async login({ username, password, email }) {
         const { user, error } = await this.userRepo.find({
             username,
@@ -33,20 +26,6 @@ class AuthService extends IService {
         delete user.password;
         return user;
     }
-    /**
-     * Register user
-     * @param {Object} data
-     * @param {string} data.username
-     * @param {string} data.password
-     * @param {string} data.email
-     * @param {string} data.phone_no
-     * @param {string} data.address
-     * @param {string} data.avatar_url
-     * @param {Date} data.birthday
-     * @param {string} data.fname
-     * @param {string} data.lname
-     * @returns {Promise<import("../typedef/user").User>}
-     */
     async register({
         username,
         password,

@@ -1,23 +1,11 @@
 const { IRepo } = require("./index");
 const logger = require("../utils/log");
-const { UUID } = require("../typedef/validator"); //eslint-disable-line no-unused-vars
 
 
 class ActivityRepo extends IRepo {
-    /**
-     * Initialize activity repository
-     */
     constructor() {
         super();
     }
-    /**
-     * 
-     * @param {UUID} param0.activistId
-     * @param {String} param0.action
-     * @param {UUID} param0.resourceId
-     * @param {String} param0.note
-     * @returns {Promise<{activity: import("../typedef/activity").Activity, error: Error}>}
-     */
     async create({ activistId, action, resourceId, note = "" }) {
         try {
             let results = await this.exec({
