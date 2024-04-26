@@ -30,7 +30,12 @@ CREATE TABLE students
     study_history VARCHAR(150),
     target        VARCHAR(30),
     user_id       UUID  NOT NULL
+    user_id       UUID  NOT NULL
         CONSTRAINT user_id
+            PRIMARY KEY
+                REFERENCES users
+                ON DELETE CASCADE
+                ON UPDATE CASCADE,
             PRIMARY KEY
                 REFERENCES users
                 ON DELETE CASCADE
@@ -46,7 +51,14 @@ CREATE TABLE activities
         CONSTRAINT activity_id
             PRIMARY KEY,
     action      VARCHAR(200),
+    action      VARCHAR(200),
     resource_id        UUID,
+    note        TEXT,
+    activist_id     UUID
+        CONSTRAINT activist_id
+            REFERENCES users
+            ON DELETE CASCADE
+            ON UPDATE CASCADE,
     note        TEXT,
     activist_id     UUID
         CONSTRAINT activist_id
@@ -66,7 +78,9 @@ CREATE TABLE exams
     answers    TEXT    NOT NULL,
     duration   INTEGER NOT NULL,
     course_id UUID    NOT NULL,
+    course_id UUID    NOT NULL,
     created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
+    publish     DATE    NOT NULL,
     publish     DATE    NOT NULL,
     updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
 );
@@ -97,7 +111,27 @@ CREATE TABLE teachers
 --     CONSTRAINT assistant_id
 --         PRIMARY KEY (teacher_id, assistant_id)
 -- );
+-- CREATE TABLE assistants
+-- (
+--     teacher_id   UUID NOT NULL
+--         CONSTRAINT teacher_id
+--             REFERENCES teachers,
+--     assistant_id UUID NOT NULL,
+--     created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
+--     updated_at   TIMESTAMP NOT NULL DEFAULT NOW(),
+--     CONSTRAINT assistant_id
+--         PRIMARY KEY (teacher_id, assistant_id)
+-- );
 
+-- CREATE TABLE libraries
+-- (
+--     library_id UUID        NOT NULL
+--         CONSTRAINT library_id
+--             PRIMARY KEY,
+--     name       VARCHAR(50) NOT NULL,
+--     created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
+--     updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
+-- );
 -- CREATE TABLE libraries
 -- (
 --     library_id UUID        NOT NULL
@@ -134,8 +168,14 @@ CREATE TABLE taking_exam
             REFERENCES students
             ON DELETE CASCADE
             ON UPDATE CASCADE,
+            REFERENCES students
+            ON DELETE CASCADE
+            ON UPDATE CASCADE,
     exam_id    UUID    NOT NULL
         CONSTRAINT taking_exam_exams_exam_id_fk
+            REFERENCES exams
+            ON DELETE CASCADE
+            ON UPDATE CASCADE,
             REFERENCES exams
             ON DELETE CASCADE
             ON UPDATE CASCADE,
@@ -151,6 +191,7 @@ CREATE TABLE taking_exam
 DROP TABLE IF EXISTS taking_exam;
 DROP TABLE IF EXISTS permissions;
 DROP TABLE IF EXISTS libraries;
+DROP TABLE IF EXISTS assistants;
 DROP TABLE IF EXISTS assistants;
 DROP TABLE IF EXISTS teachers;
 DROP TABLE IF EXISTS exams;
