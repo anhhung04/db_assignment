@@ -49,8 +49,7 @@ CREATE TABLE activities
     note        TEXT,
     activist_id     UUID
         CONSTRAINT activist_id
-            REFERENCES users
-            ON DELETE CASCADE,
+            REFERENCES users,
     created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
 );
