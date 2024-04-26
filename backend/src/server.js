@@ -5,7 +5,6 @@ const session = require('express-session');
 const cors = require('cors');
 const process = require('node:process');
 const crypto = require('crypto');
-const expressJSDocSwagger = require('express-jsdoc-swagger');
 const cookieSecret = crypto.randomBytes(128).toString('base64');
 const { wrapResponse, STATUS_CODE } = require('./utils/http')
 
@@ -40,25 +39,6 @@ app.use(session({
         prefix: 'session:',
     }),
 }));
-
-expressJSDocSwagger(app)({
-    info: {
-        version: '1.0.0',
-        title: 'API Documentation',
-        description: 'API Documentation',
-    },
-    filesPattern: './**/*.js',
-    baseDir: __dirname, //eslint-disable-line
-    security: {
-        CookieAuth: {
-            type: 'apiKey',
-            in: 'cookie',
-            name: 'connect.sid',
-        }
-    },
-    swaggerUIPath: '/api/docs',
-    
-})
 
 app.use('/api', mainRoute);
 

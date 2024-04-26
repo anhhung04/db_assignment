@@ -1,28 +1,15 @@
 const { IRepo } = require('./index');
-const { v4: uuidv4 } = require('uuid');
-const { UUID } = require("../typedef/validator");
+const { v4: uuidv4, validate } = require('uuid');
 const logger = require("../utils/log");
 const { convertObjectToFilterQuery, convertObjectToInsertQuery } = require("../utils/db");
 class UserRepo extends IRepo {
-    /** 
-     * Initialize user repository
-    */
     constructor() {
         super();
     }
-    /**
-     * @typedef {object} UserQueryResponse
-     * @property {import("../typedef/user").User} user - User object
-     * @property {Error} error - Error object
-     */
-    /**
-     * Find user by id
-     * @param {UUID} id
-     * @returns {Promise<UserQueryResponse>} - User object
-     */
+
     async findById(id) {
         try {
-            if (!(id instanceof UUID)) {
+            if (!validate(id)) {
                 throw new Error("Invalid user id");
             }
             let results = await this.exec({
@@ -79,17 +66,6 @@ class UserRepo extends IRepo {
         }
     }
 
-    /**
-     * @typedef {object} QueryPermission
-     * @property {UUID} userId - User id
-     * @property {UUID} resourceId - Resource id
-     * @property {string} actionType - Action type
-     */
-    /**
-     * Check user permissions
-     * @param {QueryPermission} param0
-     * @returns {Promise<Object>} - User permission
-     */
     async fetchUserPermissions({ userId, resourceId }) {
         try {
             let results = await this.exec({
@@ -119,10 +95,6 @@ class UserRepo extends IRepo {
             };
         }
     }
-    /**
-     * @param {Object} findObject
-     * @returns {Promise<UserQueryResponse>}
-     */
     async find(findObject) {
         try {
             let { filterQuery, args } = convertObjectToFilterQuery(findObject);
