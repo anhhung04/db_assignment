@@ -17,18 +17,25 @@ CREATE TABLE courses
     level       INTEGER
 );
 
-CREATE TABLE classes
-(
-    class_id   UUID NOT NULL
-        CONSTRAINT classes_pk
-            PRIMARY KEY,
-    course_id  UUID
-        CONSTRAINT classes_course_course_id_fk
+ALTER TABLE exams
+    ADD CONSTRAINT exams_course_id_fk
+        FOREIGN KEY (course_id)
             REFERENCES courses
-            ON UPDATE CASCADE ON DELETE CASCADE,
-    schedule   VARCHAR(200),
-    teacher_id UUID
-);
+            ON DELETE CASCADE
+            ON UPDATE CASCADE;
+
+-- CREATE TABLE classes
+-- (
+--     class_id   UUID NOT NULL
+--         CONSTRAINT classes_pk
+--             PRIMARY KEY,
+--     course_id  UUID
+--         CONSTRAINT classes_course_course_id_fk
+--             REFERENCES courses
+--             ON UPDATE CASCADE ON DELETE CASCADE,
+--     schedule   VARCHAR(200),
+--     teacher_id UUID
+-- );
 
 CREATE TABLE documents
 (
