@@ -21,7 +21,7 @@ CREATE TABLE courses
     content_info VARCHAR(20),
     amount DOUBLE PRECISION,
     currency currency_type,
-    title_slug VARCHAR(100)
+    title_slug VARCHAR(100),
     num_of_students integer
 );
 
