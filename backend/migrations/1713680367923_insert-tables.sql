@@ -2,19 +2,26 @@
 CREATE TYPE course_type AS ENUM ('ielts', 'toeic', 'communicate');
 CREATE TYPE document_type AS ENUM ('book', 'dictionary', 'mock_test');
 CREATE TYPE ebook_type AS ENUM ('theory', 'practical');
-
+CREATE TYPE currency_type AS ENUM ('usd', 'vnd', 'eur');
+CREATE TYPE level_type AS ENUM ('A1', 'A2', 'B1', 'B2', 'C1', 'C2');
 CREATE TABLE courses
 
 (
     course_id   UUID NOT NULL
         CONSTRAINT course_pk
             PRIMARY KEY,
-    name        VARCHAR(50),
+    title        VARCHAR(50),
     type        course_type,
     description VARCHAR(200),
     rating      DOUBLE PRECISION,
-    base_fee    DOUBLE PRECISION,
-    level       INTEGER
+    price    DECIMAL,
+    level       level_type,
+    thumbnail_url TEXT,
+    headline   VARCHAR(100),
+    content_info VARCHAR(20),
+    amount DOUBLE PRECISION,
+    currency currency_type,
+    title_slug VARCHAR(100),
 );
 
 ALTER TABLE exams
