@@ -33,8 +33,7 @@ CREATE TABLE students
         CONSTRAINT student_id
             PRIMARY KEY
                 REFERENCES users
-                ON DELETE CASCADE
-                ON UPDATE CASCADE,
+                ON DELETE CASCADE,
     created_at    TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at    TIMESTAMP NOT NULL DEFAULT NOW()
 );
@@ -51,24 +50,23 @@ CREATE TABLE activities
     activist_id     UUID
         CONSTRAINT activist_id
             REFERENCES users
-            ON DELETE CASCADE
-            ON UPDATE CASCADE,
+            ON DELETE CASCADE,
     created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE exams
-(
-    exam_id    UUID    NOT NULL
-        CONSTRAINT exam_id
-            PRIMARY KEY,
-    questions  TEXT    NOT NULL,
-    answers    TEXT    NOT NULL,
-    duration   INTEGER NOT NULL,
-    course_id UUID    NOT NULL,
-    created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
-);
+-- CREATE TABLE exams
+-- (
+--     exam_id    UUID    NOT NULL
+--         CONSTRAINT exam_id
+--             PRIMARY KEY,
+--     questions  TEXT    NOT NULL,
+--     answers    TEXT    NOT NULL,
+--     duration   INTEGER NOT NULL,
+--     course_id UUID    NOT NULL,
+--     created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
+--     updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
+-- );
 
 
 CREATE TABLE teachers
@@ -77,8 +75,7 @@ CREATE TABLE teachers
         CONSTRAINT teacher_id
             PRIMARY KEY
                 REFERENCES users
-                ON DELETE CASCADE
-                ON UPDATE CASCADE,
+                ON DELETE CASCADE,
     educational_level VARCHAR(150),
     rating            DOUBLE PRECISION,
     created_at        TIMESTAMP NOT NULL DEFAULT NOW(),
@@ -112,8 +109,7 @@ CREATE TABLE permissions
     user_id     UUID
         CONSTRAINT permission_id
             REFERENCES users
-            ON DELETE CASCADE
-            ON UPDATE CASCADE,
+            ON DELETE CASCADE,
     read        BOOLEAN DEFAULT FALSE,
     "create"    BOOLEAN DEFAULT FALSE,
     update      BOOLEAN DEFAULT FALSE,
@@ -125,25 +121,25 @@ CREATE TABLE permissions
         PRIMARY KEY (user_id, resource_id)
 );
 
-CREATE TABLE taking_exam
-(
-    user_id UUID    NOT NULL
-        CONSTRAINT taking_exam_students_student_id_fk
-            REFERENCES students
-            ON DELETE CASCADE
-            ON UPDATE CASCADE,
-    exam_id    UUID    NOT NULL
-        CONSTRAINT taking_exam_exams_exam_id_fk
-            REFERENCES exams
-            ON DELETE CASCADE
-            ON UPDATE CASCADE,
-    score      NUMERIC NOT NULL,
-    ranking    NUMERIC NOT NULL,
-    created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at  TIMESTAMP NOT NULL DEFAULT NOW(),
-    CONSTRAINT taking_id
-        PRIMARY KEY (user_id, exam_id)
-);
+-- CREATE TABLE taking_exam
+-- (
+--     user_id UUID    NOT NULL
+--         CONSTRAINT taking_exam_students_student_id_fk
+--             REFERENCES students
+--             ON DELETE CASCADE
+--             ON UPDATE CASCADE,
+--     exam_id    UUID    NOT NULL
+--         CONSTRAINT taking_exam_exams_exam_id_fk
+--             REFERENCES exams
+--             ON DELETE CASCADE
+--             ON UPDATE CASCADE,
+--     score      NUMERIC NOT NULL,
+--     ranking    NUMERIC NOT NULL,
+--     created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
+--     updated_at  TIMESTAMP NOT NULL DEFAULT NOW(),
+--     CONSTRAINT taking_id
+--         PRIMARY KEY (user_id, exam_id)
+-- );
 
 -- Down Migration
 DROP TABLE IF EXISTS taking_exam;

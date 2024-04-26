@@ -28,8 +28,7 @@ ALTER TABLE exams
     ADD CONSTRAINT exams_course_id_fk
         FOREIGN KEY (course_id)
             REFERENCES courses
-            ON DELETE CASCADE
-            ON UPDATE CASCADE;
+            ON DELETE CASCADE;
 
 -- CREATE TABLE classes
 -- (
@@ -58,7 +57,7 @@ CREATE TABLE documents
     course_id    UUID
         CONSTRAINT documents_course_course_id_fk
             REFERENCES courses
-            ON UPDATE CASCADE ON DELETE CASCADE
+            ON DELETE CASCADE
 );
 
 
@@ -75,7 +74,7 @@ CREATE TABLE videos
     course_id         UUID
         CONSTRAINT videos_course_id_fk
             REFERENCES courses
-            ON UPDATE CASCADE ON DELETE CASCADE
+            ON DELETE CASCADE
 );
 
 
@@ -88,7 +87,7 @@ CREATE TABLE ebooks
     course_id UUID
         CONSTRAINT ebooks_course_id_fk
             REFERENCES courses
-            ON UPDATE CASCADE ON DELETE CASCADE,
+            ON DELETE CASCADE,
     type       ebook_type
 );
 
