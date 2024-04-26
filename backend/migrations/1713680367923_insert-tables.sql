@@ -25,11 +25,11 @@ CREATE TABLE courses
     num_of_students integer
 );
 
-ALTER TABLE exams
-    ADD CONSTRAINT exams_course_id_fk
-        FOREIGN KEY (course_id)
-            REFERENCES courses
-            ON DELETE CASCADE;
+-- ALTER TABLE exams
+--     ADD CONSTRAINT exams_course_id_fk
+--         FOREIGN KEY (course_id)
+--             REFERENCES courses
+--             ON DELETE CASCADE;
 
 -- CREATE TABLE classes
 -- (
