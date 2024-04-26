@@ -5,10 +5,11 @@ CREATE TYPE status AS ENUM ('active', 'inactive');
 
 CREATE TABLE users
 (
-    username     TEXT         NOT NULL,
+    username     TEXT         NOT NULL UNIQUE,
     password     VARCHAR(100) NOT NULL,
     fname        VARCHAR(100) NOT NULL,
     lname        VARCHAR(100) NOT NULL,
+    display_name VARCHAR(100) NOT NULL,
     email        VARCHAR(100) NOT NULL,
     address      TEXT         NOT NULL,
     id           UUID         NOT NULL
@@ -44,7 +45,7 @@ CREATE TABLE activities
     activity_id SERIAL NOT NULL
         CONSTRAINT activity_id
             PRIMARY KEY,
-    action      VARCHAR(200),
+    action      VARCHAR(200)  NOT NULL,
     resource_id        UUID,
     note        TEXT,
     activist_id     UUID
@@ -143,11 +144,10 @@ CREATE TABLE permissions
 -- Down Migration
 DROP TABLE IF EXISTS taking_exam;
 DROP TABLE IF EXISTS permissions;
-DROP TABLE IF EXISTS libraries;
-DROP TABLE IF EXISTS assistants;
-DROP TABLE IF EXISTS assistants;
+-- DROP TABLE IF EXISTS libraries;
+-- DROP TABLE IF EXISTS assistants;
 DROP TABLE IF EXISTS teachers;
-DROP TABLE IF EXISTS exams;
+-- DROP TABLE IF EXISTS exams;
 DROP TABLE IF EXISTS activities;
 DROP TABLE IF EXISTS students;
 DROP TABLE IF EXISTS users;

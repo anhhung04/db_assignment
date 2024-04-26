@@ -17,12 +17,12 @@ CREATE TABLE courses
     price    DECIMAL,
     level       level_type,
     thumbnail_url TEXT,
-    headline   VARCHAR(100),
-    content_info VARCHAR(20),
-    amount DOUBLE PRECISION,
-    currency currency_type,
-    title_slug VARCHAR(100),
-    num_of_students integer
+    headline   VARCHAR(100)  ,
+    content_info VARCHAR(20) NOT NULL,
+    amount DOUBLE PRECISION NOT NULL,
+    currency currency_type NOT NULL,
+    title_slug VARCHAR(100) NOT NULL UNIQUE,
+    total_students integer NOT NULL DEFAULT 0,
 );
 
 -- ALTER TABLE exams
@@ -49,12 +49,12 @@ CREATE TABLE documents
     id           UUID NOT NULL
         CONSTRAINT documents_pk
             PRIMARY KEY,
-    title        VARCHAR(50),
+    title        VARCHAR(200),
     material     VARCHAR(200),
     author       VARCHAR(50),
-    format       VARCHAR(50),
+    format       VARCHAR(50),s
     type         document_type,
-    download_uri VARCHAR(100),
+    download_uri VARCHAR(200),
     course_id    UUID
         CONSTRAINT documents_course_course_id_fk
             REFERENCES courses
@@ -67,11 +67,10 @@ CREATE TABLE videos
     video_id          UUID NOT NULL
         CONSTRAINT video_id
             PRIMARY KEY,
-    title             VARCHAR,
-    description       VARCHAR,
-    timeline          VARCHAR,
-    duration          VARCHAR,
-    download_resource VARCHAR,
+    title             VARCHAR(150),
+    description       TEXT,
+    duration          INTEGER DEFAULT 0,
+    download_resource VARCHAR(200),
     course_id         UUID
         CONSTRAINT videos_course_id_fk
             REFERENCES courses
@@ -79,21 +78,21 @@ CREATE TABLE videos
 );
 
 
-CREATE TABLE ebooks
-(
-    book_id    UUID NOT NULL,
-    price      DOUBLE PRECISION,
-    title      VARCHAR,
-    version    VARCHAR,
-    course_id UUID
-        CONSTRAINT ebooks_course_id_fk
-            REFERENCES courses
-            ON DELETE CASCADE,
-    type       ebook_type
-);
+-- CREATE TABLE ebooks
+-- (
+--     book_id    UUID NOT NULL,
+--     price      DOUBLE PRECISION,
+--     title      VARCHAR,
+--     version    VARCHAR,
+--     course_id UUID
+--         CONSTRAINT ebooks_course_id_fk
+--             REFERENCES courses
+--             ON DELETE CASCADE,
+--     type       ebook_type
+-- );
 
 -- Down Migration
-DROP TABLE IF EXISTS ebooks;
+-- DROP TABLE IF EXISTS ebooks;
 DROP TABLE IF EXISTS videos;
 DROP TABLE IF EXISTS documents;
 DROP TABLE IF EXISTS classes;
