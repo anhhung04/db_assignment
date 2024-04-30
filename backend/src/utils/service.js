@@ -49,18 +49,16 @@ class IService {
                             userRole === UserRole.ADMIN
                             || !acl
                             || acl.indexOf(userRole) !== -1
-                            || currentUser.generalPermissions[inputArgs?.actionType] === true
+                            || currentUser?.generalPermissions[inputArgs?.actionType] === true
                         ) {
                             return originMethod.apply(target, args);
                         }
                         if (inputArgs.resourceId && inputArgs.actionType && currentUser.id) {
                             const userRepo = new UserRepo();
-                            await userRepo.begin();
                             const { permissions, error } = await userRepo.fetchUserPermissions({
                                 userId: currentUser.id,
                                 resourceId: inputArgs.resourceId
                             });
-                            userRepo.end();
                             if (error) {
                                 throw new Error(error);
                             }
