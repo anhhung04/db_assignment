@@ -23,7 +23,7 @@ CREATE TABLE courses
     amount DOUBLE PRECISION NOT NULL,
     currency currency_type NOT NULL,
     course_slug VARCHAR(100) NOT NULL UNIQUE,
-    access_times integer NOT NULL DEFAULT 0,
+    access_count integer NOT NULL DEFAULT 0,
     total_students integer NOT NULL DEFAULT 0
 );
 
