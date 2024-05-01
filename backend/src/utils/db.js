@@ -15,7 +15,16 @@ function convertObjectToInsertQuery(obj, startValue = 1) {
     return { columns, values, args };
 }
 
+function convertObjectToUpdateQuery(obj, startValue = 1) {
+    let props = Object.keys(obj);
+    props = props.filter(prop => obj[prop]);
+    let updateQuery = props.map((prop, index) => `${prop} = $${startValue + index}`).join(", ");
+    let args = props.map(prop => obj[prop]);
+    return { updateQuery, args };
+}
+
 module.exports = {
     convertObjectToFilterQuery,
-    convertObjectToInsertQuery
+    convertObjectToInsertQuery,
+    convertObjectToUpdateQuery
 };
