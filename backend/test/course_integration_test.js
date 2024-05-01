@@ -88,3 +88,88 @@ describe("Test course service", () => {
         });
     });
 });
+
+
+describe("Test lesssons service", () => {
+    let agent = request.agent(app);
+    let courseId = "";
+    let courseSlug = "";
+    test("It should login as teacher", async () => {
+        await agent.post('/api/auth/login').send({
+            username: "user1",
+            password: "demo"
+        }).expect(200);
+    });
+    test("It should create new course", async () => {
+        await agent.post('/api/course').send({
+            title: faker.lorem.words(),
+            type: ["free", "paid"][Math.floor(Math.random() * 2)],
+            description: faker.lorem.sentence(),
+            level: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'][Math.floor(Math.random() * 6)],
+            thumbnail_url: faker.image.url(),
+            headline: faker.lorem.sentence(),
+            content_info: ["ielts", "toeic", "communicate"][Math.floor(Math.random() * 3)],
+            amount_price: (Math.random() * 1000).toFixed(2),
+            currency: "usd"
+        }).expect(201).expect((res) => {
+            courseId = res.body.data.course_id;
+            courseSlug = res.body.data.course_slug;
+        });
+    });
+
+    test("It should create new lesson using course id", async () => {
+        await agent.post(`/api/course/${courseId}/lesson`).send({
+            title: faker.lorem.words(),
+            description: faker.lorem.sentence(),
+        }).expect(201).expect((res) => {
+            expect(res.body).toEqual({
+                status_code: 201,
+                message: "Lesson created successfully",
+                data: expect.any(Object)
+            });
+        });
+    });
+
+    test("It should list lessons using course id", async () => {
+        await agent.get(`/api/course/${courseId}/lesson`).expect(200).expect((res) => {
+            expect(res.body).toEqual({
+                status_code: 200,
+                message: "Lessons fetched successfully",
+                data: expect.any(Array)
+            });
+        });
+    });
+
+    test("It should list lessons using course slug", async () => {
+        await agent.get(`/api/course/${courseSlug}/lesson`).expect(200).expect((res) => {
+            expect(res.body).toEqual({
+                status_code: 200,
+                message: "Lessons fetched successfully",
+                data: expect.any(Array)
+            });
+        });
+    });
+
+    let lessonId = "";
+    test("It should create new lesson using course id", async () => {
+        await agent.post(`/api/course/${courseId}/lesson`).send({
+            title: faker.lorem.words(),
+            description: faker.lorem.sentence(),
+        }).expect(201).expect((res) => {
+            lessonId = res.body.data.id;
+        });
+    });
+
+    test("It should update lesson", async () => {
+        await agent.patch(`/api/course/lesson/${lessonId}`).send({
+            title: faker.lorem.words(),
+            description: faker.lorem.sentence(),
+        }).expect(200).expect((res) => {
+            expect(res.body).toEqual({
+                status_code: 200,
+                message: "Lesson updated successfully",
+                data: expect.any(Object)
+            });
+        });
+    });
+});

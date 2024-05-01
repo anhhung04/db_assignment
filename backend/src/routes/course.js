@@ -4,6 +4,7 @@ const { CourseService } = require('../services/course');
 const { wrapResponse, STATUS_CODE } = require("../utils/http");
 const { validate: isUUID } = require("uuid");
 const { UserRole, ActionType } = require("../utils/service");
+const { acl } = require('superagent');
 router.use(async (req, res, next) => {
     req.service = new CourseService(req);
     next();
@@ -39,7 +40,10 @@ router.get("/search", validate({
 
 router.get("/:id", async (req, res) => {
     let isSlug = !isUUID(String(req.params.id));
-    const course = await req.service.findCourse(String(req.params.id), isSlug);
+    const course = await req.service.findCourse({
+        id: String(req.params.id),
+        isSlug
+    });
     return wrapResponse(res, {
         code: STATUS_CODE.HTTP_200_OK,
         message: "Course fetched successfully",
@@ -70,15 +74,17 @@ router.post("/", validate({
         currency
     } = req.body;
     const course = await req.service.createCourse({
-        title,
-        type,
-        description,
-        level,
-        thumbnail_url,
-        headline,
-        content_info,
-        amount_price,
-        currency,
+        courseData: {
+            title,
+            type,
+            description,
+            level,
+            thumbnail_url,
+            headline,
+            content_info,
+            amount_price,
+            currency,
+        },
         acl: [UserRole.TEACHER]
     });
     return wrapResponse(res, {
@@ -115,15 +121,18 @@ router.patch("/:id", validate({
         currency
     } = req.body;
     let courseId = String(req.params.id);
-    const course = await req.service.updateCourse(courseId, {
-        type,
-        description,
-        level,
-        thumbnail_url,
-        headline,
-        content_info,
-        amount_price,
-        currency,
+    const course = await req.service.updateCourse({
+        courseId,
+        updateObj: {
+            type,
+            description,
+            level,
+            thumbnail_url,
+            headline,
+            content_info,
+            amount_price,
+            currency,
+        },
         resourceId: courseId,
         actionType: ActionType.UPDATE
     });
@@ -131,6 +140,75 @@ router.patch("/:id", validate({
         code: STATUS_CODE.HTTP_200_OK,
         message: "Course updated successfully",
         data: course
+    });
+});
+
+router.get("/:id/lesson", async (req, res) => {
+    let { id } = req.params;
+    id = String(id);
+    let isSlug = !isUUID(id);
+    const lessons = await req.service.listLessons({ courseId: id, isSlug });
+    return wrapResponse(res, {
+        code: STATUS_CODE.HTTP_200_OK,
+        message: "Lessons fetched successfully",
+        data: lessons
+    });
+});
+
+router.post("/:id/lesson", validate({
+    title: "isString",
+    description: "isString",
+}), async (req, res) => {
+    let { id } = req.params;
+    if (!isUUID(id)) {
+        return wrapResponse(res, {
+            code: STATUS_CODE.HTTP_400_BAD_REQUEST,
+            message: "Invalid course id"
+        });
+    }
+    id = String(id);
+    let { title, description } = req.body;
+    const lesson = await req.service.createLesson({
+        courseId: id,
+        lessonData: {
+            title,
+            description,
+        },
+        resourceId: id,
+        actionType: ActionType.UPDATE
+    });
+    return wrapResponse(res, {
+        code: STATUS_CODE.HTTP_201_CREATED,
+        message: "Lesson created successfully",
+        data: lesson
+    });
+});
+
+router.patch("/lesson/:lessonId", validate({
+    title: `isString&optional=${JSON.stringify({ nullable: true })}`,
+    description: `isString&optional=${JSON.stringify({ nullable: true })}`,
+}), async (req, res) => {
+    let { lessonId } = req.params;
+    if (!isUUID(lessonId)) {
+        return wrapResponse(res, {
+            code: STATUS_CODE.HTTP_400_BAD_REQUEST,
+            message: "Invalid lesson id"
+        });
+    }
+    let { title, description } = req.body;
+    const lesson = await req.service.updateLesson({
+        lessonId,
+        updateObj: {
+            title,
+            description,
+        },
+        resourceId: lessonId,
+        actionType: ActionType.UPDATE
+    });
+    return wrapResponse(res, {
+        code: STATUS_CODE.HTTP_200_OK,
+        message: "Lesson updated successfully",
+        data: lesson
     });
 });
 

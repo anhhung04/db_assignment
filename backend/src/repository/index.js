@@ -127,11 +127,17 @@ class IRepo {
                 `;
                 args = [userId, resourceId];
             }
-            let results = this.exec({ query, args });
-            return results.rows[0];
+            let results = await this.exec({ query, args });
+            return {
+                permissions: results.rows[0],
+                error: null
+            }
         } catch (err) {
             logger.error(err);
-            return null;
+            return {
+                permissions: null,
+                error: err
+            }
         }
     }
 }

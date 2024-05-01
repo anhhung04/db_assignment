@@ -54,7 +54,7 @@ CREATE TABLE lessons
     title       VARCHAR(100)            NOT NULL,
     created_at  TIMESTAMP DEFAULT NOW() NOT NULL,
     updated_at  TIMESTAMP DEFAULT NOW() NOT NULL,
-    courseid    UUID
+    course_id    UUID
         CONSTRAINT lessons_courses_course_id_fk
             REFERENCES courses
             ON DELETE CASCADE

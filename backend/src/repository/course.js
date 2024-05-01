@@ -14,7 +14,7 @@ class CourseRepo extends IRepo {
         try {
             const { filterQuery, args } = convertObjectToFilterQuery(getObj);
             const result = await this.exec({
-                query: `SELECT * FROM course WHERE ${filterQuery}`,
+                query: `SELECT * FROM courses WHERE ${filterQuery};`,
                 args
             });
             if (result.rows?.length !== 1) {
@@ -124,6 +124,91 @@ class CourseRepo extends IRepo {
                 error: err
             };
         }
+    }
+
+    async findLessons(courseId, filterObj = null) {
+        try {
+            let filterBuilder = "course_id = $1";
+            let argsBuilder = [courseId];
+            if (filterObj) {
+                let { filterQuery, args } = convertObjectToFilterQuery(filterObj, 2);
+                filterBuilder = `${filterBuilder} AND ${filterQuery}`;
+                argsBuilder = [...argsBuilder, ...args];
+            }
+            const result = await this.exec({
+                query: `
+                    SELECT * FROM lessons
+                    WHERE ${filterBuilder}
+                `,
+                args: argsBuilder
+            });
+            return {
+                lessons: result.rows,
+                error: null
+            };
+        } catch (err) {
+            logger.debug(err);
+            return {
+                lessons: [],
+                error: err
+            };
+        }
+    }
+
+    async createLesson(newObj) {
+        let { columns, values, args } = convertObjectToInsertQuery(newObj);
+        try {
+            const result = await this.exec({
+                query: `
+                    INSERT INTO lessons (${columns})
+                    VALUES (${values})
+                    RETURNING *;
+                `,
+                args
+            });
+            if (result.rows?.length !== 1) {
+                return {
+                    lesson: null,
+                    error: "Lesson not created"
+                };
+            }
+            return {
+                lesson: result.rows[0],
+                error: null
+            };
+        } catch (err) {
+            logger.debug(err);
+            return {
+                lesson: null,
+                error: err
+            };
+        }
+    }
+
+    async updateLesson(lessonId, updateObj) {
+        try {
+            let { updateQuery, args } = convertObjectToUpdateQuery(updateObj, 2);
+            const result = await this.exec({
+                query: `
+                    UPDATE lessons
+                    SET ${updateQuery}
+                    WHERE id = $1
+                    RETURNING *;
+                `,
+                args: [lessonId, ...args]
+            });
+            return {
+                lesson: result.rows[0],
+                error: null
+            };
+        } catch (err) {
+            logger.debug(err);
+            return {
+                lesson: null,
+                error: err
+            };
+        }
+
     }
 }
 
