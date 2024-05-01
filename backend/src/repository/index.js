@@ -102,6 +102,38 @@ class IRepo {
             return false;
         }
     }
+
+    async modifyPermission({ userId, resourceId, permissions, newPermissions = true }) {
+        try {
+            let query = "", args = [];
+            if (newPermissions) {
+                query = `
+                    INSERT INTO permissions (user_id, resource_id, "create", "read", "update", "delete")
+                    VALUES ($1, $2, $3, $4, $5, $6)
+                    RETURNING *;
+                `;
+                args = [userId, resourceId, permissions.create, permissions.read, permissions.update, permissions.delete];
+            }
+            else {
+                let setBuilder = [];
+                for (let prop in permissions) {
+                    setBuilder.push(`"${prop}" = ${permissions[prop]}`);
+                }
+                query = `
+                    UPDATE permissions
+                    SET ${setBuilder.join(",")}
+                    WHERE user_id = $1 AND resource_id = $2
+                    RETURNING *;
+                `;
+                args = [userId, resourceId];
+            }
+            let results = this.exec({ query, args });
+            return results.rows[0];
+        } catch (err) {
+            logger.error(err);
+            return null;
+        }
+    }
 }
 
 module.exports = {
