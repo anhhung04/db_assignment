@@ -24,7 +24,7 @@ class CourseRepo extends IRepo {
             };
         } catch (err) {
             return {
-                courses: null,
+                course: null,
                 error: err
             };
         }
