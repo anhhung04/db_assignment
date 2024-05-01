@@ -46,6 +46,7 @@ class UserRepo extends IRepo {
                     password: row.password,
                     firstName: row.fname,
                     lastName: row.lname,
+                    displayName: row.display_name,
                     generalPermissions: {
                         read: row.read,
                         create: row.create,
@@ -140,6 +141,13 @@ class UserRepo extends IRepo {
                 throw new Error("Query database error");
             }
             let userId = results.rows[0].id;
+            await this.exec({
+                query: `
+                    INSERT INTO permissions(user_id, resource_id, "read", "create", "delete", "update")
+                    VALUES($1, '00000000-0000-0000-0000-000000000000', false, false, false, false);
+                `,
+                args: [userId]
+            });
             return this.findById(userId);
         } catch (err) {
             logger.debug(err);
@@ -148,6 +156,30 @@ class UserRepo extends IRepo {
                 error: err
             };
         }
+    }
+
+    async createUserType({ userId, userType, typeData }) {
+        let { columns, values, args } = convertObjectToInsertQuery(typeData, 2);
+        try {
+            await this.exec({
+                query: `
+                    INSERT INTO ${userType}(user_id, ${columns})
+                    VALUES($1, ${values});
+                `,
+                args: [userId, ...args]
+            });
+            return {
+                success: true,
+                error: null
+            };
+        } catch (err) {
+            logger.debug(err);
+            return {
+                success: false,
+                error: err
+            };
+        }
+
     }
 }
 

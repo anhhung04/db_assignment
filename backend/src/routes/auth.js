@@ -51,12 +51,21 @@ router.post('/register', validate({
     username: "isString",
     email: "isEmail",
     password: "isString",
-    phone_no: "isString",
+    phoneNo: "isString",
     address: "isString",
-    avatar_url: `isString&optional=${JSON.stringify({ nullable: true })}`,
+    avatarUrl: `isString&optional=${JSON.stringify({ nullable: true })}`,
     birthday: `isISO8601=${JSON.stringify('yyyy-mm-dd')}`,
     fname: "isString",
-    lname: "isString"
+    lname: "isString",
+    isTeacher: "isBoolean",
+    teacherInfo: {
+        educational_level: `isString&optional=${JSON.stringify({ nullable: true })}`,
+    },
+    studentInfo: {
+        study_history: `isString&optional=${JSON.stringify({ nullable: true })}`,
+        english_level: `isString&optional=${JSON.stringify({ nullable: true })}`,
+        target: `isString&optional=${JSON.stringify({ nullable: true })}`,
+    }
 
 }), async (req, res, next) => {
     try {
@@ -66,11 +75,24 @@ router.post('/register', validate({
             email,
             phone_no,
             address,
-            avatar_url,
+            avatarUrl: avatar_url,
             birthday,
             fname,
             lname
         } = req.body;
+        let isTeacher = req.body.isTeacher;
+        let data = {};
+        if (isTeacher) {
+            data = {
+                educational_level: req.body.teacherInfo.educational_level
+            };
+        } else {
+            data = {
+                study_history: req.body.studentInfo.study_history,
+                english_level: req.body.studentInfo.english_level,
+                target: req.body.studentInfo.target
+            };
+        }
         /**
          * @type {AuthService}
          */
@@ -84,7 +106,9 @@ router.post('/register', validate({
             avatar_url,
             birthday,
             fname,
-            lname
+            lname,
+            isTeacher,
+            data
         });
         if (!user) {
             throw new HTTPException({
