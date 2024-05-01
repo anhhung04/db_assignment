@@ -10,7 +10,7 @@ CREATE TABLE users
     fname        VARCHAR(100) NOT NULL,
     lname        VARCHAR(100) NOT NULL,
     display_name VARCHAR(100) NOT NULL DEFAULT '',
-    email        VARCHAR(100) NOT NULL,
+    email        VARCHAR(100) NOT NULL UNIQUE,
     address      TEXT         NOT NULL,
     id           UUID         NOT NULL
         CONSTRAINT id
@@ -18,7 +18,6 @@ CREATE TABLE users
     avatar_url   TEXT,
     account_type account_type NOT NULL,
     status       status       NOT NULL,
-    manager_id   UUID,
     phone_no     VARCHAR(11),
     birthday     DATE,
     created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
@@ -45,14 +44,12 @@ CREATE TABLE activities
     activity_id SERIAL NOT NULL
         CONSTRAINT activity_id
             PRIMARY KEY,
-    action      VARCHAR(200)  NOT NULL,
-    resource_id        UUID,
-    note        TEXT,
-    activist_id     UUID
-        CONSTRAINT activist_id
-            REFERENCES users,
-    created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
+    action          VARCHAR(200)  NOT NULL,
+    resource_id     UUID,
+    note            TEXT,
+    activist_id     UUID,
+    created_at      TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 -- CREATE TABLE exams
