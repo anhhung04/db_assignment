@@ -35,7 +35,9 @@ class AuthService extends IService {
         avatar_url,
         birthday,
         fname,
-        lname
+        lname,
+        isTeacher,
+        data
     }) {
         const { user, error } = await this.userRepo.create({
             username,
@@ -46,10 +48,19 @@ class AuthService extends IService {
             avatar_url,
             birthday,
             fname,
-            lname
+            lname,
+            display_name: `${fname} ${lname}`
         });
         if (error) {
             throw new Error(error);
+        }
+        let { error: err } = await this.userRepo.createUserType({
+            userId: user.id,
+            userType: isTeacher ? "teachers" : "students",
+            typeData: data
+        });
+        if (err) {
+            throw new Error(err);
         }
         return user;
     }

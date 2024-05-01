@@ -26,8 +26,8 @@ afterEach(async () => {
 
 afterAll(async () => {
     await pool.end();
-    await downAll({
-        cwd: __dirname + '/test_setup',
-        log: true
-    });
+    // await downAll({
+    //     cwd: __dirname + '/test_setup',
+    //     log: true
+    // });
 });
