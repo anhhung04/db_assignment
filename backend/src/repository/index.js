@@ -1,7 +1,6 @@
 const { Pool } = require('pg');
 const logger = require('../utils/log');
 const process = require('node:process');
-const { P } = require('pino');
 require('dotenv').config();
 
 const pool = new Pool({
