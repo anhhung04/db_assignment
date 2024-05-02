@@ -4,7 +4,6 @@ const { CourseService } = require('../services/course');
 const { wrapResponse, STATUS_CODE } = require("../utils/http");
 const { validate: isUUID } = require("uuid");
 const { UserRole, ActionType } = require("../utils/service");
-const { acl } = require('superagent');
 router.use(async (req, res, next) => {
     req.service = new CourseService(req);
     next();

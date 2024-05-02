@@ -15,6 +15,7 @@ class ResourceService extends IService {
             throw new Error(error);
         }
         let permissions = await this.userRepo.fetchUserPermissions({ userId, resourceId: video.course_id });
+        return permissions
     }
 }
 
