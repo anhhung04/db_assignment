@@ -60,6 +60,16 @@ class CourseService extends IService {
             table: "lessons",
             findObj: { course_id: courseId }
         });
+        for (let i = 0; i < lessons.length; i++) {
+            let { rows: resources, error: err } = await this._courseRepo.findInTable({
+                table: "lesson_resources",
+                findObj: { lesson_id: lessons[i].id }
+            });
+            if (err) {
+                throw new Error(err);
+            }
+            lessons[i].resources = resources;
+        }
         if (error) {
             throw new Error(error);
         }

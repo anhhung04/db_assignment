@@ -4,7 +4,7 @@ CREATE TYPE ebook_type AS ENUM ('theory', 'practical');
 CREATE TYPE currency_type AS ENUM ('usd', 'vnd', 'eur');
 CREATE TYPE course_type AS ENUM ('free', 'paid');
 CREATE TYPE level_type AS ENUM ('A1', 'A2', 'B1', 'B2', 'C1', 'C2');
-CREATE TYPE resource_type as ENUM ('video', 'document');
+CREATE TYPE resource_type as ENUM ('videos', 'documents');
 
 CREATE TABLE courses
 (

@@ -21,7 +21,7 @@ class ResourceRepo extends IRepo {
                 WHERE learning_resources.id = $1
             `;
             let args = [id];
-            let result = await this._session.query(query, args);
+            let result = await this.exec({ query, args });
             if (result.rows.length !== 1) {
                 return null;
             }
@@ -49,7 +49,7 @@ class ResourceRepo extends IRepo {
                 WHERE lr.resource_id = $2
             `;
             let args = [userId, resourceId];
-            let result = await this._session.query(query, args);
+            let result = await this.exec({ query, args });
             return {
                 access: result.rows.length >= 1,
                 error: null
