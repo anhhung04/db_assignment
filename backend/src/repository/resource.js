@@ -18,7 +18,7 @@ class ResourceRepo extends IRepo {
                 SELECT *
                 FROM learning_resources
                 JOIN ${table} ON learning_resources.id = ${table}.id
-                WHERE learning_resources.id = $1
+                WHERE learning_resources.id = $1;
             `;
             let args = [id];
             let result = await this.exec({ query, args });
@@ -50,17 +50,11 @@ class ResourceRepo extends IRepo {
             `;
             let args = [userId, resourceId];
             let result = await this.exec({ query, args });
-            return {
-                access: result.rows.length >= 1,
-                error: null
-            };
+            return result.rows.length >= 1
         }
         catch (err) {
             logger.error(err);
-            return {
-                access: false,
-                error: err
-            };
+            return false
         }
     }
 }

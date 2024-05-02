@@ -10,7 +10,7 @@ class ResourceService extends IService {
     }
 
     async fetchResource({ id, type }) {
-        let { permissions, error } = this.userRepo.fetchUserPermissions({
+        let { permissions, error } = await this.userRepo.fetchUserPermissions({
             userId: this._currentUser.id,
             resourceId: id
         });
@@ -70,6 +70,17 @@ class ResourceService extends IService {
         if (lessonResourceError) {
             throw new Error("Failed to create resource");
         }
+
+        await this.resourceRepo.modifyPermission({
+            userId: this._currentUser.id,
+            resourceId: learningResource.id,
+            permissions: {
+                read: true,
+                create: true,
+                delete: true,
+                update: true
+            }, newPermissions: true
+        });
         return row;
     }
 }
