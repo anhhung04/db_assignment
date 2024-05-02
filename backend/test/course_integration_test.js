@@ -173,3 +173,53 @@ describe("Test lesssons service", () => {
         });
     });
 });
+
+describe("Test student course service", () => {
+    let agent = request.agent(app);
+    let courseId = "";
+    let courseSlug = "";
+    test("It should login as student", async () => {
+        await agent.post('/api/auth/login').send({
+            username: "user2",
+            password: "demo"
+        }).expect(200);
+    });
+
+    test("It should list courses", async () => {
+        await agent.get('/api/course').expect(200).expect((res) => {
+            expect(res.body).toEqual({
+                status_code: 200,
+                message: "Courses fetched successfully",
+                data: expect.any(Array)
+            });
+        });
+    });
+
+    test("It should find course by slug", async () => {
+        let course = {};
+        await agent.get('/api/course').expect(200).expect((res) => {
+            course = res.body.data[0];
+        });
+        await agent.get(`/api/course/${course.course_slug}`).expect(200).expect((res) => {
+            expect(res.body).toEqual({
+                status_code: 200,
+                message: "Course fetched successfully",
+                data: expect.any(Object)
+            });
+        });
+    });
+
+    test("It should find course by id", async () => {
+        let course = {};
+        await agent.get('/api/course').expect(200).expect((res) => {
+            course = res.body.data[0];
+        });
+        await agent.get(`/api/course/${course.course_id}`).expect(200).expect((res) => {
+            expect(res.body).toEqual({
+                status_code: 200,
+                message: "Course fetched successfully",
+                data: expect.any(Object)
+            });
+        });
+    });
+});

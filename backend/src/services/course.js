@@ -199,6 +199,81 @@ class CourseService extends IService {
         }
         return courses;
     };
+
+    async createCourseReview({
+        courseId,
+        reviewData: {
+            rating,
+            comment
+        }, isSlug
+    }) {
+        let studentBoughtCourses = await this._courseRepo.findStudentCourses({
+            studentId: this._currentUser.id
+        });
+        let course;
+        course = studentBoughtCourses.find(c => {
+            if (isSlug) {
+                return c.course_slug === courseId;
+            }
+            return c.course_id === courseId;
+        });
+        if (!course) {
+            throw new Error("You have not bought this course");
+        }
+
+        let { row: review, error } = await this._courseRepo.createInTable({
+            table: "reviews",
+            createObj: {
+                rating,
+                comment,
+                course_id: course.course_id,
+                student_id: this._currentUser.id
+            }
+        });
+
+        if (error) {
+            throw new Error(error);
+        }
+        return review;
+    }
+
+    async joinCourse({ courseId, isSlug }) {
+        let course;
+        if (isSlug) {
+            course = await this._courseRepo.findOneInTable({
+                table: "courses",
+                findObj: { course_slug: courseId }
+            });
+            if (course.error) {
+                throw new Error(course.error);
+            }
+            course = course.row;
+        } else {
+            course = await this._courseRepo.findOneInTable({
+                table: "courses",
+                findObj: { course_id: courseId }
+            });
+            if (course.error) {
+                throw new Error(course.error);
+            }
+            course = course.row;
+        }
+
+        let { row: join, error } = await this._courseRepo.createInTable({
+            table: "students_join_course",
+            createObj: {
+                course_id: course.course_id,
+                student_id: this._currentUser.id,
+                current_price: course.amount_price,
+            }
+        });
+
+        if (error) {
+            throw new Error(error);
+        }
+        return join;
+
+    }
 }
 
 module.exports = {

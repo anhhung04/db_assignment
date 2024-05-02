@@ -211,4 +211,44 @@ router.patch("/lesson/:lessonId", validate({
     });
 });
 
+router.post("/:id/review", validate({
+    comment: "isString",
+    rating: "isNumeric"
+}), async (req, res) => {
+    let { id } = req.params;
+    id = String(id);
+    let isSlug = !isUUID(id);
+    let { comment, rating } = req.body;
+    const review = await req.service.createCourseReview({
+        courseId: id,
+        reviewData: {
+            comment,
+            rating
+        },
+        isSlug,
+        acl: [UserRole.STUDENT]
+    });
+    return wrapResponse(res, {
+        code: STATUS_CODE.HTTP_201_CREATED,
+        message: "Review created successfully",
+        data: review
+    });
+});
+
+router.get("/:id/join", async (req, res) => {
+    let { id } = req.params;
+    id = String(id);
+    let isSlug = !isUUID(id);
+    const reviews = await req.service.joinCourse({
+        courseId: id,
+        isSlug,
+        acl: [UserRole.STUDENT]
+    });
+    return wrapResponse(res, {
+        code: STATUS_CODE.HTTP_200_OK,
+        message: "Reviews fetched successfully",
+        data: reviews
+    });
+});
+
 module.exports = router;

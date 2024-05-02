@@ -29,6 +29,51 @@ class CourseRepo extends IRepo {
             };
         }
     }
+
+    async findStudentCourses({ studentId }) {
+        try {
+            const result = await this.exec({
+                query: `
+                    SELECT c.*, j.current_price as buy_price, j.created_at as buy_at
+                    FROM students_join_course j
+                    JOIN courses c ON students_join_course.course_id = courses.course_id AND students_join_course.student_id = $1;
+                `,
+                args: [studentId]
+            });
+            return {
+                courses: result.rows,
+                error: null
+            };
+        } catch (err) {
+            logger.debug(err);
+            return {
+                courses: [],
+                error: err
+            };
+        }
+    }
+
+    async calculatePayment({ studentId, courseId }) {
+        try {
+            const result = await this.exec({
+                query: `
+                    CALL calculate_payment($1, $2);
+                `,
+                args: [studentId, courseId]
+            });
+            if (result.rows[0].length !== 1) {
+                return {
+                    error: "Course not found"
+                };
+            }
+            return {
+                course: result.rows[0][0],
+                error: null
+            };
+        } catch (err) {
+
+        }
+    }
 }
 
 module.exports = {
