@@ -246,7 +246,7 @@ router.get("/:id/join", async (req, res) => {
     });
     return wrapResponse(res, {
         code: STATUS_CODE.HTTP_200_OK,
-        message: "Reviews fetched successfully",
+        message: "Join course successfully",
         data: reviews
     });
 });
