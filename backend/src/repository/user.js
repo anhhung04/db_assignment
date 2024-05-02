@@ -1,7 +1,7 @@
 const { IRepo } = require('./index');
 const { v4: uuidv4, validate } = require('uuid');
 const logger = require("../utils/log");
-const { convertObjectToFilterQuery, convertObjectToInsertQuery } = require("../utils/db");
+const { convertObjectToInsertQuery } = require("../utils/db");
 class UserRepo extends IRepo {
     constructor() {
         super();
@@ -48,10 +48,10 @@ class UserRepo extends IRepo {
                     lastName: row.lname,
                     displayName: row.display_name,
                     generalPermissions: {
-                        read: row.read,
-                        create: row.create,
-                        delete: row.delete,
-                        update: row.update
+                        read: row.read || false,
+                        create: row.create || false,
+                        delete: row.delete || false,
+                        update: row.update || false
                     },
                     role: row.account_type,
                     created_at: row.created_at,
@@ -92,30 +92,6 @@ class UserRepo extends IRepo {
             logger.debug(err);
             return {
                 permissions: null,
-                error: err
-            };
-        }
-    }
-    async find(findObject) {
-        try {
-            let { filterQuery, args } = convertObjectToFilterQuery(findObject);
-            let results = await this.exec({
-                query: `
-                    SELECT *
-                    FROM users
-                    WHERE ${filterQuery};
-                `,
-                args
-            });
-            if (results?.rowCount !== 1) {
-                throw new Error("Query database error");
-            }
-            let userId = results.rows[0].id;
-            return this.findById(userId);
-        } catch (err) {
-            logger.debug(err);
-            return {
-                user: null,
                 error: err
             };
         }

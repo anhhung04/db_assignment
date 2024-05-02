@@ -4,7 +4,7 @@ CREATE TYPE ebook_type AS ENUM ('theory', 'practical');
 CREATE TYPE currency_type AS ENUM ('usd', 'vnd', 'eur');
 CREATE TYPE course_type AS ENUM ('free', 'paid');
 CREATE TYPE level_type AS ENUM ('A1', 'A2', 'B1', 'B2', 'C1', 'C2');
-CREATE TYPE resource_type as ENUM ('video', 'document');
+CREATE TYPE resource_type as ENUM ('videos', 'documents');
 
 CREATE TABLE courses
 (
@@ -54,7 +54,7 @@ CREATE TABLE lessons
     title       VARCHAR(100)            NOT NULL,
     created_at  TIMESTAMP DEFAULT NOW() NOT NULL,
     updated_at  TIMESTAMP DEFAULT NOW() NOT NULL,
-    courseid    UUID
+    course_id    UUID
         CONSTRAINT lessons_courses_course_id_fk
             REFERENCES courses
             ON DELETE CASCADE

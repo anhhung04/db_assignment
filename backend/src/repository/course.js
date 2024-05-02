@@ -1,105 +1,9 @@
 const { IRepo } = require("./index");
 const logger = require("../utils/log");
-const {
-    convertObjectToFilterQuery,
-    convertObjectToInsertQuery,
-    convertObjectToUpdateQuery
-} = require("../utils/db");
 
 class CourseRepo extends IRepo {
     constructor() {
         super();
-    }
-    async findOne(getObj) {
-        try {
-            const { filterQuery, args } = convertObjectToFilterQuery(getObj);
-            const result = await this.exec({
-                query: `SELECT * FROM course WHERE ${filterQuery}`,
-                args
-            });
-            if (result.rows?.length !== 1) {
-                return {
-                    course: null,
-                    error: "Course not found"
-                };
-            }
-            return {
-                course: result.rows[0],
-                error: null
-            };
-        } catch (err) {
-            logger.debug(err);
-            return {
-                course: null,
-                error: err
-            };
-        }
-    }
-    async find({ limit, offset }) {
-        try {
-            const result = await this.exec({
-                query: `SELECT * FROM courses LIMIT $1 OFFSET $2;`,
-                args: [limit, offset]
-            });
-            return {
-                courses: result.rows,
-                error: null
-            };
-        } catch (err) {
-            logger.debug(err);
-            return {
-                courses: [],
-                error: err
-            };
-        }
-    }
-    async create(newObj) {
-        let { columns, values, args } = convertObjectToInsertQuery(newObj);
-        try {
-            const result = await this.exec({
-                query: `
-                    INSERT INTO courses (${columns}) 
-                    VALUES (${values}) 
-                    RETURNING *;
-                `,
-                args
-            });
-            return {
-                course: result.rows[0],
-                error: null
-            };
-        } catch (err) {
-            logger.debug(err);
-            return {
-                course: null,
-                error: err
-            };
-        }
-    }
-
-    async findByIdAndUpdate(id, updateObj) {
-        try {
-            let { updateQuery, args } = convertObjectToUpdateQuery(updateObj, 2);
-            const result = await this.exec({
-                query: `
-                    UPDATE courses
-                    SET ${updateQuery}
-                    WHERE course_id = $1
-                    RETURNING *;
-                `,
-                args: [id, ...args]
-            });
-            return {
-                course: result.rows[0],
-                error: null
-            };
-        } catch (err) {
-            logger.debug(err);
-            return {
-                course: null,
-                error: err
-            };
-        }
     }
 
     async search({ content, limit }) {
@@ -124,6 +28,75 @@ class CourseRepo extends IRepo {
                 error: err
             };
         }
+    }
+
+    async findStudentCourses({ studentId, courseId, isSlug = false }) {
+        try {
+            const result = await this.exec({
+                query: `
+                    SELECT c.*, j.current_price as buy_price, j.created_at as buy_at
+                    FROM students_join_course j
+                    JOIN courses c ON students_join_course.course_id = courses.course_id AND students_join_course.student_id = $1${courseId ? ` WHERE ${isSlug ? "course_slug" : "course_id"} = $2` : ""};
+                `,
+                args: [studentId, courseId]
+            });
+            return {
+                courses: result.rows,
+                error: null
+            };
+        } catch (err) {
+            logger.debug(err);
+            return {
+                courses: [],
+                error: err
+            };
+        }
+    }
+
+    async calculatePayment({ studentId, courseId }) {
+        try {
+            const result = await this.exec({
+                query: `
+                    CALL calculate_payment($1, $2);
+                `,
+                args: [studentId, courseId]
+            });
+            if (result.rows[0].length !== 1) {
+                return {
+                    error: "Course not found"
+                };
+            }
+            return {
+                course: result.rows[0][0],
+                error: null
+            };
+        } catch (err) {
+            logger.debug(err);
+            return {
+                course: null,
+                error: err
+            };
+        }
+    }
+
+    async reviewCourse({ courseId, rating, comment, studentId }) {
+        try {
+            await this.exec({
+                query: `
+                    CALL review_course($1, $2, $3, $4);
+                `,
+                args: [courseId, studentId, rating, comment]
+            });
+            return {
+                error: null
+            };
+        } catch (err) {
+            logger.debug(err);
+            return {
+                error: err
+            };
+        }
+
     }
 }
 

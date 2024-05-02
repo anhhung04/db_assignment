@@ -97,7 +97,7 @@ describe("POST /api/auth/register", () => {
     });
 })
 
-describe("GET /ap/auth/me", () => {
+describe("GET /api/auth/me", () => {
     let agent = request.agent(app);
 
     test("should set cookie", async () => {
@@ -129,10 +129,10 @@ describe("GET /ap/auth/me", () => {
                     displayName: expect.any(String),
                     role: "teacher",
                     generalPermissions: {
-                        "create": null,
-                        "read": null,
-                        "update": null,
-                        "delete": null
+                        "create": false,
+                        "read": false,
+                        "update": false,
+                        "delete": false
                     },
                     "id": "90f5c3b5-6b82-4b6d-85b5-9c1d414e9a1f",
                 }
