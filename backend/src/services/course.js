@@ -30,6 +30,18 @@ class CourseService extends IService {
         if (error) {
             throw new Error(error);
         }
+        const { rows: lessons, error: err } = await this._courseRepo.findInTable({
+            table: "lessons",
+            findObj: { course_id: course.course_id }
+        });
+        if (err) {
+            throw new Error(err);
+        }
+        lessons = lessons.map(lesson => {
+            delete lesson.course_id;
+            return lesson;
+        });
+        course.lessons = lessons;
         return course;
     }
 
