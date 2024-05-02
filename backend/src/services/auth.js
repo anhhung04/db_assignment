@@ -13,15 +13,22 @@ class AuthService extends IService {
     }
 
     async login({ username, password, email }) {
-        const { user, error } = await this.userRepo.find({
-            username,
-            email
+        const { row: checkUser, error } = await this.userRepo.findOneInTable({
+            table: "users",
+            findObj: {
+                username,
+                email
+            }
         });
         if (error) {
             throw new Error(error);
         }
-        if (!user || !(await bcrypt.compare(password, user.password))) {
+        if (!checkUser || !(await bcrypt.compare(password, checkUser.password))) {
             return null;
+        }
+        let { user, error: err } = await this.userRepo.findById(checkUser.id);
+        if (err) {
+            throw new Error(err);
         }
         delete user.password;
         return user;

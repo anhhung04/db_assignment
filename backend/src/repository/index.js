@@ -1,6 +1,11 @@
 const { Pool } = require('pg');
 const logger = require('../utils/log');
 const process = require('node:process');
+const {
+    convertObjectToFilterQuery,
+    convertObjectToInsertQuery,
+    convertObjectToUpdateQuery
+} = require("../utils/db");
 require('dotenv').config();
 
 const pool = new Pool({
@@ -138,6 +143,117 @@ class IRepo {
                 permissions: null,
                 error: err
             }
+        }
+    }
+
+    async findInTable({ table, findObj, limit, page }) {
+        limit = limit ? Math.abs(limit) : 10;
+        page = page ? Math.abs(page) : 1;
+        try {
+            if (!findObj) {
+                findObj = {
+                    "1": "1"
+                };
+            }
+            let { filterQuery, args } = convertObjectToFilterQuery(findObj);
+            let query = `
+                SELECT *
+                FROM ${table}
+                WHERE ${filterQuery}
+                LIMIT ${limit} OFFSET ${(page - 1) * limit};
+            `;
+            let results = await this.exec({ query, args });
+            return {
+                rows: results.rows,
+                error: null
+            };
+        } catch (err) {
+            logger.debug(err);
+            return {
+                rows: [],
+                error: err
+            };
+        }
+    }
+
+    async findOneInTable({ table, findObj }) {
+        try {
+            let {
+                rows, error
+            } = await this.findInTable({
+                table,
+                findObj
+            });
+            if (error) {
+                throw new Error(error);
+            }
+            return {
+                row: rows[0],
+                error: null
+            };
+        } catch (err) {
+            logger.debug(err);
+            return {
+                row: null,
+                error: err
+            };
+        }
+    }
+
+    async createInTable({ table, createObj }) {
+        try {
+            let {
+                columns, values, args
+            } = convertObjectToInsertQuery(createObj);
+            let query = `
+                INSERT INTO ${table} (${columns})
+                VALUES (${values})
+                RETURNING *;
+            `;
+            await this.begin();
+            let results = await this.exec({ query, args });
+            await this.end();
+            return {
+                row: results.rows[0],
+                error: null
+            };
+        } catch (err) {
+            logger.debug(err);
+            return {
+                row: null,
+                error: err
+            };
+        }
+    }
+
+    async updateInTable({ table, indentify, updateObj }) {
+        try {
+            let {
+                filterQuery, args: argsFilter
+            } = convertObjectToFilterQuery(indentify);
+            let {
+                updateQuery, args: argsUpdate
+            } = convertObjectToUpdateQuery(updateObj, argsFilter.length + 1);
+            let query = `
+                UPDATE ${table}
+                SET ${updateQuery}
+                WHERE ${filterQuery}
+                RETURNING *;
+            `;
+            let args = [...argsFilter, ...argsUpdate];
+            await this.begin();
+            let results = await this.exec({ query, args });
+            await this.end()
+            return {
+                rows: results.rows,
+                error: null
+            };
+        } catch (err) {
+            logger.debug(err);
+            return {
+                rows: null,
+                error: err
+            };
         }
     }
 }

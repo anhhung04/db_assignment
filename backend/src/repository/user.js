@@ -96,30 +96,6 @@ class UserRepo extends IRepo {
             };
         }
     }
-    async find(findObject) {
-        try {
-            let { filterQuery, args } = convertObjectToFilterQuery(findObject);
-            let results = await this.exec({
-                query: `
-                    SELECT *
-                    FROM users
-                    WHERE ${filterQuery};
-                `,
-                args
-            });
-            if (results?.rowCount !== 1) {
-                throw new Error("Query database error");
-            }
-            let userId = results.rows[0].id;
-            return this.findById(userId);
-        } catch (err) {
-            logger.debug(err);
-            return {
-                user: null,
-                error: err
-            };
-        }
-    }
 
     async create(newUser) {
         Object.assign(newUser, {

@@ -9,8 +9,12 @@ class CourseService extends IService {
     }
     async listCourses({ limit, page }) {
         limit = limit ? Math.abs(limit) : 10;
-        let offset = page ? Math.abs(page) * (limit - 1) : 0;
-        const { courses, error } = await this._courseRepo.find({ limit, offset });
+        page = page ? Math.abs(page) * (limit - 1) : 0;
+        const { rows: courses, error } = await this._courseRepo.findInTable({
+            table: "courses",
+            limit,
+            page
+        });
         if (error) {
             throw new Error(error);
         }
@@ -19,7 +23,10 @@ class CourseService extends IService {
 
     async findCourse({ id, isSlug = false }) {
         let findObj = isSlug ? { course_slug: id } : { course_id: id };
-        const { course, error } = await this._courseRepo.findOne(findObj);
+        const { row: course, error } = await this._courseRepo.findOneInTable({
+            table: "courses",
+            findObj
+        });
         if (error) {
             throw new Error(error);
         }
@@ -28,13 +35,19 @@ class CourseService extends IService {
 
     async listLessons({ courseId, isSlug = false }) {
         if (isSlug) {
-            const { course, error } = await this._courseRepo.findOne({ course_slug: courseId });
+            const { row: course, error } = await this._courseRepo.findOneInTable({
+                table: "courses",
+                findObj: { course_slug: courseId }
+            });
             if (error) {
                 throw new Error(error);
             }
             courseId = course.course_id;
         }
-        const { lessons, error } = await this._courseRepo.findLessons(courseId);
+        const { rows: lessons, error } = await this._courseRepo.findInTable({
+            table: "lessons",
+            findObj: { course_id: courseId }
+        });
         if (error) {
             throw new Error(error);
         }
@@ -48,11 +61,14 @@ class CourseService extends IService {
             description,
         },
     }) {
-        const { lesson, error } = await this._courseRepo.createLesson({
-            id: uuidv4(),
-            title,
-            description,
-            course_id: courseId
+        const { row: lesson, error } = await this._courseRepo.createInTable({
+            table: "lessons",
+            createObj: {
+                id: uuidv4(),
+                title,
+                description,
+                course_id: courseId
+            }
         });
         if (error) {
             throw new Error(error);
@@ -77,14 +93,20 @@ class CourseService extends IService {
             description,
         }
     }) {
-        const { lesson, error } = await this._courseRepo.updateLesson(lessonId, {
-            title,
-            description
+        const { rows: lessons, error } = await this._courseRepo.updateInTable({
+            table: "lessons",
+            indentify: {
+                id: lessonId
+            },
+            updateObj: {
+                title,
+                description
+            }
         });
         if (error) {
             throw new Error(error);
         }
-        return lesson;
+        return lessons[0];
     }
 
     async createCourse({
@@ -102,18 +124,21 @@ class CourseService extends IService {
     }) {
         let course_slug = title.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9 ]/g, "").replace(/ /g, "-").toLowerCase();
         course_slug = course_slug + "-" + Math.random().toString(36).substring(2, 7);
-        const { course, error } = await this._courseRepo.create({
-            course_id: uuidv4(),
-            title,
-            type,
-            description,
-            level,
-            thumbnail_url,
-            headline,
-            content_info,
-            amount_price,
-            currency,
-            course_slug
+        const { row: course, error } = await this._courseRepo.createInTable({
+            table: "courses",
+            createObj: {
+                course_id: uuidv4(),
+                title,
+                type,
+                description,
+                level,
+                thumbnail_url,
+                headline,
+                content_info,
+                amount_price,
+                currency,
+                course_slug
+            }
         });
         if (error) {
             throw new Error(error);
@@ -144,20 +169,26 @@ class CourseService extends IService {
             currency
         }
     }) {
-        const { course, error } = await this._courseRepo.findByIdAndUpdate(courseId, {
-            type,
-            description,
-            level,
-            thumbnail_url,
-            headline,
-            content_info,
-            amount_price,
-            currency
+        const { rows: courses, error } = await this._courseRepo.updateInTable({
+            table: "courses",
+            indentify: {
+                course_id: courseId
+            },
+            updateObj: {
+                type,
+                description,
+                level,
+                thumbnail_url,
+                headline,
+                content_info,
+                amount_price,
+                currency
+            }
         });
         if (error) {
             throw new Error(error);
         }
-        return course;
+        return courses[0];
     }
 
     async searchCourses({ content, limit }) {
