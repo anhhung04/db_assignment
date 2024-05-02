@@ -48,10 +48,10 @@ class UserRepo extends IRepo {
                     lastName: row.lname,
                     displayName: row.display_name,
                     generalPermissions: {
-                        read: row.read,
-                        create: row.create,
-                        delete: row.delete,
-                        update: row.update
+                        read: row.read || false,
+                        create: row.create || false,
+                        delete: row.delete || false,
+                        update: row.update || false
                     },
                     role: row.account_type,
                     created_at: row.created_at,
