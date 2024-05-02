@@ -1,4 +1,3 @@
-import React from 'react';
 import { FaUser, FaLock } from "react-icons/fa";
 import './LoginPage.css';
 
@@ -23,7 +22,7 @@ const LoginPage = () => {
                 <button type="submit">Login</button>
 
                 <div className="register-link">
-                    <p>Don't have an account? <a href="#">Sign up</a></p>
+                    <p>Don&apos;t have an account? <a href="#">Sign up</a></p>
                 </div>
             </form>
         </div>
