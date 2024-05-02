@@ -107,10 +107,10 @@ CREATE TABLE permissions
         CONSTRAINT permission_id
             REFERENCES users
             ON DELETE CASCADE,
-    read        BOOLEAN DEFAULT FALSE,
-    "create"    BOOLEAN DEFAULT FALSE,
-    update      BOOLEAN DEFAULT FALSE,
-    delete      BOOLEAN DEFAULT FALSE,
+    "read"        BOOLEAN DEFAULT FALSE,
+    "create"      BOOLEAN DEFAULT FALSE,
+    "update"      BOOLEAN DEFAULT FALSE,
+    "delete"      BOOLEAN DEFAULT FALSE,
     resource_id UUID,
     created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at   TIMESTAMP NOT NULL DEFAULT NOW(),
