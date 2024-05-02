@@ -1,10 +1,10 @@
 -- Up Migration
-CREATE TYPE course_type AS ENUM ('ielts', 'toeic', 'communicate');
 CREATE TYPE document_type AS ENUM ('book', 'dictionary', 'mock_test');
 CREATE TYPE ebook_type AS ENUM ('theory', 'practical');
 CREATE TYPE currency_type AS ENUM ('usd', 'vnd', 'eur');
+CREATE TYPE course_type AS ENUM ('free', 'paid');
 CREATE TYPE level_type AS ENUM ('A1', 'A2', 'B1', 'B2', 'C1', 'C2');
-CREATE TYPE resource_type as ENUM ('video', 'document');
+CREATE TYPE resource_type as ENUM ('videos', 'documents');
 
 CREATE TABLE courses
 (
@@ -14,13 +14,12 @@ CREATE TABLE courses
     title        VARCHAR(50),
     type        course_type,
     description VARCHAR(200),
-    rating      FLOAT,
-    price    DECIMAL,
+    rating FLOAT,
     level       level_type,
     thumbnail_url TEXT,
     headline   VARCHAR(100)  ,
     content_info VARCHAR(20) NOT NULL,
-    amount DOUBLE PRECISION NOT NULL,
+    amount_price DOUBLE PRECISION NOT NULL,
     currency currency_type NOT NULL,
     course_slug VARCHAR(100) NOT NULL UNIQUE,
     access_count integer NOT NULL DEFAULT 0,
@@ -55,7 +54,7 @@ CREATE TABLE lessons
     title       VARCHAR(100)            NOT NULL,
     created_at  TIMESTAMP DEFAULT NOW() NOT NULL,
     updated_at  TIMESTAMP DEFAULT NOW() NOT NULL,
-    courseid    UUID
+    course_id    UUID
         CONSTRAINT lessons_courses_course_id_fk
             REFERENCES courses
             ON DELETE CASCADE

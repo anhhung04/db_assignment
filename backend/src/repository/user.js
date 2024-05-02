@@ -1,7 +1,7 @@
 const { IRepo } = require('./index');
 const { v4: uuidv4, validate } = require('uuid');
 const logger = require("../utils/log");
-const { convertObjectToFilterQuery, convertObjectToInsertQuery } = require("../utils/db");
+const { convertObjectToInsertQuery } = require("../utils/db");
 class UserRepo extends IRepo {
     constructor() {
         super();
@@ -46,11 +46,12 @@ class UserRepo extends IRepo {
                     password: row.password,
                     firstName: row.fname,
                     lastName: row.lname,
+                    displayName: row.display_name,
                     generalPermissions: {
-                        read: row.read,
-                        create: row.create,
-                        delete: row.delete,
-                        update: row.update
+                        read: row.read || false,
+                        create: row.create || false,
+                        delete: row.delete || false,
+                        update: row.update || false
                     },
                     role: row.account_type,
                     created_at: row.created_at,
@@ -95,30 +96,6 @@ class UserRepo extends IRepo {
             };
         }
     }
-    async find(findObject) {
-        try {
-            let { filterQuery, args } = convertObjectToFilterQuery(findObject);
-            let results = await this.exec({
-                query: `
-                    SELECT *
-                    FROM users
-                    WHERE ${filterQuery};
-                `,
-                args
-            });
-            if (results?.rowCount !== 1) {
-                throw new Error("Query database error");
-            }
-            let userId = results.rows[0].id;
-            return this.findById(userId);
-        } catch (err) {
-            logger.debug(err);
-            return {
-                user: null,
-                error: err
-            };
-        }
-    }
 
     async create(newUser) {
         Object.assign(newUser, {
@@ -140,6 +117,13 @@ class UserRepo extends IRepo {
                 throw new Error("Query database error");
             }
             let userId = results.rows[0].id;
+            await this.exec({
+                query: `
+                    INSERT INTO permissions(user_id, resource_id, "read", "create", "delete", "update")
+                    VALUES($1, '00000000-0000-0000-0000-000000000000', false, false, false, false);
+                `,
+                args: [userId]
+            });
             return this.findById(userId);
         } catch (err) {
             logger.debug(err);
@@ -148,6 +132,30 @@ class UserRepo extends IRepo {
                 error: err
             };
         }
+    }
+
+    async createUserType({ userId, userType, typeData }) {
+        let { columns, values, args } = convertObjectToInsertQuery(typeData, 2);
+        try {
+            await this.exec({
+                query: `
+                    INSERT INTO ${userType}(user_id, ${columns})
+                    VALUES($1, ${values});
+                `,
+                args: [userId, ...args]
+            });
+            return {
+                success: true,
+                error: null
+            };
+        } catch (err) {
+            logger.debug(err);
+            return {
+                success: false,
+                error: err
+            };
+        }
+
     }
 }
 

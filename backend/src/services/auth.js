@@ -13,15 +13,22 @@ class AuthService extends IService {
     }
 
     async login({ username, password, email }) {
-        const { user, error } = await this.userRepo.find({
-            username,
-            email
+        const { row: checkUser, error } = await this.userRepo.findOneInTable({
+            table: "users",
+            findObj: {
+                username,
+                email
+            }
         });
         if (error) {
             throw new Error(error);
         }
-        if (!user || !(await bcrypt.compare(password, user.password))) {
+        if (!checkUser || !(await bcrypt.compare(password, checkUser.password))) {
             return null;
+        }
+        let { user, error: err } = await this.userRepo.findById(checkUser.id);
+        if (err) {
+            throw new Error(err);
         }
         delete user.password;
         return user;
@@ -35,7 +42,9 @@ class AuthService extends IService {
         avatar_url,
         birthday,
         fname,
-        lname
+        lname,
+        isTeacher,
+        data
     }) {
         const { user, error } = await this.userRepo.create({
             username,
@@ -46,10 +55,19 @@ class AuthService extends IService {
             avatar_url,
             birthday,
             fname,
-            lname
+            lname,
+            display_name: `${fname} ${lname}`
         });
         if (error) {
             throw new Error(error);
+        }
+        let { error: err } = await this.userRepo.createUserType({
+            userId: user.id,
+            userType: isTeacher ? "teachers" : "students",
+            typeData: data
+        });
+        if (err) {
+            throw new Error(err);
         }
         return user;
     }

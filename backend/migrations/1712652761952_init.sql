@@ -44,14 +44,12 @@ CREATE TABLE activities
     activity_id SERIAL NOT NULL
         CONSTRAINT activity_id
             PRIMARY KEY,
-    action      VARCHAR(200)  NOT NULL,
-    resource_id        UUID,
-    note        TEXT,
-    activist_id     UUID
-        CONSTRAINT activist_id
-            REFERENCES users,
-    created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
+    action          VARCHAR(200)  NOT NULL,
+    resource_id     UUID,
+    note            TEXT,
+    activist_id     UUID,
+    created_at      TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 -- CREATE TABLE exams
