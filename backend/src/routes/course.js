@@ -219,7 +219,7 @@ router.post("/:id/review", validate({
     id = String(id);
     let isSlug = !isUUID(id);
     let { comment, rating } = req.body;
-    const review = await req.service.createCourseReview({
+    await req.service.createCourseReview({
         courseId: id,
         reviewData: {
             comment,
@@ -231,7 +231,6 @@ router.post("/:id/review", validate({
     return wrapResponse(res, {
         code: STATUS_CODE.HTTP_201_CREATED,
         message: "Review created successfully",
-        data: review
     });
 });
 
@@ -250,5 +249,14 @@ router.get("/:id/join", async (req, res) => {
         data: reviews
     });
 });
+
+router.get("/mine", async (req, res) => {
+    const courses = await req.service.listMyCourses();
+    return wrapResponse(res, {
+        code: STATUS_CODE.HTTP_200_OK,
+        message: "Courses fetched successfully",
+        data: courses
+    });
+})
 
 module.exports = router;

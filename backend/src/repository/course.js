@@ -30,15 +30,15 @@ class CourseRepo extends IRepo {
         }
     }
 
-    async findStudentCourses({ studentId }) {
+    async findStudentCourses({ studentId, courseId, isSlug = false }) {
         try {
             const result = await this.exec({
                 query: `
                     SELECT c.*, j.current_price as buy_price, j.created_at as buy_at
                     FROM students_join_course j
-                    JOIN courses c ON students_join_course.course_id = courses.course_id AND students_join_course.student_id = $1;
+                    JOIN courses c ON students_join_course.course_id = courses.course_id AND students_join_course.student_id = $1${courseId ? ` WHERE ${isSlug ? "course_slug" : "course_id"} = $2` : ""};
                 `,
-                args: [studentId]
+                args: [studentId, courseId]
             });
             return {
                 courses: result.rows,
@@ -77,6 +77,26 @@ class CourseRepo extends IRepo {
                 error: err
             };
         }
+    }
+
+    async reviewCourse({ courseId, rating, comment, studentId }) {
+        try {
+            await this.exec({
+                query: `
+                    CALL review_course($1, $2, $3, $4);
+                `,
+                args: [courseId, studentId, rating, comment]
+            });
+            return {
+                error: null
+            };
+        } catch (err) {
+            logger.debug(err);
+            return {
+                error: err
+            };
+        }
+
     }
 }
 
