@@ -71,7 +71,11 @@ class CourseRepo extends IRepo {
                 error: null
             };
         } catch (err) {
-
+            logger.debug(err);
+            return {
+                course: null,
+                error: err
+            };
         }
     }
 }

@@ -1,7 +1,7 @@
 const { IRepo } = require('./index');
 const { v4: uuidv4, validate } = require('uuid');
 const logger = require("../utils/log");
-const { convertObjectToFilterQuery, convertObjectToInsertQuery } = require("../utils/db");
+const { convertObjectToInsertQuery } = require("../utils/db");
 class UserRepo extends IRepo {
     constructor() {
         super();

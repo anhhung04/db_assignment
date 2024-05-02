@@ -238,28 +238,18 @@ class CourseService extends IService {
     }
 
     async joinCourse({ courseId, isSlug }) {
-        let course;
-        if (isSlug) {
-            course = await this._courseRepo.findOneInTable({
-                table: "courses",
-                findObj: { course_slug: courseId }
-            });
-            if (course.error) {
-                throw new Error(course.error);
+        let { row: course, error } = await this._courseRepo.findOneInTable({
+            table: "courses",
+            findObj: {
+                [`${isSlug ? "course_slug" : "course_id"}`]: courseId
             }
-            course = course.row;
-        } else {
-            course = await this._courseRepo.findOneInTable({
-                table: "courses",
-                findObj: { course_id: courseId }
-            });
-            if (course.error) {
-                throw new Error(course.error);
-            }
-            course = course.row;
+        });
+
+        if (error) {
+            throw new Error(error);
         }
 
-        let { row: join, error } = await this._courseRepo.createInTable({
+        let { row: join, error: err } = await this._courseRepo.createInTable({
             table: "students_join_course",
             createObj: {
                 course_id: course.course_id,
@@ -268,11 +258,11 @@ class CourseService extends IService {
             }
         });
 
-        if (error) {
-            throw new Error(error);
+        if (err) {
+            throw new Error(err);
         }
-        return join;
 
+        return join;
     }
 }
 
