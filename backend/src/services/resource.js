@@ -8,14 +8,30 @@ class ResourceService extends IService {
         this.userRepo = new UserRepo();
     }
 
-    async getVideo(id) {
-        let userId = this._currentUser.id;
-        let { resource: video, error } = await this.resourceRepo.findOne({ table: 'videos', id });
-        if (error) {
-            throw new Error(error);
+    async fetchResource({ id, type }) {
+        let { permissions, error } = this.userRepo.fetchUserPermissions({
+            userId: this._currentUser.id,
+            resourceId: id
+        });
+        let access = false;
+        if (!error) {
+            access = permissions.read;
         }
-        let permissions = await this.userRepo.fetchUserPermissions({ userId, resourceId: video.course_id });
-        return permissions
+        access = access || await this.resourceRepo.checkStudentAccess({
+            userId: this._currentUser.id,
+            resourceId: id
+        });
+        if (!access) {
+            throw new Error("Access denied");
+        }
+        let { resource, error: resourceError } = await this.resourceRepo.findOne({
+            table: type,
+            id
+        });
+        if (resourceError) {
+            throw new Error("Resource not found");
+        }
+        return resource;
     }
 }
 

@@ -38,6 +38,31 @@ class ResourceRepo extends IRepo {
             };
         }
     }
+
+    async checkStudentAccess({ userId, resourceId }) {
+        try {
+            let query = `
+                SELECT *
+                FROM students_join_courses jc
+                JOIN lessons ls ON jc.course_id = ls.course_id AND jc.student_id = $1
+                JOIN lesson_resources lr ON ls.id = lr.lesson_id
+                WHERE lr.resource_id = $2
+            `;
+            let args = [userId, resourceId];
+            let result = await this._session.query(query, args);
+            return {
+                access: result.rows.length >= 1,
+                error: null
+            };
+        }
+        catch (err) {
+            logger.error(err);
+            return {
+                access: false,
+                error: err
+            };
+        }
+    }
 }
 
 module.exports = {
