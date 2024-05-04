@@ -14,7 +14,7 @@ CREATE TABLE courses
     title        VARCHAR(100) CHECK (LENGTH(title) > 10 AND LENGTH(title) <= 100) NOT NULL,
     type        course_type,
     description VARCHAR(200),
-    rating FLOAT,
+    rating FLOAT CHECK (rating >= 0 AND rating <= 5) NOT NULL DEFAULT 0,
     level       level_type,
     thumbnail_url TEXT,
     headline   VARCHAR(100)  ,
