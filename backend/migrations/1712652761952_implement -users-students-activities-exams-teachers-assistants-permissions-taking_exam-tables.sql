@@ -1,7 +1,11 @@
 -- Up Migration
 CREATE TYPE account_type AS ENUM ('operator', 'teacher', 'student', 'user', 'admin');
-
 CREATE TYPE status AS ENUM ('active', 'inactive');
+CREATE TYPE document_type AS ENUM ('book', 'dictionary', 'mock_test');
+CREATE TYPE ebook_type AS ENUM ('theory', 'practical');
+CREATE TYPE currency_type AS ENUM ('usd', 'vnd', 'eur');
+CREATE TYPE course_type AS ENUM ('free', 'paid');
+CREATE TYPE resource_type as ENUM ('videos', 'documents');
 
 CREATE TABLE users
 (
@@ -47,7 +51,10 @@ CREATE TABLE activities
     action          VARCHAR(200)  NOT NULL,
     resource_id     UUID,
     note            TEXT,
-    activist_id     UUID,
+    activist_id     UUID
+        CONSTRAINT activity_activist_id_fk
+            REFERENCES users
+            ON DELETE CASCADE,
     created_at      TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMP NOT NULL DEFAULT NOW()
 );
@@ -77,17 +84,17 @@ CREATE TABLE teachers
     updated_at        TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE assistants
-(
-    teacher_id   UUID NOT NULL
-        CONSTRAINT teacher_id
-            REFERENCES teachers,
-    assistant_id UUID NOT NULL,
-    created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at   TIMESTAMP NOT NULL DEFAULT NOW(),
-    CONSTRAINT assistant_id
-        PRIMARY KEY (teacher_id, assistant_id)
-);
+-- CREATE TABLE assistants
+-- (
+--     teacher_id   UUID NOT NULL
+--         CONSTRAINT teacher_id
+--             REFERENCES teachers,
+--     assistant_id UUID NOT NULL,
+--     created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
+--     updated_at   TIMESTAMP NOT NULL DEFAULT NOW(),
+--     CONSTRAINT assistant_id
+--         PRIMARY KEY (teacher_id, assistant_id)
+-- );
 
 CREATE TABLE permissions
 (
@@ -108,6 +115,7 @@ CREATE TABLE permissions
 
 CREATE TABLE taking_exam
 (
+    id UUID NOT NULL UNIQUE,
     student_id UUID    NOT NULL
         CONSTRAINT taking_exam_students_student_id_fk
             REFERENCES students
@@ -121,18 +129,24 @@ CREATE TABLE taking_exam
     created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at  TIMESTAMP NOT NULL DEFAULT NOW(),
     CONSTRAINT taking_id
-        PRIMARY KEY (student_id, exam_id)
+        PRIMARY KEY (student_id, exam_id, id)
 );
 
 -- Down Migration
 DROP TABLE IF EXISTS taking_exam;
 DROP TABLE IF EXISTS permissions;
 DROP TABLE IF EXISTS libraries;
-DROP TABLE IF EXISTS assistants;
+-- DROP TABLE IF EXISTS assistants;
 DROP TABLE IF EXISTS teachers;
 DROP TABLE IF EXISTS exams;
 DROP TABLE IF EXISTS activities;
 DROP TABLE IF EXISTS students;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS pgmigrations;
 DROP TYPE IF EXISTS status;
 DROP TYPE IF EXISTS account_type;
+DROP TYPE IF EXISTS document_type;
+DROP TYPE IF EXISTS ebook_type;
+DROP TYPE IF EXISTS currency_type;
+DROP TYPE IF EXISTS course_type;
+DROP TYPE IF EXISTS resource_type;

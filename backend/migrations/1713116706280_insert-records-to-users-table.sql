@@ -9,7 +9,6 @@ INSERT INTO users (
         address,
         avatar_url,
         account_type,
-        status,
         phone_no,
         birthday
     )
@@ -23,7 +22,6 @@ VALUES (
         'KTX Hòa Hảo, Quận 10, Tp.HCM',
         NULL,
         'teacher',
-        'active',
         '0837317823',
         '2024-04-15'
     );
@@ -37,7 +35,6 @@ INSERT INTO users (
         address,
         avatar_url,
         account_type,
-        status,
         phone_no,
         birthday
     )
@@ -51,8 +48,8 @@ VALUES (
         'KTX Hòa Hảo, Quận 10, Tp.HCM',
         NULL,
         'student',
-        'active',
         '0123456789',
         '2004-01-01'
     );
 -- Down Migration
+DELETE FROM users WHERE id IN ('90f5c3b5-6b82-4b6d-85b5-9c1d414e9a1f', '36a14986-5819-43ac-90af-b75eeb8dce27');

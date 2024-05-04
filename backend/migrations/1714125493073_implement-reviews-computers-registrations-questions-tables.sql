@@ -128,54 +128,21 @@ CREATE TABLE questions
     score         DOUBLE PRECISION
 );
 
-CREATE TABLE completion_questions
+CREATE TABLE wrong_answers
 (
-    id          UUID NOT NULL
-        CONSTRAINT completion_questions_pk
+    id             UUID         NOT NULL
+        CONSTRAINT wrong_answers_pk
             PRIMARY KEY,
-    answer      VARCHAR(100),
-    question_id UUID
-        CONSTRAINT completion_questions_questions_id_fk
+    student_answer VARCHAR(100) NOT NULL,
+    taking_exam_id UUID
+        CONSTRAINT wrong_answers_taking_exam_id_fk
+            REFERENCES taking_exam (id)
+            ON DELETE CASCADE,
+    answer_id      UUID         NOT NULL
+        CONSTRAINT wrong_answers_questions_id_fk
             REFERENCES questions
             ON DELETE CASCADE
 );
-
-CREATE TABLE matching_heading_questions
-(
-    id          UUID NOT NULL
-        CONSTRAINT matching_heading_questions_pk
-            PRIMARY KEY,
-    answer      VARCHAR(10),
-    question_id UUID
-        CONSTRAINT matching_heading_questions_questions_id_fk
-            REFERENCES questions
-            ON DELETE CASCADE
-);
-
-CREATE TABLE "T/F/NG_questions"
-(
-    id          UUID NOT NULL
-        CONSTRAINT "T/F/NG_questions_pk"
-            PRIMARY KEY,
-    answer      VARCHAR(10),
-    question_id UUID
-        CONSTRAINT "T/F/NG_questions_questions_id_fk"
-            REFERENCES questions
-            ON DELETE CASCADE
-);
-
-CREATE TABLE mcq_questions
-(
-    id          UUID NOT NULL
-        CONSTRAINT mcq_questions_pk
-            PRIMARY KEY,
-    answer      VARCHAR(50),
-    question_id UUID
-        CONSTRAINT mcq_questions_questions_id_fk
-            REFERENCES questions
-            ON DELETE CASCADE
-);
-
 
 
 -- Down Migration
@@ -188,7 +155,4 @@ DROP TABLE IF EXISTS student_course_registrations;
 DROP TABLE IF EXISTS sections;
 DROP TABLE IF EXISTS subsections;
 DROP TABLE IF EXISTS questions;
-DROP TABLE IF EXISTS completion_questions;
-DROP TABLE IF EXISTS matching_heading_questions;
-DROP TABLE IF EXISTS "T/F/NG_questions";
-DROP TABLE IF EXISTS mcq_questions; 
+DROP TABLE IF EXISTS wrong_answers;
