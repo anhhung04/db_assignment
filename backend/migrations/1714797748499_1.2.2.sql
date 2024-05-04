@@ -36,6 +36,29 @@
 -- END;
 -- $$ LANGUAGE plpgsql;
 
+
+CREATE OR REPLACE PROCEDURE change_currency(
+    in_price DOUBLE PRECISION,
+    in_currency currency_type
+)
+AS $$
+DECLARE
+    usd_balance DOUBLE PRECISION;
+BEGIN
+    IF in_currency = 'usd' THEN
+        usd_balance := in_price;
+    ELSIF in_currency = 'vnd' THEN
+        usd_balance := in_price / 23000;
+    ELSIF in_currency = 'eur' THEN
+        usd_balance := in_price / 0.85;
+    ELSE
+        RAISE EXCEPTION 'Unsupported currency type: %', in_currency;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
 CREATE OR REPLACE FUNCTION insert_review_trigger_function()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -117,5 +140,171 @@ AFTER UPDATE ON reviews
 FOR EACH ROW
 EXECUTE FUNCTION update_review_trigger_function();
 
+CREATE OR REPLACE FUNCTION calculate_discounted_payment() RETURNS TRIGGER AS $$
+DECLARE
+    base_fee FLOAT;
+    max_points FLOAT := 0.05; 
+    min_points FLOAT := 0.50;
+    solve_threshold FLOAT := 0.90;
+    x FLOAT;
+    total_courses INTEGER;
+    registered_courses INTEGER;
+    discount_amount FLOAT;
+BEGIN
+    SELECT COUNT(DISTINCT course_id) INTO total_courses FROM students_join_courses;
+    SELECT COUNT(course_id) INTO registered_courses FROM students_join_courses WHERE student_id = NEW.student_id;
+
+    x := registered_courses::FLOAT / total_courses;
+    discount_amount := (min_points - max_points) / (solve_threshold^2) * (x^2) + max_points;
+
+    SELECT base_fee INTO base_fee FROM courses WHERE course_id = NEW.course_id;
+    base_fee := change_currency(base_fee, 'usd');
+
+    -- Apply the discount to the base fee
+    UPDATE users
+    SET account_balance = account_balance - (base_fee * discount_amount)
+    WHERE id = NEW.student_id;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER calculate_discounted_payment_trigger
+AFTER INSERT ON students_join_courses
+FOR EACH ROW
+EXECUTE FUNCTION calculate_discounted_payment();
+
+CREATE OR REPLACE FUNCTION count_students_in_course() 
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE courses
+    SET total_students = (
+        SELECT COUNT(*)
+        FROM students_join_courses
+        WHERE course_id = NEW.course_id
+    )
+    WHERE course_id = NEW.course_id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER count_students_trigger
+AFTER INSERT ON students_join_courses
+FOR EACH ROW EXECUTE PROCEDURE count_students_in_course();
+
+CREATE OR REPLACE FUNCTION give_bonus_to_teacher() 
+RETURNS TRIGGER AS $$
+DECLARE
+    student_count INTEGER;
+    bonus_amount FLOAT := 100.0; 
+    threshold INTEGER := 300;
+BEGIN
+    SELECT COUNT(*)
+    INTO student_count
+    FROM students_join_courses
+    WHERE course_id = NEW.course_id AND
+          DATE_PART('month', NEW.created_at) = DATE_PART('month', CURRENT_DATE) AND
+          DATE_PART('year', NEW.created_at) = DATE_PART('year', CURRENT_DATE);
+
+    IF student_count > threshold THEN
+        UPDATE users
+        SET account_balance = account_balance + bonus_amount
+        WHERE id = (
+            SELECT user_id
+            FROM teachers
+            WHERE user_id = (
+                SELECT teacher_id
+                FROM courses
+                WHERE course_id = NEW.course_id
+            )
+        );
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER give_bonus_to_teacher_trigger
+AFTER INSERT ON students_join_courses
+FOR EACH ROW EXECUTE PROCEDURE give_bonus_to_teacher();
+
+CREATE OR REPLACE FUNCTION recalculate_rating() RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE courses
+    SET rating = (
+        SELECT AVG(rating)
+        FROM reviews
+        WHERE course_id = NEW.course_id
+    )
+    WHERE course_id = NEW.course_id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER recalculate_rating_trigger
+AFTER INSERT ON reviews
+FOR EACH ROW EXECUTE PROCEDURE recalculate_rating();
+
+CREATE OR REPLACE FUNCTION prevent_course_deletion() 
+RETURNS TRIGGER AS $$
+DECLARE
+    student_count INTEGER;
+BEGIN
+    SELECT COUNT(*)
+    INTO student_count
+    FROM students_join_courses
+    WHERE course_id = OLD.course_id;
+
+    IF student_count > 0 THEN
+        RAISE EXCEPTION 'Cannot delete course with ID % because it has students.', OLD.course_id;
+    END IF;
+
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER prevent_course_deletion_trigger
+BEFORE DELETE ON courses
+FOR EACH ROW EXECUTE PROCEDURE prevent_course_deletion();
+
+CREATE OR REPLACE FUNCTION process_course_purchase() RETURNS TRIGGER AS $$
+DECLARE
+    course_price DOUBLE PRECISION;
+    teacher_share DOUBLE PRECISION;
+    teacher_id UUID;
+BEGIN
+    SELECT amount_price INTO course_price FROM courses WHERE course_id = NEW.course_id;
+    SELECT teacher_id INTO teacher_id FROM courses WHERE course_id = NEW.course_id;
+
+    course_price := change_currency(course_price, 'usd');
+    teacher_share := 0.7 * course_price;
+
+    UPDATE users
+    SET account_balance = account_balance + teacher_share
+    WHERE id = teacher_id;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER process_course_purchase_trigger
+AFTER INSERT ON students_join_courses
+FOR EACH ROW EXECUTE PROCEDURE process_course_purchase();
 
 -- Down Migration
+DROP TRIGGER process_course_purchase_trigger ON students_join_courses;
+DROP FUNCTION process_course_purchase();
+DROP TRIGGER prevent_course_deletion_trigger ON courses;
+DROP FUNCTION prevent_course_deletion();
+DROP TRIGGER recalculate_rating_trigger ON reviews;
+DROP FUNCTION recalculate_rating();
+DROP TRIGGER give_bonus_to_teacher_trigger ON students_join_courses;
+DROP FUNCTION give_bonus_to_teacher();
+DROP TRIGGER count_students_trigger ON students_join_courses;
+DROP FUNCTION count_students_in_course();
+DROP TRIGGER calculate_discounted_payment_trigger ON students_join_courses;
+DROP FUNCTION calculate_discounted_payment();
+DROP TRIGGER update_review_trigger ON reviews;
+DROP FUNCTION update_review_trigger_function();
+DROP TRIGGER insert_review_trigger ON reviews;
+DROP FUNCTION insert_review_trigger_function();
+DROP FUNCTION change_currency();
