@@ -11,7 +11,7 @@ CREATE TABLE courses
     course_id   UUID NOT NULL
         CONSTRAINT course_pk
             PRIMARY KEY,
-    title        VARCHAR(50),
+    title        VARCHAR(100) CHECK (LENGTH(title) > 10 AND LENGTH(title) <= 100) NOT NULL,
     type        course_type,
     description VARCHAR(200),
     rating FLOAT,
@@ -25,12 +25,6 @@ CREATE TABLE courses
     access_count integer NOT NULL DEFAULT 0,
     total_students integer NOT NULL DEFAULT 0
 );
-
--- ALTER TABLE exams
---     ADD CONSTRAINT exams_course_id_fk
---         FOREIGN KEY (course_id)
---             REFERENCES courses
---             ON DELETE CASCADE;
 
 -- CREATE TABLE classes
 -- (

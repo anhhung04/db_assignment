@@ -6,10 +6,9 @@ CREATE TYPE status AS ENUM ('active', 'inactive');
 CREATE TABLE users
 (
     username     TEXT         NOT NULL UNIQUE,
-    password     VARCHAR(100) NOT NULL,
+    password     VARCHAR(100) NOT NULL CHECK (LENGTH(password) > 5),
     fname        VARCHAR(100) NOT NULL,
     lname        VARCHAR(100) NOT NULL,
-    display_name VARCHAR(100) NOT NULL DEFAULT '',
     email        VARCHAR(100) NOT NULL UNIQUE,
     address      TEXT         NOT NULL,
     id           UUID         NOT NULL
@@ -21,7 +20,9 @@ CREATE TABLE users
     phone_no     VARCHAR(11),
     birthday     DATE,
     created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at   TIMESTAMP NOT NULL DEFAULT NOW()
+    updated_at   TIMESTAMP NOT NULL DEFAULT NOW(),
+    account_balance DOUBLE PRECISION DEFAULT 0,
+    display_name VARCHAR(100) NOT NULL DEFAULT CONCAT('lname', ' ', 'fname')
 );
 
 CREATE TABLE students
@@ -52,18 +53,16 @@ CREATE TABLE activities
     updated_at      TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
--- CREATE TABLE exams
--- (
---     exam_id    UUID    NOT NULL
---         CONSTRAINT exam_id
---             PRIMARY KEY,
---     questions  TEXT    NOT NULL,
---     answers    TEXT    NOT NULL,
---     duration   INTEGER NOT NULL,
---     course_id UUID    NOT NULL,
---     created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
---     updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
--- );
+CREATE TABLE exams
+(
+    exam_id    UUID    NOT NULL
+        CONSTRAINT exam_id
+            PRIMARY KEY,
+    duration  INTERVAL NOT NULL,
+    title    VARCHAR(100) NOT NULL,
+    created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
+);
 
 
 CREATE TABLE teachers
@@ -79,27 +78,17 @@ CREATE TABLE teachers
     updated_at        TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
--- CREATE TABLE assistants
--- (
---     teacher_id   UUID NOT NULL
---         CONSTRAINT teacher_id
---             REFERENCES teachers,
---     assistant_id UUID NOT NULL,
---     created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
---     updated_at   TIMESTAMP NOT NULL DEFAULT NOW(),
---     CONSTRAINT assistant_id
---         PRIMARY KEY (teacher_id, assistant_id)
--- );
-
--- CREATE TABLE libraries
--- (
---     library_id UUID        NOT NULL
---         CONSTRAINT library_id
---             PRIMARY KEY,
---     name       VARCHAR(50) NOT NULL,
---     created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
---     updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
--- );
+CREATE TABLE assistants
+(
+    teacher_id   UUID NOT NULL
+        CONSTRAINT teacher_id
+            REFERENCES teachers,
+    assistant_id UUID NOT NULL,
+    created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at   TIMESTAMP NOT NULL DEFAULT NOW(),
+    CONSTRAINT assistant_id
+        PRIMARY KEY (teacher_id, assistant_id)
+);
 
 CREATE TABLE permissions
 (
@@ -107,44 +96,42 @@ CREATE TABLE permissions
         CONSTRAINT permission_id
             REFERENCES users
             ON DELETE CASCADE,
-    "read"        BOOLEAN DEFAULT FALSE,
-    "create"      BOOLEAN DEFAULT FALSE,
-    "update"      BOOLEAN DEFAULT FALSE,
-    "delete"      BOOLEAN DEFAULT FALSE,
-    resource_id UUID,
+    read        BOOLEAN DEFAULT FALSE,
+    "create"    BOOLEAN DEFAULT FALSE,
+    update      BOOLEAN DEFAULT FALSE,
+    delete      BOOLEAN DEFAULT FALSE,
+    resource_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
     created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at   TIMESTAMP NOT NULL DEFAULT NOW(),
     CONSTRAINT permissions_id
         PRIMARY KEY (user_id, resource_id)
 );
 
--- CREATE TABLE taking_exam
--- (
---     user_id UUID    NOT NULL
---         CONSTRAINT taking_exam_students_student_id_fk
---             REFERENCES students
---             ON DELETE CASCADE
---             ON UPDATE CASCADE,
---     exam_id    UUID    NOT NULL
---         CONSTRAINT taking_exam_exams_exam_id_fk
---             REFERENCES exams
---             ON DELETE CASCADE
---             ON UPDATE CASCADE,
---     score      NUMERIC NOT NULL,
---     ranking    NUMERIC NOT NULL,
---     created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
---     updated_at  TIMESTAMP NOT NULL DEFAULT NOW(),
---     CONSTRAINT taking_id
---         PRIMARY KEY (user_id, exam_id)
--- );
+CREATE TABLE taking_exam
+(
+    student_id UUID    NOT NULL
+        CONSTRAINT taking_exam_students_student_id_fk
+            REFERENCES students
+            ON DELETE CASCADE,
+    exam_id    UUID    NOT NULL
+        CONSTRAINT taking_exam_exams_exam_id_fk
+            REFERENCES exams
+            ON DELETE CASCADE,
+    score      NUMERIC NOT NULL,
+    ranking    NUMERIC NOT NULL,
+    created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at  TIMESTAMP NOT NULL DEFAULT NOW(),
+    CONSTRAINT taking_id
+        PRIMARY KEY (student_id, exam_id)
+);
 
 -- Down Migration
 DROP TABLE IF EXISTS taking_exam;
 DROP TABLE IF EXISTS permissions;
--- DROP TABLE IF EXISTS libraries;
--- DROP TABLE IF EXISTS assistants;
+DROP TABLE IF EXISTS libraries;
+DROP TABLE IF EXISTS assistants;
 DROP TABLE IF EXISTS teachers;
--- DROP TABLE IF EXISTS exams;
+DROP TABLE IF EXISTS exams;
 DROP TABLE IF EXISTS activities;
 DROP TABLE IF EXISTS students;
 DROP TABLE IF EXISTS users;
