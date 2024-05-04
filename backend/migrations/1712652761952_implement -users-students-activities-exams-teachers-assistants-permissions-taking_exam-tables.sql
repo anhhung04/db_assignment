@@ -17,8 +17,8 @@ CREATE TABLE users
     avatar_url   TEXT,
     account_type account_type NOT NULL,
     status       status       NOT NULL,
-    phone_no     VARCHAR(11),
-    birthday     DATE,
+    phone_no     VARCHAR(11)    CHECK (LENGTH(phone_no) IN (10, 11)),
+    birthday     DATE CHECK (birthday < NOW()),
     created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at   TIMESTAMP NOT NULL DEFAULT NOW(),
     account_balance DOUBLE PRECISION DEFAULT 0,
@@ -59,7 +59,7 @@ CREATE TABLE exams
         CONSTRAINT exam_id
             PRIMARY KEY,
     duration  INTERVAL NOT NULL,
-    title    VARCHAR(100) NOT NULL,
+    title    VARCHAR(100) NOT NULL CHECK (LENGTH(title) > 5 AND LENGTH(title) <= 100),
     created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
 );
@@ -117,8 +117,8 @@ CREATE TABLE taking_exam
         CONSTRAINT taking_exam_exams_exam_id_fk
             REFERENCES exams
             ON DELETE CASCADE,
-    score      NUMERIC NOT NULL,
-    ranking    NUMERIC NOT NULL,
+    score      NUMERIC NOT NULL CHECK(score >= 0 AND score <= 10),
+    ranking    NUMERIC NOT NULL CHECK(ranking >= 0),
     created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at  TIMESTAMP NOT NULL DEFAULT NOW(),
     CONSTRAINT taking_id
