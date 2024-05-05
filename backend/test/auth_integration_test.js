@@ -49,7 +49,7 @@ describe("POST /api/auth/register", () => {
             username: faker.internet.userName(),
             password: "123AAAaaa#",
             email: faker.internet.email(),
-            phone_no: "12345678901",
+            phone_no: faker.phone,
             address: faker.location.streetAddress(),
             birthday: '2004-01-01',
             fname: faker.person.firstName(),

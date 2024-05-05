@@ -60,6 +60,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE PROCEDURE insert_user(
+in_id UUID,
     in_username TEXT,
     in_password VARCHAR(100),
     in_fname VARCHAR(100),
@@ -73,7 +74,6 @@ CREATE OR REPLACE PROCEDURE insert_user(
 )
 AS $$
 DECLARE
-    in_id UUID := uuid_generate_v4();
     v_error_message VARCHAR;
 BEGIN 
     IF in_username IS NULL THEN
@@ -188,6 +188,7 @@ DECLARE
     in_id UUID := uuid_generate_v4();
 BEGIN 
 CALL insert_user(
+in_id,
     in_username,
     in_password,
     in_fname,
@@ -245,6 +246,7 @@ DECLARE
     in_id UUID := uuid_generate_v4();
 BEGIN
 CALL insert_user(
+in_id,
     in_username,
     in_password,
     in_fname,
