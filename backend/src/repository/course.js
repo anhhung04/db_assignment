@@ -42,7 +42,7 @@ class CourseRepo extends IRepo {
                 FROM 
                     courses c
                 JOIN 
-                    users u ON c.teacher_id = u.id;
+                    users u ON c.teacher_id = u.id
                 WHERE ${filterQuery};
                 `,
                 args
@@ -64,13 +64,9 @@ class CourseRepo extends IRepo {
                         id: result.rows[0].id,
                         username: result.rows[0].username,
                         email: result.rows[0].email,
-                        phone_no: result.rows[0].phone_no,
-                        address: result.rows[0].address,
                         avatar_url: result.rows[0].avatar_url,
-                        birthday: result.rows[0].birthday,
                         fname: result.rows[0].fname,
                         lname: result.rows[0].lname,
-                        educational_level: result.rows[0].educational_level
                     },
                 },
                 error: null

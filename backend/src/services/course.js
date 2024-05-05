@@ -23,7 +23,7 @@ class CourseService extends IService {
 
     async findCourse({ id, isSlug = false }) {
         let findObj = isSlug ? { course_slug: id } : { course_id: id };
-        const { row: course, error } = await this._courseRepo.findOne(findObj);
+        const { course, error } = await this._courseRepo.findOne(findObj);
         if (error) {
             throw new Error(error);
         }
