@@ -354,7 +354,7 @@ CREATE OR REPLACE PROCEDURE update_courses(
     in_headline VARCHAR(100),
     in_content_info VARCHAR(50),
     in_amount_price DOUBLE PRECISION,
-    in_currency currency_type,
+    in_currency currency_type
 )
 AS $$
 BEGIN
@@ -369,7 +369,7 @@ BEGIN
         headline = CASE WHEN in_headline IS NOT NULL AND in_headline != '' THEN in_headline ELSE headline END,
         content_info = CASE WHEN in_content_info IS NOT NULL AND in_content_info != '' THEN in_content_info ELSE content_info END,
         amount_price = CASE WHEN in_amount_price IS NOT NULL THEN in_amount_price ELSE amount_price END,
-        currency = CASE WHEN in_currency IS NOT NULL THEN in_currency ELSE currency END,
+        currency = CASE WHEN in_currency IS NOT NULL THEN in_currency ELSE currency END
     WHERE course_id = in_id;
 END;
 $$ LANGUAGE plpgsql;
