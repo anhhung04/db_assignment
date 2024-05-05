@@ -125,14 +125,14 @@ CREATE OR REPLACE FUNCTION calculate_course_price(
 RETURNS DOUBLE PRECISION AS $$
 DECLARE
     bought_course RECORD;
-course_price DOUBLE PRECISION;
+    course_price DOUBLE PRECISION;
     max_points DOUBLE PRECISION := 0.2; 
     solve_threshold DOUBLE PRECISION;
     x DOUBLE PRECISION := 0;
-    discount_amount DOUBLE PRECISION;
+    discount_amount DOUBLE PRsECISION;
 BEGIN
-SELECT SUM(courses.amount_price) INTO solve_threshold
-FROM courses;
+    SELECT SUM(courses.amount_price) INTO solve_threshold
+    FROM courses;
 
     FOR bought_course IN (SELECT course_id, current_price FROM students_join_courses WHERE student_id = in_student_id)
     LOOP
@@ -166,12 +166,12 @@ DECLARE
 BEGIN
     in_current_price := calculate_course_price(in_student_id, in_course_id);
     SELECT course_type INTO course_type FROM courses WHERE course_id = in_course_id;
-    SELECT account_balance INTO student_balance FROM users WHERE user_id = in_student_id;
+    SELECT account_balance INTO student_balance FROM users WHERE id = in_student_id;
     IF course_type = 'paid' THEN
         IF student_balance < in_current_price THEN
             RAISE EXCEPTION 'The student does not have enough money to join the course';
         END IF;
-        UPDATE users SET account_balance = account_balance - in_current_price WHERE user_id = in_student_id;
+        UPDATE users SET account_balance = account_balance - in_current_price WHERE id = in_student_id;
     END IF;
     
     INSERT INTO students_join_courses (student_id, course_id, current_price)
