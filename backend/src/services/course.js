@@ -238,31 +238,20 @@ class CourseService extends IService {
     }
 
     async joinCourse({ courseId, isSlug }) {
-        let { row: course, error } = await this._courseRepo.findOneInTable({
-            table: "courses",
-            findObj: {
-                [`${isSlug ? "course_slug" : "course_id"}`]: courseId
-            }
+        let course = await this._courseRepo.findOne(
+            isSlug ? { course_slug: courseId } : { course_id: courseId }
+        );
+        if (!course) {
+            throw new Error("Course not found");
+        }
+        let { error } = await this._courseRepo.joinCourse({
+            studentId: this._currentUser.id,
+            courseId: course.course_id
         });
 
         if (error) {
             throw new Error(error);
         }
-
-        let { row: join, error: err } = await this._courseRepo.createInTable({
-            table: "students_join_course",
-            createObj: {
-                course_id: course.course_id,
-                student_id: this._currentUser.id,
-                current_price: course.amount_price,
-            }
-        });
-
-        if (err) {
-            throw new Error(err);
-        }
-
-        return join;
     }
 
     async listMyCourses({
