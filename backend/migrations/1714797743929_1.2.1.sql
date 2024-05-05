@@ -7,7 +7,7 @@ BEGIN
         RAISE EXCEPTION 'Password must be at least 5 characters long.';
     END IF;
 
-    IF NOT (in_password ~'^(?=.*[A-Z].*[A-Z])(?=.*[!@#$&*])(?=.*[0-9].*[0-9])(?=.*[a-z].*[a-z].*[a-z]).{8}$') THEN
+    IF NOT (in_password ~'^(?=.*[A-Z].*[A-Z])(?=.*[!@#$&*])(?=.*[0-9].*[0-9])(?=.*[a-z].*[a-z].*[a-z]).{8,}$') THEN
         RAISE EXCEPTION 'Invalid password format';
     END IF;
 END;
@@ -193,7 +193,7 @@ CALL insert_user(
     in_email,
     in_address,
     in_avatar_url,
-    "student",
+    'student',
     in_phone_no,
     in_birthday
 );
@@ -250,7 +250,7 @@ CALL insert_user(
     in_email,
     in_address,
     in_avatar_url,
-    "teacher",
+    'teacher',
     in_phone_no,
     in_birthday
 );
