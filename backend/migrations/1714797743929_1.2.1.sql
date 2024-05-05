@@ -285,7 +285,7 @@ CREATE OR REPLACE PROCEDURE insert_courses(
     in_type course_type,
     in_description VARCHAR(200),
     in_level VARCHAR(20),
-    in_thumbnail_url TEXT,
+    in_avatar_url TEXT,
     in_headline VARCHAR(100),
     in_content_info VARCHAR(50),
     in_amount_price DOUBLE PRECISION,
@@ -317,8 +317,8 @@ BEGIN
     IF in_currency IS NULL THEN
         RAISE EXCEPTION 'Currency is required.';
     END IF;
-    CALL check_valid_url(in_thumbnail_url);
-    INSERT INTO courses (course_id, title, type, description, rating, level, thumbnail_url, headline, content_info, amount_price, currency, course_slug, access_count, total_students)
+    CALL check_valid_url(in_avatar_url);
+    INSERT INTO courses (course_id, title, type, description, rating, level, avatar_url, headline, content_info, amount_price, currency, course_slug, access_count, total_students)
 VALUES (
         in_id,
         in_title,
@@ -326,7 +326,7 @@ VALUES (
         in_description,
         in_rating,
         in_level,
-        in_thumbnail_url,
+        in_avatar_url,
         in_headline,
         in_content_info,
         in_amount_price,
@@ -352,7 +352,7 @@ CREATE OR REPLACE PROCEDURE update_courses(
     in_id UUID,
     in_description VARCHAR(200),
     in_level VARCHAR(20),
-    in_thumbnail_url TEXT,
+    in_avatar_url TEXT,
     in_headline VARCHAR(100),
     in_content_info VARCHAR(50),
     in_amount_price DOUBLE PRECISION,
@@ -360,14 +360,14 @@ CREATE OR REPLACE PROCEDURE update_courses(
 )
 AS $$
 BEGIN
-    IF in_thumbnail_url IS NOT NULL AND in_thumbnail_url != '' THEN
-        CALL check_valid_url(in_thumbnail_url);
+    IF in_avatar_url IS NOT NULL AND in_avatar_url != '' THEN
+        CALL check_valid_url(in_avatar_url);
     END IF;
 
     UPDATE courses
     SET description = CASE WHEN in_description IS NOT NULL AND in_description != '' THEN in_description ELSE description END,
         level = CASE WHEN in_level IS NOT NULL AND in_level != '' THEN in_level ELSE level END,
-        thumbnail_url = CASE WHEN in_thumbnail_url IS NOT NULL AND in_thumbnail_url != '' THEN in_thumbnail_url ELSE thumbnail_url END,
+        avatar_url = CASE WHEN in_avatar_url IS NOT NULL AND in_avatar_url != '' THEN in_avatar_url ELSE avatar_url END,
         headline = CASE WHEN in_headline IS NOT NULL AND in_headline != '' THEN in_headline ELSE headline END,
         content_info = CASE WHEN in_content_info IS NOT NULL AND in_content_info != '' THEN in_content_info ELSE content_info END,
         amount_price = CASE WHEN in_amount_price IS NOT NULL THEN in_amount_price ELSE amount_price END,

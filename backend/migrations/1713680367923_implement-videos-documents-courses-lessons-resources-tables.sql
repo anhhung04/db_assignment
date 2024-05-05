@@ -18,7 +18,11 @@ CREATE TABLE courses
     access_count integer NOT NULL DEFAULT 0,
     total_students integer NOT NULL DEFAULT 0,
     created_at  TIMESTAMP DEFAULT NOW() NOT NULL,
-    updated_at  TIMESTAMP DEFAULT NOW() NOT NULL
+    updated_at  TIMESTAMP DEFAULT NOW() NOT NULL,
+    teacher_id UUID
+        CONSTRAINT courses_teachers_teacher_id_fk
+            REFERENCES teachers
+            ON DELETE CASCADE
 );
 
 -- CREATE TABLE classes
