@@ -72,13 +72,13 @@ CREATE OR REPLACE FUNCTION get_top_highlight_courses(min_avg_review DOUBLE PRECI
 RETURNS TABLE(course_id uuid, title varchar, rating double precision, total_students integer, recent_students integer, access_count integer, total_reviews integer, avg_review double precision) AS $$
 DECLARE
     course_count INT;
-    recent_days INT := 30;
+    recent_months INT := 1;
 BEGIN
-    WHILE course_count < 5 AND recent_days < 90 LOOP
-        SELECT COUNT(DISTINCT course_id) INTO course_count
-        FROM students_join_courses
-        WHERE created_at > NOW() - INTERVAL '1 day' * recent_days;
-        recent_days := recent_days + 30;
+    WHILE course_count < limit_count AND recent_months < 4 LOOP
+        SELECT COUNT(DISTINCT sjc.course_id) INTO course_count
+        FROM students_join_courses sjc
+        WHERE sjc.created_at > NOW() - INTERVAL '1 month' * recent_months;
+        recent_months := recent_months + 1;
     END LOOP;
 
     RETURN QUERY 
@@ -87,7 +87,7 @@ BEGIN
         c.title,
         c.rating,
         c.total_students,
-        (SELECT COUNT(DISTINCT student_id) FROM students_join_courses WHERE course_id = c.course_id AND created_at > NOW() - INTERVAL '1 month') AS recent_students,
+        (SELECT COUNT(DISTINCT sjc.student_id) FROM students_join_courses sjc WHERE sjc.course_id = c.course_id AND sjc.created_at > NOW() - INTERVAL '1 month') AS recent_students,
         c.access_count,
         COUNT(r.id) AS total_reviews,
         COALESCE(AVG(r.rating), 0) AS avg_review
@@ -96,7 +96,7 @@ BEGIN
     LEFT JOIN
         reviews r ON c.course_id = r.course_id
     LEFT JOIN
-        students_join_courses sjc ON c.course_id = sjc.course_id AND sjc.created_at > NOW() - INTERVAL '1 day' * recent_days
+        students_join_courses sjc ON c.course_id = sjc.course_id AND sjc.created_at > NOW() - INTERVAL '1 month' * recent_months
     GROUP BY
         c.course_id, c.title, c.rating, c.total_students, c.access_count
     HAVING
