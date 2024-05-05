@@ -68,8 +68,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION get_top_highlight_courses(min_avg_review DOUBLE PRECISION DEFAULT 0, limit_count INTEGER DEFAULT 5)
-RETURNS TABLE(course_id uuid, title varchar, rating double precision, total_students integer, recent_students integer, access_count integer, total_reviews integer, avg_review double precision) AS $$
+CREATE OR REPLACE FUNCTION get_top_highlight_courses(limit_count INTEGER DEFAULT 5, min_avg_review DOUBLE PRECISION DEFAULT 0)
+RETURNS TABLE(course_id uuid, title varchar(100), type course_type, description varchar(200), rating double precision, level varchar(20), headline varchar(100), content_info varchar(50), amount_price double precision, currency currency_type, total_students integer, recent_students integer, total_reviews integer, avg_review double precision) AS $$
 DECLARE
     course_count INT;
     recent_months INT := 1;
@@ -85,10 +85,16 @@ BEGIN
     SELECT
         c.course_id,
         c.title,
+        c.type,
+        c.description,
         c.rating,
+        c.level,
+        c.headline,
+        c.content_info,
+        c.amount_price,
+        c.currency,
         c.total_students,
         (SELECT COUNT(DISTINCT sjc.student_id) FROM students_join_courses sjc WHERE sjc.course_id = c.course_id AND sjc.created_at > NOW() - INTERVAL '1 month') AS recent_students,
-        c.access_count,
         COUNT(r.id) AS total_reviews,
         COALESCE(AVG(r.rating), 0) AS avg_review
     FROM
@@ -98,20 +104,20 @@ BEGIN
     LEFT JOIN
         students_join_courses sjc ON c.course_id = sjc.course_id AND sjc.created_at > NOW() - INTERVAL '1 month' * recent_months
     GROUP BY
-        c.course_id, c.title, c.rating, c.total_students, c.access_count
+        c.course_id, c.title, c.type, c.description, c.rating, c.level, c.headline, c.content_info, c.amount_price, c.currency, c.total_students
     HAVING
         COALESCE(AVG(r.rating), 0) > min_avg_review
     ORDER BY
         recent_students DESC,
         c.total_students DESC,
         c.rating DESC,
-        c.access_count DESC,
         total_reviews DESC,
         avg_review DESC
     LIMIT
         limit_count;
 END; 
 $$ LANGUAGE plpgsql;
+
 
 
 -- Down Migration
