@@ -106,7 +106,7 @@ BEGIN
     GROUP BY
         c.course_id, c.title, c.type, c.description, c.rating, c.level, c.headline, c.content_info, c.amount_price, c.currency, c.total_students
     HAVING
-        COALESCE(AVG(r.rating), 0) > min_avg_review
+        COALESCE(AVG(r.rating), 0) >= min_avg_review
     ORDER BY
         recent_students DESC,
         c.total_students DESC,
