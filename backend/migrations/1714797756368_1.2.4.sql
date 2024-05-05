@@ -125,13 +125,14 @@ CREATE OR REPLACE FUNCTION calculate_course_price(
 RETURNS DOUBLE PRECISION AS $$
 DECLARE
     bought_course RECORD;
-    amount_price DOUBLE PRECISION;
+course_price DOUBLE PRECISION;
     max_points DOUBLE PRECISION := 0.2; 
     solve_threshold DOUBLE PRECISION;
     x DOUBLE PRECISION := 0;
     discount_amount DOUBLE PRECISION;
 BEGIN
-    SELECT SUM(amount_price) INTO solve_threshold FROM courses;
+SELECT SUM(courses.amount_price) INTO solve_threshold
+FROM courses;
 
     FOR bought_course IN (SELECT course_id, current_price FROM students_join_courses WHERE student_id = in_student_id)
     LOOP
@@ -143,15 +144,17 @@ BEGIN
     END LOOP;
 
     discount_amount := max_points / (solve_threshold^2) * (x^2);
-    SELECT amount_price INTO amount_price FROM courses WHERE course_id = in_course_id;
-    amount_price := change_currency(amount_price, 'usd');
-    amount_price := amount_price * (1 - discount_amount);
+SELECT amount_price INTO course_price
+FROM courses
+WHERE course_id = in_course_id;
+course_price := change_currency(course_price, 'usd');
+course_price := course_price * (1 - discount_amount);
 
-    RETURN amount_price;
+RETURN course_price;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE PROCEDURE join(
+CREATE OR REPLACE PROCEDURE join_course(
     in_student_id UUID,
     in_course_id UUID
 )
