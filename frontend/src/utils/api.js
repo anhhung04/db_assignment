@@ -1,4 +1,5 @@
-const BASE_URL = "https://assigndb.hah4.id.vn"
+const MODE = import.meta.env.MODE;
+const BASE_URL = MODE == "development" ? "https://assigndb.hah4.id.vn" : ""
 
 async function apiCall(
     path,
@@ -6,13 +7,13 @@ async function apiCall(
     body = null
 ) {
     let res = await fetch(
-        path,
+        BASE_URL + path,
         {
             method,
             headers: {
                 "Content-Type": "application/json"
-            }, credentials: true,
-            body: JSON.stringify(body)
+            }, credentials: 'same-origin',
+            body: body ? JSON.stringify(body) : null
         }
     ).then(res => res.json())
     return res;

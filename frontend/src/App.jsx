@@ -1,4 +1,3 @@
-import React from 'react';
 import RouterCustom from './router.jsx';
 import { BrowserRouter } from "react-router-dom";
 import "./style/style.scss";

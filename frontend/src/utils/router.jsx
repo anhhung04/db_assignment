@@ -1,6 +1,11 @@
 export const ROUTERS = {
     USER: {
         HOME: "/",
-        PROFILE: "thong-tin-ca-nhan",
+        PROFILE: "/my-profile",
+        LOGIN: "/login"
+    },COURSES: {
+        HOME: "/courses",
+        DETAIL: "/courses/:slug",
+        MYCOURSES: "/my-courses",
     }
 }
