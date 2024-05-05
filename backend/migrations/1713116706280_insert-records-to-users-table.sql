@@ -25,6 +25,16 @@ VALUES (
         '0837317823',
         '2024-04-15'
     );
+INSERT INTO teachers (
+        user_id,
+        educational_level,
+        rating
+    )
+VALUES (
+        '90f5c3b5-6b82-4b6d-85b5-9c1d414e9a1f',
+        'Đại học',
+        4.5
+    );
 INSERT INTO users (
         id,
         username,
@@ -50,6 +60,18 @@ VALUES (
         'student',
         '0123456789',
         '2004-01-01'
+    );
+INSERT INTO students (
+        user_id,
+        english_level,
+        study_history,
+        target
+    )
+VALUES (
+        '36a14986-5819-43ac-90af-b75eeb8dce27',
+        'A1',
+        'Không có',
+        'Học tốt'
     );
 -- Down Migration
 DELETE FROM users WHERE id IN ('90f5c3b5-6b82-4b6d-85b5-9c1d414e9a1f', '36a14986-5819-43ac-90af-b75eeb8dce27');
