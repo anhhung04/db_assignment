@@ -334,8 +334,7 @@ VALUES (
         in_course_slug,
         in_access_count,
         in_total_students
-    )
-RETURNING *;
+);
 END;
 $$ LANGUAGE plpgsql;
 
@@ -358,7 +357,7 @@ CREATE OR REPLACE PROCEDURE update_courses(
 )
 AS $$
 BEGIN
-    IF thumbnail_url IS NOT NULL AND thumbnail_url != '' THEN
+    IF in_thumbnail_url IS NOT NULL AND in_thumbnail_url != '' THEN
         CALL check_valid_url(in_thumbnail_url);
     END IF;
 

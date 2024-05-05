@@ -9,7 +9,7 @@ class CourseService extends IService {
     }
     async listCourses({ limit, page }) {
         limit = limit ? Math.abs(limit) : 10;
-        page = page ? Math.abs(page) * (limit - 1) : 0;
+        page = page ? Math.abs(page) : 0;
         const { rows: courses, error } = await this._courseRepo.findInTable({
             table: "courses",
             limit,
@@ -158,7 +158,6 @@ class CourseService extends IService {
         if (error) {
             throw new Error(error);
         }
-        return course;
     }
 
     async updateCourse({
@@ -174,11 +173,8 @@ class CourseService extends IService {
             currency
         }
     }) {
-        const { rows: courses, error } = await this._courseRepo.update({
-            table: "courses",
-            indentify: {
-                course_id: courseId
-            },
+        const { error } = await this._courseRepo.update({
+            courseId,
             updateObj: {
                 type,
                 description,
@@ -193,7 +189,6 @@ class CourseService extends IService {
         if (error) {
             throw new Error(error);
         }
-        return courses[0];
     }
 
     async deleteCourse({ courseId }) {
