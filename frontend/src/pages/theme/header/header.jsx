@@ -16,7 +16,7 @@ const Header = () => {
                                 <h1>LOGO</h1>
                             </li>
                             <li>Thể loại</li>
-                            <li>
+                            <li >
                                 <FaMagnifyingGlass />
                                 <input type="text" placeholder='Tìm kiếm nội dung bất kỳ' required />
                             </li>

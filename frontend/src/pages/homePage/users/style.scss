@@ -1,0 +1,15 @@
+.container__courses_slider {
+    max-width: 1200px;
+    margin-top: 30px;
+
+    .courses_slider {
+        .courses_slider_item {
+            height: 300px;
+            position: relative;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: top center;
+            border-radius: 5px;
+        }
+    }
+}
