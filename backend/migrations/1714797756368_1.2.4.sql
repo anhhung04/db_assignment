@@ -118,11 +118,60 @@ BEGIN
 END; 
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION calculate_course_price(
+    in_student_id UUID,
+    in_course_id UUID
+)
+RETURNS FLOAT AS $$
+DECLARE
+    amount_price FLOAT;
+    max_points FLOAT := 0.05; 
+    min_points FLOAT := 0.50;
+    solve_threshold FLOAT := 0.90;
+    x FLOAT;
+    total_courses_amount FLOAT;
+    student_courses_amount FLOAT;
+    discount_amount FLOAT;
+BEGIN
+    SELECT SUM(amount_price) INTO total_courses_amount FROM courses;
 
+    SELECT SUM(c.amount_price) INTO student_courses_amount
+    FROM students_join_courses s
+    JOIN courses c ON s.course_id = c.course_id
+    WHERE s.student_id = in_student_id;
 
+    x := student_courses_amount / total_courses_amount;
+
+    discount_amount := (min_points - max_points) / (solve_threshold^2) * (x^2) + max_points;
+
+    SELECT amount_price INTO amount_price FROM courses WHERE course_id = in_course_id;
+    amount_price := change_currency(amount_price, 'usd');
+
+    amount_price := amount_price * (1 - discount_amount);
+
+    RETURN amount_price;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE PROCEDURE join(
+    in_student_id UUID,
+    in_course_id UUID
+)
+AS $$
+DECLARE
+    in_current_price DOUBLE PRECISION;
+BEGIN
+    SELECT amount_price INTO in_current_price FROM courses WHERE course_id = in_course_id;
+    in_current_price := calculate_course_price(in_student_id, in_course_id);
+    INSERT INTO students_join_courses (student_id, course_id, current_price)
+    VALUES (in_student_id, in_course_id, in_current_price);
+END;
+$$ LANGUAGE plpgsql;
 
 -- Down Migration
 DROP FUNCTION IF EXISTS calculate_exam_score;
 DROP FUNCTION IF EXISTS check_course_eligibility;
 DROP FUNCTION IF EXISTS get_top_students;
 DROP FUNCTION IF EXISTS get_top_highlight_courses;
+DROP FUNCTION IF EXISTS calculate_course_price;
+DROP PROCEDURE IF EXISTS join;

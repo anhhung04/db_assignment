@@ -422,17 +422,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- CREATE OR REPLACE PROCEDURE insert_student_into_course(
---     in_student_id UUID,
---     in_course_id UUID
--- )
--- AS $$
--- BEGIN
---     INSERT INTO students_join_courses (student_id, course_id)
---     VALUES (in_student_id, in_course_id);
--- END;
--- $$ LANGUAGE plpgsql;
-
 -- Down Migration
 DROP PROCEDURE IF EXISTS check_password;
 DROP PROCEDURE IF EXISTS check_valid_email;
@@ -454,4 +443,3 @@ DROP PROCEDURE IF EXISTS update_courses;
 DROP PROCEDURE IF EXISTS insert_lessons;
 DROP PROCEDURE IF EXISTS delete_lessons;
 DROP PROCEDURE IF EXISTS update_lessons;
--- DROP PROCEDURE IF EXISTS insert_student_into_course;

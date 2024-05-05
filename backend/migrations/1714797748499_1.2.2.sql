@@ -140,40 +140,6 @@ AFTER UPDATE ON reviews
 FOR EACH ROW
 EXECUTE FUNCTION update_review_trigger_function();
 
-CREATE OR REPLACE FUNCTION calculate_discounted_payment() RETURNS TRIGGER AS $$
-DECLARE
-    amount_price FLOAT;
-    max_points FLOAT := 0.05; 
-    min_points FLOAT := 0.50;
-    solve_threshold FLOAT := 0.90;
-    x FLOAT;
-    total_courses INTEGER;
-    registered_courses INTEGER;
-    discount_amount FLOAT;
-BEGIN
-    SELECT COUNT(DISTINCT course_id) INTO total_courses FROM students_join_courses;
-    SELECT COUNT(course_id) INTO registered_courses FROM students_join_courses WHERE student_id = NEW.student_id;
-
-    x := registered_courses::FLOAT / total_courses;
-    discount_amount := (min_points - max_points) / (solve_threshold^2) * (x^2) + max_points;
-
-    SELECT amount_price INTO amount_price FROM courses WHERE course_id = NEW.course_id;
-    amount_price := change_currency(amount_price, 'usd');
-
-    -- Apply the discount to the base fee
-    UPDATE users
-    SET account_balance = account_balance - (amount_price * discount_amount)
-    WHERE id = NEW.student_id;
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER calculate_discounted_payment_trigger
-AFTER INSERT ON students_join_courses
-FOR EACH ROW
-EXECUTE FUNCTION calculate_discounted_payment();
-
 CREATE OR REPLACE FUNCTION count_students_in_course() 
 RETURNS TRIGGER AS $$
 BEGIN
@@ -301,8 +267,6 @@ DROP TRIGGER give_bonus_to_teacher_trigger ON students_join_courses;
 DROP FUNCTION give_bonus_to_teacher();
 DROP TRIGGER count_students_trigger ON students_join_courses;
 DROP FUNCTION count_students_in_course();
-DROP TRIGGER calculate_discounted_payment_trigger ON students_join_courses;
-DROP FUNCTION calculate_discounted_payment();
 DROP TRIGGER update_review_trigger ON reviews;
 DROP FUNCTION update_review_trigger_function();
 DROP TRIGGER insert_review_trigger ON reviews;
