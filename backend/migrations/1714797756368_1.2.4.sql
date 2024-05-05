@@ -173,8 +173,7 @@ BEGIN
 
     in_current_price := calculate_course_price(in_student_id, in_course_id);
     SELECT account_balance INTO student_balance FROM users WHERE id = in_student_id;
-    SELECT course_type INTO course_type FROM users WHERE id = in_student_id;
-
+    SELECT type INTO course_type FROM courses WHERE course_id = in_course_id;
     IF course_type = 'paid' THEN
         IF student_balance < in_current_price THEN
             RAISE EXCEPTION 'The student does not have enough money to join the course';
