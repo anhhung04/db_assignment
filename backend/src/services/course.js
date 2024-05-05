@@ -144,37 +144,20 @@ class CourseService extends IService {
             currency
         }
     }) {
-        let course_slug = title.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9 ]/g, "").replace(/ /g, "-").toLowerCase();
-        course_slug = course_slug + "-" + Math.random().toString(36).substring(2, 7);
-        const { row: course, error } = await this._courseRepo.createInTable({
-            table: "courses",
-            createObj: {
-                course_id: uuidv4(),
-                title,
-                type,
-                description,
-                level,
-                thumbnail_url,
-                headline,
-                content_info,
-                amount_price,
-                currency,
-                course_slug
-            }
+        const { course, error } = await this._courseRepo.createCourse({
+            title,
+            type,
+            description,
+            level,
+            thumbnail_url,
+            headline,
+            content_info,
+            amount_price,
+            currency,
         });
         if (error) {
             throw new Error(error);
         }
-        await this._courseRepo.modifyPermission({
-            userId: this._currentUser.id,
-            resourceId: course.course_id,
-            permissions: {
-                create: true,
-                read: true,
-                update: true,
-                delete: true
-            }, newPermissions: true
-        });
         return course;
     }
 
@@ -191,7 +174,7 @@ class CourseService extends IService {
             currency
         }
     }) {
-        const { rows: courses, error } = await this._courseRepo.updateInTable({
+        const { rows: courses, error } = await this._courseRepo.update({
             table: "courses",
             indentify: {
                 course_id: courseId
@@ -211,6 +194,15 @@ class CourseService extends IService {
             throw new Error(error);
         }
         return courses[0];
+    }
+
+    async deleteCourse({ courseId }) {
+        const { error } = await this._courseRepo.delete({
+            courseId
+        });
+        if (error) {
+            throw new Error(error);
+        }
     }
 
     async searchCourses({ content, limit }) {
@@ -243,7 +235,7 @@ class CourseService extends IService {
             courseId: studentBoughtCourse.course_id,
             rating,
             comment
-        })
+        });
 
         if (error) {
             throw new Error(error);

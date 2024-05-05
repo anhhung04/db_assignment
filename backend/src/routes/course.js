@@ -142,6 +142,25 @@ router.patch("/:id", validate({
     });
 });
 
+router.delete("/:id", async (req, res) => {
+    if (!isUUID(String(req.params.id))) {
+        return wrapResponse(res, {
+            code: STATUS_CODE.HTTP_400_BAD_REQUEST,
+            message: "Invalid course id"
+        });
+    }
+    let courseId = String(req.params.id);
+    await req.service.deleteCourse({
+        courseId,
+        resourceId: courseId,
+        actionType: ActionType.DELETE
+    });
+    return wrapResponse(res, {
+        code: STATUS_CODE.HTTP_200_OK,
+        message: "Course deleted successfully",
+    });
+});
+
 router.get("/:id/lesson", async (req, res) => {
     let { id } = req.params;
     id = String(id);

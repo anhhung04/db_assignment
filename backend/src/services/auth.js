@@ -46,9 +46,9 @@ class AuthService extends IService {
         isTeacher,
         data
     }) {
-        const { user, error } = await this.userRepo.create({
+        let { error } = await this.userRepo.create({
             username,
-            password: await bcrypt.hash(password, 10),
+            password,
             email,
             phone_no,
             address,
@@ -56,20 +56,12 @@ class AuthService extends IService {
             birthday,
             fname,
             lname,
-            display_name: `${fname} ${lname}`
+            isTeacher,
+            data
         });
         if (error) {
             throw new Error(error);
         }
-        let { error: err } = await this.userRepo.createUserType({
-            userId: user.id,
-            userType: isTeacher ? "teachers" : "students",
-            typeData: data
-        });
-        if (err) {
-            throw new Error(err);
-        }
-        return user;
     }
 }
 

@@ -98,6 +98,92 @@ class CourseRepo extends IRepo {
         }
 
     }
+
+    async createCourse({
+        title,
+        type,
+        description,
+        level,
+        thumbnail_url,
+        headline,
+        content_info,
+        amount_price,
+        currency,
+    }) {
+        try {
+            let course_slug = title.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9 ]/g, "").replace(/ /g, "-").toLowerCase();
+            course_slug = course_slug + "-" + Math.random().toString(36).substring(2, 7);
+            const result = await this.exec({
+                query: `
+                    CALL insert_courses($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
+                `,
+                args: [title, type, description, level, thumbnail_url, headline, content_info, amount_price, currency, course_slug]
+            });
+            return {
+                course: result.rows[0],
+                error: null
+            };
+        } catch (err) {
+            logger.debug(err);
+            return {
+                course: null,
+                error: err
+            };
+        }
+    }
+
+    async update({
+        courseId,
+        updateObj: {
+            description,
+            level,
+            thumbnail_url,
+            headline,
+            content_info,
+            amount_price,
+            currency
+        }
+    }) {
+        try {
+            const result = await this.exec({
+                query: `
+                    CALL update_courses($1, $2, $3, $4, $5, $6, $7, $8);
+                `,
+                args: [courseId, description, level, thumbnail_url, headline, content_info, amount_price, currency]
+            });
+            return {
+                course: result.rows[0],
+                error: null
+            };
+        } catch (err) {
+            logger.debug(err);
+            return {
+                course: null,
+                error: err
+            };
+        }
+    }
+
+    async delete({ courseId }) {
+        try {
+            const result = await this.exec({
+                query: `
+                    CALL delete_courses($1);
+                `,
+                args: [courseId]
+            });
+            return {
+                course: result.rows[0],
+                error: null
+            };
+        } catch (err) {
+            logger.debug(err);
+            return {
+                course: null,
+                error: err
+            };
+        }
+    }
 }
 
 module.exports = {

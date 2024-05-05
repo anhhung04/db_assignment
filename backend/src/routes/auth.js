@@ -97,7 +97,7 @@ router.post('/register', validate({
          * @type {AuthService}
          */
         const authService = req.authService;
-        const user = await authService.register({
+        await authService.register({
             username,
             password,
             email,
@@ -109,20 +109,6 @@ router.post('/register', validate({
             lname,
             isTeacher,
             data
-        });
-        if (!user) {
-            throw new HTTPException({
-                code: STATUS_CODE.HTTP_400_BAD_REQUEST,
-                message: "Register failed!",
-                data: {
-                    success: false
-                }
-            });
-        }
-        await authService.logActivity({
-            action: "create",
-            resourceId: user.id,
-            note: `User ${user.username} registered`
         });
         return wrapResponse(res, {
             code: STATUS_CODE.HTTP_200_OK,

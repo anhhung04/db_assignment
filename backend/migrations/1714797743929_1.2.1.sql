@@ -177,8 +177,7 @@ CREATE OR REPLACE PROCEDURE insert_student(
     in_lname VARCHAR(100),
     in_email VARCHAR(100),
     in_address TEXT,
-    in_avatar_url TEXT,
-    in_account_type account_type,
+in_avatar_url TEXT,
     in_phone_no VARCHAR(11),
     in_birthday DATE
 )
@@ -186,7 +185,18 @@ AS $$
 DECLARE
     in_id UUID := uuid_generate_v4();
 BEGIN 
-    CALL insert_user(in_username, in_password, in_fname, in_lname, in_email, in_address, in_avatar_url, in_account_type, in_phone_no, in_birthday);
+CALL insert_user(
+    in_username,
+    in_password,
+    in_fname,
+    in_lname,
+    in_email,
+    in_address,
+    in_avatar_url,
+    "student",
+    in_phone_no,
+    in_birthday
+);
     INSERT INTO students (english_level, study_history, target, user_id)
     VALUES (in_english_level, in_study_history, in_target, in_id);
 END;
@@ -223,8 +233,7 @@ CREATE OR REPLACE PROCEDURE insert_teacher(
     in_lname VARCHAR(100),
     in_email VARCHAR(100),
     in_address TEXT,
-    in_avatar_url TEXT,
-    in_account_type account_type,
+in_avatar_url TEXT,
     in_phone_no VARCHAR(11),
     in_birthday DATE,
     in_rating DOUBLE PRECISION DEFAULT 0
@@ -233,7 +242,18 @@ AS $$
 DECLARE
     in_id UUID := uuid_generate_v4();
 BEGIN
-    CALL insert_user(in_username, in_password, in_fname, in_lname, in_email, in_address, in_avatar_url, in_account_type, in_phone_no, in_birthday);
+CALL insert_user(
+    in_username,
+    in_password,
+    in_fname,
+    in_lname,
+    in_email,
+    in_address,
+    in_avatar_url,
+    "teacher",
+    in_phone_no,
+    in_birthday
+);
     INSERT INTO teachers (user_id, educational_level, rating)
     VALUES (in_id, in_educational_level, in_rating);
 END;
@@ -299,7 +319,23 @@ BEGIN
     END IF;
     CALL check_valid_url(in_thumbnail_url);
     INSERT INTO courses (course_id, title, type, description, rating, level, thumbnail_url, headline, content_info, amount_price, currency, course_slug, access_count, total_students)
-    VALUES (in_id, in_title, in_type, in_description, in_rating, in_level, in_thumbnail_url, in_headline, in_content_info, in_amount_price, in_currency, in_course_slug, in_access_count, in_total_students);
+VALUES (
+        in_id,
+        in_title,
+        in_type,
+        in_description,
+        in_rating,
+        in_level,
+        in_thumbnail_url,
+        in_headline,
+        in_content_info,
+        in_amount_price,
+        in_currency,
+        in_course_slug,
+        in_access_count,
+        in_total_students
+    )
+RETURNING *;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -312,19 +348,13 @@ $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE PROCEDURE update_courses(
     in_id UUID,
-    in_title VARCHAR(100),
-    in_type course_type,
     in_description VARCHAR(200),
-    in_rating DOUBLE PRECISION,
     in_level VARCHAR(20),
     in_thumbnail_url TEXT,
     in_headline VARCHAR(100),
     in_content_info VARCHAR(50),
     in_amount_price DOUBLE PRECISION,
     in_currency currency_type,
-    in_course_slug VARCHAR(100),
-    in_access_count INTEGER,
-    in_total_students INTEGER
 )
 AS $$
 BEGIN
@@ -333,19 +363,13 @@ BEGIN
     END IF;
 
     UPDATE courses
-    SET title = CASE WHEN in_title IS NOT NULL AND in_title != '' THEN in_title ELSE title END,
-        type = CASE WHEN in_type IS NOT NULL THEN in_type ELSE type END,
-        description = CASE WHEN in_description IS NOT NULL AND in_description != '' THEN in_description ELSE description END,
-        rating = CASE WHEN in_rating IS NOT NULL THEN in_rating ELSE rating END,
+    SET description = CASE WHEN in_description IS NOT NULL AND in_description != '' THEN in_description ELSE description END,
         level = CASE WHEN in_level IS NOT NULL AND in_level != '' THEN in_level ELSE level END,
         thumbnail_url = CASE WHEN in_thumbnail_url IS NOT NULL AND in_thumbnail_url != '' THEN in_thumbnail_url ELSE thumbnail_url END,
         headline = CASE WHEN in_headline IS NOT NULL AND in_headline != '' THEN in_headline ELSE headline END,
         content_info = CASE WHEN in_content_info IS NOT NULL AND in_content_info != '' THEN in_content_info ELSE content_info END,
         amount_price = CASE WHEN in_amount_price IS NOT NULL THEN in_amount_price ELSE amount_price END,
         currency = CASE WHEN in_currency IS NOT NULL THEN in_currency ELSE currency END,
-        course_slug = CASE WHEN in_course_slug IS NOT NULL AND in_course_slug != '' THEN in_course_slug ELSE course_slug END,
-        access_count = CASE WHEN in_access_count IS NOT NULL THEN in_access_count ELSE access_count END,
-        total_students = CASE WHEN in_total_students IS NOT NULL THEN in_total_students ELSE total_students END
     WHERE course_id = in_id;
 END;
 $$ LANGUAGE plpgsql;
