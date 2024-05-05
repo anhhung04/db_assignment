@@ -94,8 +94,8 @@ BEGIN
         c.amount_price,
         c.currency,
         c.total_students,
-        (SELECT COUNT(DISTINCT sjc.student_id) FROM students_join_courses sjc WHERE sjc.course_id = c.course_id AND sjc.created_at > NOW() - INTERVAL '1 month') AS recent_students,
-        COUNT(r.id) AS total_reviews,
+        (SELECT COUNT(DISTINCT sjc.student_id)::integer FROM students_join_courses sjc WHERE sjc.course_id = c.course_id AND sjc.created_at > NOW() - INTERVAL '1 month') AS recent_students,
+        COUNT(r.id)::integer AS total_reviews,
         COALESCE(AVG(r.rating), 0) AS avg_review
     FROM
         courses c
@@ -117,6 +117,7 @@ BEGIN
         limit_count;
 END; 
 $$ LANGUAGE plpgsql;
+
 
 
 
