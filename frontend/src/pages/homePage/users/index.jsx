@@ -42,6 +42,8 @@ const HomePage = () => {
     return (
         <>
             {/* Categories Begin*/}
+            <div>Tổng hợp khóa học</div>
+
             <div className="container container__courses_slider">
 
 
