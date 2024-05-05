@@ -164,11 +164,13 @@ BEGIN
     in_current_price := calculate_course_price(in_student_id, in_course_id);
     SELECT course_type INTO course_type FROM courses WHERE course_id = in_course_id;
     SELECT account_balance INTO student_balance FROM users WHERE user_id = in_student_id;
-    IF course_type = 'paid' AND student_balance < in_current_price THEN
-        RAISE EXCEPTION 'The student does not have enough money to join the course';
+    IF course_type = 'paid' THEN
+        IF student_balance < in_current_price THEN
+            RAISE EXCEPTION 'The student does not have enough money to join the course';
+        END IF;
+        UPDATE users SET account_balance = account_balance - in_current_price WHERE user_id = in_student_id;
     END IF;
-    UPDATE users SET account_balance = account_balance - in_current_price WHERE user_id = in_student_id;
-
+    
     INSERT INTO students_join_courses (student_id, course_id, current_price)
     VALUES (in_student_id, in_course_id, in_current_price);
 END;
