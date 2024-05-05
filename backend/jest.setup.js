@@ -1,6 +1,7 @@
 /* eslint-disable */
 const { downAll } = require('docker-compose/dist/v2');
 const { redisClient } = require("./src/server");
+const { pool } = require("./src/repository");
 require('dotenv').config({
     path: '.env.test'
 });
@@ -16,12 +17,17 @@ beforeEach(async () => {
         console.error(e);
     }
 });
-afterEach(() => {
+afterEach(async () => {
     jest.clearAllMocks();
     jest.resetAllMocks();
     jest.resetModules();
+    await redisClient.disconnect();
 });
 
 afterAll(async () => {
-    await redisClient.disconnect();
+    await pool.end();
+    // await downAll({
+    //     cwd: __dirname + '/test_setup',
+    //     log: true
+    // });
 });

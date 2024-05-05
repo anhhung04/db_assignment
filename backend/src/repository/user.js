@@ -1,28 +1,15 @@
 const { IRepo } = require('./index');
-const { v4: uuidv4 } = require('uuid');
-const { UUID } = require("../typedef/validator");
+const { validate } = require('uuid');
 const logger = require("../utils/log");
-const { convertObjectToFilterQuery, convertObjectToInsertQuery } = require("../utils/db");
+const { convertObjectToInsertQuery } = require("../utils/db");
 class UserRepo extends IRepo {
-    /** 
-     * Initialize user repository
-    */
     constructor() {
         super();
     }
-    /**
-     * @typedef {object} UserQueryResponse
-     * @property {import("../typedef/user").User} user - User object
-     * @property {Error} error - Error object
-     */
-    /**
-     * Find user by id
-     * @param {UUID} id
-     * @returns {Promise<UserQueryResponse>} - User object
-     */
+
     async findById(id) {
         try {
-            if (!(id instanceof UUID)) {
+            if (!validate(id)) {
                 throw new Error("Invalid user id");
             }
             let results = await this.exec({
@@ -59,11 +46,12 @@ class UserRepo extends IRepo {
                     password: row.password,
                     firstName: row.fname,
                     lastName: row.lname,
+                    displayName: row.display_name,
                     generalPermissions: {
-                        read: row.read,
-                        create: row.create,
-                        delete: row.delete,
-                        update: row.update
+                        read: row.read || false,
+                        create: row.create || false,
+                        delete: row.delete || false,
+                        update: row.update || false
                     },
                     role: row.account_type,
                     created_at: row.created_at,
@@ -79,17 +67,6 @@ class UserRepo extends IRepo {
         }
     }
 
-    /**
-     * @typedef {object} QueryPermission
-     * @property {UUID} userId - User id
-     * @property {UUID} resourceId - Resource id
-     * @property {string} actionType - Action type
-     */
-    /**
-     * Check user permissions
-     * @param {QueryPermission} param0
-     * @returns {Promise<Object>} - User permission
-     */
     async fetchUserPermissions({ userId, resourceId }) {
         try {
             let results = await this.exec({
@@ -119,63 +96,95 @@ class UserRepo extends IRepo {
             };
         }
     }
-    /**
-     * @param {Object} findObject
-     * @returns {Promise<UserQueryResponse>}
-     */
-    async find(findObject) {
+
+    async create({
+        username,
+        password,
+        email,
+        phone_no,
+        address,
+        avatar_url,
+        birthday,
+        fname,
+        lname,
+        isTeacher,
+        data
+    }) {
         try {
-            let { filterQuery, args } = convertObjectToFilterQuery(findObject);
-            let results = await this.exec({
-                query: `
-                    SELECT *
-                    FROM users
-                    WHERE ${filterQuery};
-                `,
-                args
-            });
-            if (results?.rowCount !== 1) {
-                throw new Error("Query database error");
+            let result = {};
+            if (isTeacher) {
+                result = await this.exec({
+                    query: `
+                        CALL insert_teacher($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
+                    `, args: [
+                        data.educational_level,
+                        username,
+                        password,
+                        fname,
+                        lname,
+                        email,
+                        address,
+                        avatar_url,
+                        phone_no,
+                        birthday,
+                    ]
+                });
+            } else {
+                result = await this.exec({
+                    query: `
+                        CALL insert_student($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12);
+                    `, args: [
+                        data.english_level,
+                        data.study_history,
+                        data.target,
+                        username,
+                        password,
+                        fname,
+                        lname,
+                        email,
+                        address,
+                        avatar_url,
+                        phone_no,
+                        birthday,
+                    ]
+                });
             }
-            let userId = results.rows[0].id;
-            return this.findById(userId);
+            if (result.error) {
+                throw new Error(result.error);
+            }
+            return {
+                error: null
+            };
         } catch (err) {
             logger.debug(err);
             return {
-                user: null,
                 error: err
             };
         }
     }
 
-    async create(newUser) {
-        Object.assign(newUser, {
-            id: uuidv4(),
-            account_type: "user",
-            status: "active",
-        });
-        let { columns, values, args } = convertObjectToInsertQuery(newUser);
+    async createUserType({ userId, userType, typeData }) {
+        let { columns, values, args } = convertObjectToInsertQuery(typeData, 2);
         try {
-            let results = await this.exec({
+            await this.exec({
                 query: `
-                    INSERT INTO users(${columns})
-                    VALUES(${values})
-                    RETURNING *;
+                    INSERT INTO ${userType}(user_id, ${columns})
+                    VALUES($1, ${values});
                 `,
-                args
+                args: [userId, ...args]
             });
-            if (results.rowCount !== 1) {
-                throw new Error("Query database error");
-            }
-            let userId = results.rows[0].id;
-            return this.findById(userId);
+            return {
+                success: true,
+                error: null
+            };
         } catch (err) {
             logger.debug(err);
             return {
-                user: null,
+                success: false,
                 error: err
             };
         }
+
     }
 }
 

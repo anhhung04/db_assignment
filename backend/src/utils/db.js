@@ -6,16 +6,25 @@ function convertObjectToFilterQuery(obj) {
     return { filterQuery, args };
 }
 
-function convertObjectToInsertQuery(obj) {
+function convertObjectToInsertQuery(obj, startValue = 1) {
     let props = Object.keys(obj);
     props = props.filter(prop => obj[prop]);
     let columns = props.join(", ");
-    let values = props.map((_, index) => `$${index + 1}`).join(", ");
+    let values = props.map((_, index) => `$${startValue + index}`).join(", ");
     let args = props.map(prop => obj[prop]);
     return { columns, values, args };
 }
 
+function convertObjectToUpdateQuery(obj, startValue = 1) {
+    let props = Object.keys(obj);
+    props = props.filter(prop => obj[prop]);
+    let updateQuery = props.map((prop, index) => `${prop} = $${startValue + index}`).join(", ");
+    let args = props.map(prop => obj[prop]);
+    return { updateQuery, args };
+}
+
 module.exports = {
     convertObjectToFilterQuery,
-    convertObjectToInsertQuery
+    convertObjectToInsertQuery,
+    convertObjectToUpdateQuery
 };

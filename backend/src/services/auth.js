@@ -11,56 +11,28 @@ class AuthService extends IService {
         super(request);
         this.userRepo = new UserRepo();
     }
-    /**
-     * Start service
-     * @returns {Promise<boolean>}
-     */
-    async start() {
-        return await super.start(this.userRepo);
-    }
 
-    /**
-     * Stop service
-     */
-    stop() {
-        super.stop(this.userRepo);
-    }
-
-    /**
-     * Login user
-     * @param {Object} data
-     * @param {string} data.username
-     * @param {string} data.password
-     * @param {string} data.email
-     */
     async login({ username, password, email }) {
-        const { user, error } = await this.userRepo.find({
-            username,
-            email
+        const { row: checkUser, error } = await this.userRepo.findOneInTable({
+            table: "users",
+            findObj: {
+                username,
+                email
+            }
         });
         if (error) {
             throw new Error(error);
         }
-        if (!user || !(await bcrypt.compare(password, user.password))) {
+        if (!checkUser || !(await bcrypt.compare(password, checkUser.password))) {
             return null;
+        }
+        let { user, error: err } = await this.userRepo.findById(checkUser.id);
+        if (err) {
+            throw new Error(err);
         }
         delete user.password;
         return user;
     }
-    /**
-     * Register user
-     * @param {Object} data
-     * @param {string} data.username
-     * @param {string} data.password
-     * @param {string} data.email
-     * @param {string} data.phone_no
-     * @param {string} data.address
-     * @param {string} data.avatar_url
-     * @param {Date} data.birthday
-     * @param {string} data.fname
-     * @param {string} data.lname
-     * @returns {Promise<import("../typedef/user").User>}
-     */
     async register({
         username,
         password,
@@ -70,23 +42,26 @@ class AuthService extends IService {
         avatar_url,
         birthday,
         fname,
-        lname
+        lname,
+        isTeacher,
+        data
     }) {
-        const { user, error } = await this.userRepo.create({
+        let { error } = await this.userRepo.create({
             username,
-            password: await bcrypt.hash(password, 10),
+            password,
             email,
             phone_no,
             address,
             avatar_url,
             birthday,
             fname,
-            lname
+            lname,
+            isTeacher,
+            data
         });
         if (error) {
             throw new Error(error);
         }
-        return user;
     }
 }
 

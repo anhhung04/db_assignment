@@ -49,18 +49,16 @@ class IService {
                             userRole === UserRole.ADMIN
                             || !acl
                             || acl.indexOf(userRole) !== -1
-                            || currentUser.generalPermissions[inputArgs?.actionType] === true
+                            || currentUser?.generalPermissions[inputArgs?.actionType] === true
                         ) {
                             return originMethod.apply(target, args);
                         }
                         if (inputArgs.resourceId && inputArgs.actionType && currentUser.id) {
                             const userRepo = new UserRepo();
-                            await userRepo.begin();
                             const { permissions, error } = await userRepo.fetchUserPermissions({
                                 userId: currentUser.id,
                                 resourceId: inputArgs.resourceId
                             });
-                            userRepo.end();
                             if (error) {
                                 throw new Error(error);
                             }
@@ -85,41 +83,11 @@ class IService {
     }
 
     /**
-     * Start service
-     * @returns {Promise<boolean>}
-     */
-    async start(...repos) {
-        let startSuccess = true;
-        try {
-            startSuccess = startSuccess && (await this._activityRepo.begin());
-            for (let repo of repos) {
-                startSuccess = startSuccess && (await repo.begin());
-            }
-        } catch (err) {
-            logger.debug(err);
-            throw new HTTPException({
-                code: STATUS_CODE.HTTP_500_INTERNAL_SERVER_ERROR,
-                message: "Connect database error",
-            });
-        }
-        return startSuccess;
-    }
-
-    /**
-     * Stop service
-     */
-    stop(...repos) {
-        this._activityRepo.end();
-        for (let repo of repos) {
-            repo.end();
-        }
-    }
-
-    /**
      * Log activity
      */
     async logActivity({ action, resourceId, note = "" }) {
         try {
+            await this._activityRepo.begin();
             let { activity, error } = await this._activityRepo.create({
                 activistId: this._currentUser?.id || '00000000-00000000-00000000-00000000',
                 action,
@@ -129,6 +97,7 @@ class IService {
             if (error) {
                 throw new Error(error);
             }
+            await this._activityRepo.end();
             return activity !== null;
         } catch (err) {
             logger.debug(err);
