@@ -149,6 +149,9 @@ class CourseRepo extends IRepo {
                 `,
                 args: [courseId, description, level, thumbnail_url, headline, content_info, amount_price, currency]
             });
+            return {
+                error: null
+            }
         } catch (err) {
             logger.debug(err);
             return {

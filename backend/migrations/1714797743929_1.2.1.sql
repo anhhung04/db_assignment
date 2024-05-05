@@ -341,6 +341,9 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE PROCEDURE delete_courses(in_id UUID)
 AS $$
 BEGIN
+    IF NOT EXISTS (SELECT * FROM courses WHERE course_id = in_id) THEN
+        RAISE EXCEPTION 'Cannot delete none exist course';
+    END IF;
     DELETE FROM courses WHERE course_id = in_id;
 END;
 $$ LANGUAGE plpgsql;

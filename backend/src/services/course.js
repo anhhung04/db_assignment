@@ -30,6 +30,9 @@ class CourseService extends IService {
         if (error) {
             throw new Error(error);
         }
+        if (!course) {
+            throw new Error("Course not found");
+        }
         let { rows: lessons, error: err } = await this._courseRepo.findInTable({
             table: "lessons",
             findObj: { course_id: course.course_id }
@@ -144,7 +147,7 @@ class CourseService extends IService {
             currency
         }
     }) {
-        const { course, error } = await this._courseRepo.createCourse({
+        const { error } = await this._courseRepo.createCourse({
             title,
             type,
             description,
