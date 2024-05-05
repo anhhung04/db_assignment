@@ -47,13 +47,14 @@ describe("POST /api/auth/register", () => {
     test("It should return registered success after registered as a student", async () => {
         await request(app).post('/api/auth/register').send({
             username: faker.internet.userName(),
-            password: faker.internet.password(),
+            password: "123AAAaaa#",
             email: faker.internet.email(),
-            phoneNo: "12345678901",
+            phone_no: "12345678901",
             address: faker.location.streetAddress(),
             birthday: '2004-01-01',
             fname: faker.person.firstName(),
             lname: faker.person.lastName(),
+            avatar_url: faker.image.url(),
             isTeacher: false,
             studentInfo: {
                 english_level: "A1",

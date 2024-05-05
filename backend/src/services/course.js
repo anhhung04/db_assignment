@@ -23,10 +23,7 @@ class CourseService extends IService {
 
     async findCourse({ id, isSlug = false }) {
         let findObj = isSlug ? { course_slug: id } : { course_id: id };
-        const { row: course, error } = await this._courseRepo.findOneInTable({
-            table: "courses",
-            findObj
-        });
+        const { row: course, error } = await this._courseRepo.findOne(findObj);
         if (error) {
             throw new Error(error);
         }
@@ -271,6 +268,19 @@ class CourseService extends IService {
     async listMyCourses() {
         const { courses, error } = await this._courseRepo.findStudentCourses({
             studentId: this._currentUser.id
+        });
+        if (error) {
+            throw new Error(error);
+        }
+        return courses;
+    }
+
+    async listHighlightCourses({ limit, min_rating }) {
+        limit = limit ? Math.abs(limit) : 10;
+        min_rating = min_rating ? Math.abs(min_rating) : 0;
+        const { courses, error } = await this._courseRepo.getHightlightCourses({
+            limit,
+            min_rating
         });
         if (error) {
             throw new Error(error);

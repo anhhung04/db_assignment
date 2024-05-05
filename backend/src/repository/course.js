@@ -1,5 +1,6 @@
 const { IRepo } = require("./index");
 const logger = require("../utils/log");
+const { convertObjectToFilterQuery } = require("../utils/db");
 
 class CourseRepo extends IRepo {
     constructor() {
@@ -25,6 +26,59 @@ class CourseRepo extends IRepo {
             logger.debug(err);
             return {
                 courses: [],
+                error: err
+            };
+        }
+    }
+
+    async findOne(findObj) {
+        try {
+            let { filterQuery, args } = convertObjectToFilterQuery(findObj);
+            const result = await this.exec({
+                query: `
+                SELECT 
+                    c.*,
+                    u.*
+                FROM 
+                    courses c
+                JOIN 
+                    users u ON c.teacher_id = u.id;
+                WHERE ${filterQuery};
+                `,
+                args
+            });
+            return {
+                course: {
+                    course_id: result.rows[0].course_id,
+                    course_slug: result.rows[0].course_slug,
+                    title: result.rows[0].title,
+                    type: result.rows[0].type,
+                    description: result.rows[0].description,
+                    level: result.rows[0].level,
+                    thumbnail_url: result.rows[0].thumbnail_url,
+                    headline: result.rows[0].headline,
+                    content_info: result.rows[0].content_info,
+                    amount_price: result.rows[0].amount_price,
+                    currency: result.rows[0].currency,
+                    teacher: {
+                        id: result.rows[0].id,
+                        username: result.rows[0].username,
+                        email: result.rows[0].email,
+                        phone_no: result.rows[0].phone_no,
+                        address: result.rows[0].address,
+                        avatar_url: result.rows[0].avatar_url,
+                        birthday: result.rows[0].birthday,
+                        fname: result.rows[0].fname,
+                        lname: result.rows[0].lname,
+                        educational_level: result.rows[0].educational_level
+                    },
+                },
+                error: null
+            };
+        } catch (err) {
+            logger.debug(err);
+            return {
+                course: null,
                 error: err
             };
         }
@@ -151,7 +205,7 @@ class CourseRepo extends IRepo {
             });
             return {
                 error: null
-            }
+            };
         } catch (err) {
             logger.debug(err);
             return {
@@ -176,6 +230,27 @@ class CourseRepo extends IRepo {
             logger.debug(err);
             return {
                 course: null,
+                error: err
+            };
+        }
+    }
+
+    async getHightlightCourses({ min_rating = 0.0, limit }) {
+        try {
+            const result = await this.exec({
+                query: `
+                    SELECT * FROM get_top_highlight_courses($1, $2);
+                `,
+                args: [limit, min_rating]
+            });
+            return {
+                courses: result.rows,
+                error: null
+            };
+        } catch (err) {
+            logger.debug(err);
+            return {
+                courses: [],
                 error: err
             };
         }

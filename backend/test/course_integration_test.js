@@ -26,7 +26,6 @@ describe("Test course service", () => {
             expect(res.body).toEqual({
                 status_code: 201,
                 message: "Course created successfully",
-                data: expect.any(Object)
             });
         });
     });

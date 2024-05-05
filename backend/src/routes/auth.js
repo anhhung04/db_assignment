@@ -51,9 +51,9 @@ router.post('/register', validate({
     username: "isString",
     email: "isEmail",
     password: "isString",
-    phoneNo: "isString",
+    phone_no: "isString",
     address: "isString",
-    avatarUrl: `isString&optional=${JSON.stringify({ nullable: true })}`,
+    avatar_url: `isString&optional=${JSON.stringify({ nullable: true })}`,
     birthday: `isISO8601=${JSON.stringify('yyyy-mm-dd')}`,
     fname: "isString",
     lname: "isString",
@@ -75,7 +75,7 @@ router.post('/register', validate({
             email,
             phone_no,
             address,
-            avatarUrl: avatar_url,
+            avatar_url,
             birthday,
             fname,
             lname
@@ -93,11 +93,7 @@ router.post('/register', validate({
                 target: req.body.studentInfo.target
             };
         }
-        /**
-         * @type {AuthService}
-         */
-        const authService = req.authService;
-        await authService.register({
+        await req.authService.register({
             username,
             password,
             email,
