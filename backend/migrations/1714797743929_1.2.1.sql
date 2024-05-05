@@ -7,7 +7,9 @@ BEGIN
         RAISE EXCEPTION 'Password must be at least 5 characters long.';
     END IF;
 
-    IF NOT (in_password ~'^(?=.*[A-Z].*[A-Z])(?=.*[!@#$&*])(?=.*[0-9].*[0-9])(?=.*[a-z].*[a-z].*[a-z]).{8,}$') THEN
+IF NOT (
+    in_password ~ '^(?=.*[A-Z])(?=.*[!@#$&*_])(?=.*[0-9)(?=.*[a-z]).{5,}$'
+) THEN
         RAISE EXCEPTION 'Invalid password format';
     END IF;
 END;
