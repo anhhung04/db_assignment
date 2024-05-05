@@ -1,28 +1,3 @@
-/*
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Poppins', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background: whitesmoke;
-}
-
-code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
-}
-*/
-
 @use "sass:map";
 @import "theme";
 
@@ -42,6 +17,21 @@ body {
     width: 100%;
     padding-left: 15px;
     padding-right: 15px;
-    background: map.get($theme-colors, "main");
+    //background: map.get($theme-colors, "main");
     margin: auto;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.col-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+}
+
+.col-lg-3 {
+    flex: 0 0 25%;
+    max-width: 25%;
 }
