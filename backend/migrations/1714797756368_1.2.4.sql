@@ -128,9 +128,9 @@ DECLARE
     course RECORD;
     course_price DOUBLE PRECISION;
     max_points DOUBLE PRECISION := 0.2; 
-    solve_threshold DOUBLE PRECISION;
+    solve_threshold DOUBLE PRECISION := 0;
     x DOUBLE PRECISION := 0;
-    discount_amount DOUBLE PRsECISION;
+    discount_amount DOUBLE PRECISION;
 BEGIN
     FOR course IN (SELECT * FROM courses)
     LOOP
