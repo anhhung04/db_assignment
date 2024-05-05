@@ -122,11 +122,11 @@ CREATE OR REPLACE FUNCTION calculate_course_price(
     in_student_id UUID,
     in_course_id UUID
 )
-RETURNS TABLE(course_id UUID, final_price DOUBLE PRECISION) AS $$
+RETURNS DOUBLE PRECISION AS $$
 DECLARE
     bought_course RECORD;
     amount_price DOUBLE PRECISION;
-    max_points DOUBLE PRECISION := 20; 
+    max_points DOUBLE PRECISION := 0.2; 
     solve_threshold DOUBLE PRECISION;
     x DOUBLE PRECISION := 0;
     discount_amount DOUBLE PRECISION;
@@ -145,10 +145,9 @@ BEGIN
     discount_amount := max_points / (solve_threshold^2) * (x^2);
     SELECT amount_price INTO amount_price FROM courses WHERE course_id = in_course_id;
     amount_price := change_currency(amount_price, 'usd');
-    amount_price := amount_price - discount_amount;
+    amount_price := amount_price * (1 - discount_amount);
 
-    course_id := in_course_id;
-    final_price := amount_price;
+    RETURN amount_price;
 END;
 $$ LANGUAGE plpgsql;
 
