@@ -80,15 +80,18 @@ class CourseRepo extends IRepo {
         }
     }
 
-    async findStudentCourses({ studentId, courseId, isSlug = false }) {
+    async findStudentCourses({ studentId, courseId, isSlug = false, page, limit }) {
         try {
+            page = page ? Math.abs(page) : 1;
+            limit = limit ? Math.abs(limit) : 20;
             const result = await this.exec({
                 query: `
                     SELECT c.*, j.current_price as buy_price, j.created_at as buy_at
                     FROM students_join_course j
-                    JOIN courses c ON students_join_course.course_id = courses.course_id AND students_join_course.student_id = $1${courseId ? ` WHERE ${isSlug ? "course_slug" : "course_id"} = $2` : ""};
+                    JOIN courses c ON students_join_course.course_id = courses.course_id AND students_join_course.student_id = $1${courseId ? ` WHERE ${isSlug ? "course_slug" : "course_id"} = $2` : ""}
+                    LIMIT $3 OFFSET $4;
                 `,
-                args: [studentId, courseId]
+                args: [studentId, courseId, limit, (page - 1) * limit]
             });
             return {
                 courses: result.rows,
