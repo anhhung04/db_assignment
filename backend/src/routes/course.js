@@ -61,6 +61,23 @@ router.get("/highlight", async (req, res, next) => {
     }
 })
 
+router.get("/mine", async (req, res, next) => {
+    try {
+        let { page, limit } = req.query;
+        const courses = await req.service.listMyCourses({
+            page,
+            limit
+        });
+        return wrapResponse(res, {
+            code: STATUS_CODE.HTTP_200_OK,
+            message: "Courses fetched successfully",
+            data: courses
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
 router.get("/:id", async (req, res, next) => {
     try {
         let isSlug = !isUUID(String(req.params.id));
@@ -321,19 +338,6 @@ router.get("/:id/join", async (req, res, next) => {
             code: STATUS_CODE.HTTP_200_OK,
             message: "Join course successfully",
             data: reviews
-        });
-    } catch (err) {
-        next(err);
-    }
-});
-
-router.get("/mine", async (req, res, next) => {
-    try {
-        const courses = await req.service.listMyCourses();
-        return wrapResponse(res, {
-            code: STATUS_CODE.HTTP_200_OK,
-            message: "Courses fetched successfully",
-            data: courses
         });
     } catch (err) {
         next(err);

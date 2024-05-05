@@ -265,12 +265,39 @@ class CourseService extends IService {
         return join;
     }
 
-    async listMyCourses() {
-        const { courses, error } = await this._courseRepo.findStudentCourses({
-            studentId: this._currentUser.id
-        });
-        if (error) {
-            throw new Error(error);
+    async listMyCourses({
+        limit,
+        page
+    }) {
+        let courses = [];
+        if (!this._currentUser) {
+            throw new Error("You are not logged in");
+        }
+        if (this._currentUser.role == "student") {
+            let result = await this._courseRepo.findStudentCourses({
+                studentId: this._currentUser.id,
+                limit,
+                page
+            });
+            if (result.error) {
+                throw new Error(result.error);
+            }
+            courses = result.courses;
+        } else if (this._currentUser.role == "teacher") {
+            let result = await this._courseRepo.findInTable({
+                table: "courses",
+                findObj: {
+                    teacher_id: this._currentUser.id
+                },
+                limit,
+                page
+            });
+            if (result.error) {
+                throw new Error(result.error);
+            }
+            courses = result.rows;
+        } else {
+            throw new Error("You are not a student or teacher");
         }
         return courses;
     }
