@@ -55,7 +55,6 @@ BEGIN
     ELSE
         RAISE EXCEPTION 'Unsupported currency type: %', in_currency;
     END IF;
-    
     RETURN usd_balance;
 END;
 $$ LANGUAGE plpgsql;

@@ -130,7 +130,7 @@ DECLARE
     max_points DOUBLE PRECISION := 0.2; 
     solve_threshold DOUBLE PRECISION;
     x DOUBLE PRECISION := 0;
-    discount_amount DOUBLE PRECISION;
+    discount_amount DOUBLE PRsECISION;
 BEGIN
     FOR course IN (SELECT * FROM courses)
     LOOP
@@ -179,7 +179,7 @@ BEGIN
         IF student_balance < in_current_price THEN
             RAISE EXCEPTION 'The student does not have enough money to join the course';
         END IF;
-        UPDATE users SET account_balance = account_balance - in_current_price WHERE user_id = in_student_id;
+        UPDATE users SET account_balance = account_balance - in_current_price WHERE id = in_student_id;
     END IF;
     
     INSERT INTO students_join_courses (student_id, course_id, current_price)
