@@ -255,6 +255,25 @@ class CourseRepo extends IRepo {
             };
         }
     }
+
+    async joinCourse({ studentId, courseId }) {
+        try {
+            await this.exec({
+                query: `
+                    CALL join_course($1, $2);
+                `,
+                args: [studentId, courseId]
+            });
+            return {
+                error: null
+            };
+        } catch (err) {
+            logger.debug(err);
+            return {
+                error: err
+            };
+        }
+    }
 }
 
 module.exports = {
