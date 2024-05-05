@@ -221,13 +221,13 @@ class CourseService extends IService {
             courseId,
             isSlug
         });
-        if (!studentBoughtCourse) {
+        if (!studentBoughtCourse[0]) {
             throw new Error("You have not bought this course");
         }
 
         let { error } = await this._courseRepo.reviewCourse({
             studentId: this._currentUser.id,
-            courseId: studentBoughtCourse.course_id,
+            courseId: studentBoughtCourse[0].course_id,
             rating,
             comment
         });

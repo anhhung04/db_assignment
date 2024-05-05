@@ -136,7 +136,8 @@ class CourseRepo extends IRepo {
         try {
             await this.exec({
                 query: `
-                    CALL review_course($1, $2, $3, $4);
+                    INSERT INTO reviews(course_id, student_id, rating, comment)
+                    VALUES($1, $2, $3, $4);
                 `,
                 args: [courseId, studentId, rating, comment]
             });
