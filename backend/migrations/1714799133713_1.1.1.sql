@@ -55,18 +55,18 @@ CREATE TRIGGER student_account_trigger
 BEFORE INSERT OR UPDATE ON students
 FOR EACH ROW EXECUTE PROCEDURE check_student_account();
 
-CREATE OR REPLACE FUNCTION check_account_balance() RETURNS TRIGGER AS $$
-BEGIN
-    IF (SELECT account_balance FROM USERS WHERE id = NEW.user_id) < (SELECT base_fee FROM COURSES WHERE course_id = NEW.course_id) THEN
-        RAISE EXCEPTION 'Students can only register for new courses if their account balance is greater than or equal to the base fee of the course.';
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
+-- CREATE OR REPLACE FUNCTION check_account_balance() RETURNS TRIGGER AS $$
+-- BEGIN
+--     IF (SELECT account_balance FROM USERS WHERE id = NEW.user_id) < (SELECT amount_price FROM COURSES WHERE course_id = NEW.course_id) THEN
+--         RAISE EXCEPTION 'Students can only register for new courses if their account balance is greater than or equal to the base fee of the course.';
+--     END IF;
+--     RETURN NEW;
+-- END;
+-- $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER check_balance_before_register
-BEFORE INSERT ON STUDENTS
-FOR EACH ROW EXECUTE PROCEDURE check_account_balance();
+-- CREATE TRIGGER check_balance_before_register
+-- BEFORE INSERT ON STUDENTS
+-- FOR EACH ROW EXECUTE PROCEDURE check_account_balance();
 
 CREATE OR REPLACE FUNCTION grant_view_permissions() RETURNS TRIGGER AS $$
 DECLARE

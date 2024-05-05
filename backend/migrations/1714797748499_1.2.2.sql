@@ -142,7 +142,7 @@ EXECUTE FUNCTION update_review_trigger_function();
 
 CREATE OR REPLACE FUNCTION calculate_discounted_payment() RETURNS TRIGGER AS $$
 DECLARE
-    base_fee FLOAT;
+    amount_price FLOAT;
     max_points FLOAT := 0.05; 
     min_points FLOAT := 0.50;
     solve_threshold FLOAT := 0.90;
@@ -157,12 +157,12 @@ BEGIN
     x := registered_courses::FLOAT / total_courses;
     discount_amount := (min_points - max_points) / (solve_threshold^2) * (x^2) + max_points;
 
-    SELECT base_fee INTO base_fee FROM courses WHERE course_id = NEW.course_id;
-    base_fee := change_currency(base_fee, 'usd');
+    SELECT amount_price INTO amount_price FROM courses WHERE course_id = NEW.course_id;
+    amount_price := change_currency(amount_price, 'usd');
 
     -- Apply the discount to the base fee
     UPDATE users
-    SET account_balance = account_balance - (base_fee * discount_amount)
+    SET account_balance = account_balance - (amount_price * discount_amount)
     WHERE id = NEW.student_id;
 
     RETURN NEW;
