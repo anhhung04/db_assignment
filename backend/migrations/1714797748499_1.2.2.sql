@@ -37,10 +37,11 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE PROCEDURE change_currency(
+CREATE OR REPLACE FUNCTION change_currency(
     in_price DOUBLE PRECISION,
     in_currency currency_type
 )
+RETURNS DOUBLE PRECISION
 AS $$
 DECLARE
     usd_balance DOUBLE PRECISION;
@@ -54,8 +55,11 @@ BEGIN
     ELSE
         RAISE EXCEPTION 'Unsupported currency type: %', in_currency;
     END IF;
+    
+    RETURN usd_balance;
 END;
 $$ LANGUAGE plpgsql;
+
 
 CREATE OR REPLACE FUNCTION insert_review_trigger_function()
 RETURNS TRIGGER AS $$

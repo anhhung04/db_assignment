@@ -125,14 +125,17 @@ CREATE OR REPLACE FUNCTION calculate_course_price(
 RETURNS DOUBLE PRECISION AS $$
 DECLARE
     bought_course RECORD;
-course_price DOUBLE PRECISION;
+    course RECORD;
+    course_price DOUBLE PRECISION;
     max_points DOUBLE PRECISION := 0.2; 
     solve_threshold DOUBLE PRECISION;
     x DOUBLE PRECISION := 0;
     discount_amount DOUBLE PRECISION;
 BEGIN
-SELECT SUM(courses.amount_price) INTO solve_threshold
-FROM courses;
+    FOR course IN (SELECT * FROM courses)
+    LOOP
+        solve_threshold := solve_threshold + change_currency(course.amount_price, course.currency);
+    END LOOP;
 
     FOR bought_course IN (SELECT course_id, current_price FROM students_join_courses WHERE student_id = in_student_id)
     LOOP
@@ -164,9 +167,14 @@ DECLARE
     student_balance DOUBLE PRECISION;
     course_type course_type;
 BEGIN
+    IF EXISTS (SELECT 1 FROM students_join_courses WHERE student_id = in_student_id AND course_id = in_course_id) THEN
+        RAISE EXCEPTION 'The student has already registered for this course';
+    END IF;
+
     in_current_price := calculate_course_price(in_student_id, in_course_id);
-    SELECT course_type INTO course_type FROM courses WHERE course_id = in_course_id;
-    SELECT account_balance INTO student_balance FROM users WHERE user_id = in_student_id;
+    SELECT account_balance INTO student_balance FROM users WHERE id = in_student_id;
+    SELECT course_type INTO course_type FROM users WHERE id = in_student_id;
+
     IF course_type = 'paid' THEN
         IF student_balance < in_current_price THEN
             RAISE EXCEPTION 'The student does not have enough money to join the course';
@@ -178,6 +186,7 @@ BEGIN
     VALUES (in_student_id, in_course_id, in_current_price);
 END;
 $$ LANGUAGE plpgsql;
+
 
 -- Down Migration
 DROP FUNCTION IF EXISTS calculate_exam_score;
