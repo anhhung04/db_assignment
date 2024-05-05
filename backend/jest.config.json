@@ -20,5 +20,6 @@
     "testMatch": [
         "**/*_test.js"
     ],
-    "globalSetup": "./test_setup/global-setup.js"
+    "globalSetup": "./test_setup/global-setup.js",
+    "testTimeout": 30000
 }

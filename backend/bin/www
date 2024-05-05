@@ -1,7 +1,8 @@
 const { app, redisClient } = require("../src/server");
+const { pool } = require('../src/repository');
 const logger = require('../src/utils/log');
+const process = require('process');
 require('dotenv').config();
-
 
 const port = normalizePort(process.env.PORT || '3000');
 
@@ -16,6 +17,9 @@ let server;
 // }
 const http = require('http');
 server = http.createServer(app);
+
+process.on('SIGTERM', shutDown);
+process.on('SIGINT', shutDown);
 
 (async function () {
     try {
@@ -81,4 +85,27 @@ function onListening() {
         ? 'pipe ' + addr
         : 'port ' + addr.port;
     console.log('[+] Listening on ' + bind);
+}
+
+function shutDown() {
+    console.log('Received kill signal, shutting down gracefully');
+    server.close(() => {
+        console.log('Closed out remaining connections');
+        process.exit(0);
+    });
+
+    pool.end().then(() => {
+        console.log('Closed out remaining connections');
+        process.exit(0);
+    });
+
+    redisClient.quit().then(() => {
+        console.log('Closed out remaining connections');
+        process.exit(0);
+    });
+
+    setTimeout(() => {
+        console.error('Could not close connections in time, forcefully shutting down');
+        process.exit(1);
+    }, 10000);
 }
