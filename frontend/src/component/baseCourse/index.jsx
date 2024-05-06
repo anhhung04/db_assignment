@@ -17,17 +17,21 @@ const CourseCard = ({ course }) => {
                     </div>
                 </div>
                 <div className="teacher-field">
-                    <div className="ele-img">
-                        <p>Giáo viên:</p>
-                        <img
-                            className="teacher-field-ele teacher-img"
-                            src={course.teacher.avatar_url}
-                            alt={course.teacher.display_name}
-                        />
-                        <p className="teacher-field-ele">
-                            {course.teacher.display_name}
-                        </p>
-                    </div>
+                    {course.teacher && (
+                        <>
+                            <div className="ele-img">
+                                <p>Giáo viên:</p>
+                                <img
+                                    className="teacher-field-ele teacher-img"
+                                    src={course.teacher.avatar_url}
+                                    alt={course.teacher.display_name}
+                                />
+                                <p className="teacher-field-ele">
+                                    {course.teacher.display_name}
+                                </p>
+                            </div>
+                        </>
+                    )}
 
                     <p className="price">
                         {course.amount_price} {course.currency}
