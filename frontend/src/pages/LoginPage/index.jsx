@@ -1,10 +1,7 @@
 import { FaUser, FaLock } from "react-icons/fa";
 import "./style.scss";
-import { useState } from "react";
-import apiCall from "../../utils/api";
 
 const LoginPage = () => {
-    const [user, setUser] = useState({});
     return (
         <div className="wrapper">
             <form action="/api/auth/login" method="POST">
