@@ -23,4 +23,5 @@ const Footer = () => {
     </footer>;
 }
 
-export default memo(Footer); 
+const MemoizedFooter = memo(Footer);
+export default MemoizedFooter;

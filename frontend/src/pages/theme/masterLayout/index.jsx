@@ -12,4 +12,5 @@ const MasterLayout = ({ children, ...props }) => {
     )
 }
 
-export default memo(MasterLayout); 
+const MemoizedMasterLayout = memo(MasterLayout);
+export default MemoizedMasterLayout;

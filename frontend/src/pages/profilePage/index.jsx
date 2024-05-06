@@ -5,4 +5,6 @@ const ProfilePage = () => {
 
 }
 
-export default memo(ProfilePage); 
+const MemoizedProfilePage = memo(ProfilePage);
+
+export default MemoizedProfilePage;
