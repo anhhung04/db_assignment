@@ -147,13 +147,12 @@ BEGIN
     END LOOP;
 
     discount_amount := max_points / (solve_threshold^2) * (x^2);
-SELECT amount_price INTO course_price
-FROM courses
-WHERE course_id = in_course_id;
-course_price := change_currency(course_price, 'usd');
-course_price := course_price * (1 - discount_amount);
+    SELECT change_currency(amount_price, currency) INTO course_price
+    FROM courses
+    WHERE course_id = in_course_id;
+    course_price := course_price * (1 - discount_amount);
 
-RETURN course_price;
+    RETURN course_price;
 END;
 $$ LANGUAGE plpgsql;
 
