@@ -155,7 +155,7 @@ BEGIN
     SELECT change_currency(amount_price, currency) INTO course_price
     FROM courses
     WHERE course_id = in_course_id;
-    course_price := course_price * (1 - discount_amount);
+    course_price := FLOOR(course_price * (1 - discount_amount) * 100) / 100;
 
     RETURN course_price;
 END;
