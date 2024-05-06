@@ -105,11 +105,9 @@ const CourseDetailPage = () => {
                 <p>{course.amount_price}</p>
                 <p>{course.currency}</p>
                 <p>{course.created_at}</p>
-                {
-                    user.role !== "student" ?
-                        <EditCourseBody courseId={course.id} />
-                        : null
-                }
+                {user.role !== "student" ? (
+                    <EditCourseBody courseId={course.id} />
+                ) : null}
             </div>
         </>
     );
