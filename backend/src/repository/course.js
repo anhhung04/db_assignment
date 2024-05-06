@@ -81,7 +81,7 @@ class CourseRepo extends IRepo {
         }
     }
 
-    async findStudentCourses({ studentId, courseId, isSlug = false, page, limit }) {
+    async findStudentCourses({ studentId, page, limit }) {
         try {
             page = page ? Math.abs(page) : 1;
             limit = limit ? Math.abs(limit) : 20;
@@ -89,10 +89,10 @@ class CourseRepo extends IRepo {
                 query: `
                     SELECT c.*, sjc.current_price as buy_price, sjc.created_at as buy_at
                     FROM students_join_courses sjc
-                    JOIN courses c ON sjc.course_id = c.course_id AND sjc.student_id = $1${courseId ? ` WHERE ${isSlug ? "course_slug" : "course_id"} = $2` : ""}
-                    LIMIT $3 OFFSET $4;
+                    JOIN courses c ON sjc.course_id = c.course_id AND sjc.student_id = $1
+                    LIMIT $2 OFFSET $3;
                 `,
-                args: [studentId, courseId, limit, (page - 1) * limit]
+                args: [studentId, limit, (page - 1) * limit]
             });
             return {
                 courses: result.rows,
