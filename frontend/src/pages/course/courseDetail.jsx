@@ -135,6 +135,7 @@ const CourseDetailPage = () => {
                         src={course.thumbnail_url}
                         alt={course.title}
                     />
+                    {course.end_price && <p>${course.end_price}</p>}
                     <p>
                         {course.amount_price} {course.currency}
                     </p>
@@ -144,7 +145,7 @@ const CourseDetailPage = () => {
                             apiCall(`/api/course/${course.id}/join`).then(
                                 (res) => {
                                     if (res.status_code === 200) {
-                                        alert("Đăng ký thành công");
+                                        window.location.href = "/my-courses";
                                     } else {
                                         alert(res.error);
                                     }
@@ -152,12 +153,12 @@ const CourseDetailPage = () => {
                             );
                         }}
                     >
-                        Đăng ký
+                        Mua ngay
                     </button>
                 </div>
             </div>
             <div className="course-container">
-                <div className="course-section">
+                <div className="course-content">
                     <h3>Mô tả khóa học</h3>
                     <p>{course.description}</p>
                 </div>
@@ -165,7 +166,7 @@ const CourseDetailPage = () => {
                 <div className="course-section">
                     <h3>Nội dung khóa học</h3>
                     {course.lessons && course.lessons.length > 0 && (
-                        <div>
+                        <div className="lesson-title">
                             {course.lessons.map((lesson, key) => (
                                 <div key={key}>
                                     <h5>{lesson.title}</h5>
