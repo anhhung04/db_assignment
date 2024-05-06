@@ -1,32 +1,36 @@
 -- Up Migration
--- CREATE OR REPLACE FUNCTION list_course_revenue(
---     in_course_id UUID,
---     start_date DATE,
---     end_date DATE
--- )
--- RETURNS TABLE (
---     course_id UUID,
---     title VARCHAR(100),
---     total_revenue DOUBLE PRECISION
--- ) AS $$
--- BEGIN
---     RETURN QUERY
---     SELECT 
---         c.course_id, 
---         c.title, 
---         SUM(sjc.current_price) AS total_revenue
---     FROM 
---         students_join_courses sjc
---     JOIN 
---         courses c ON sjc.course_id = c.course_id
---     WHERE 
---         c.course_id = in_course_id AND 
---         sjc.created_at BETWEEN start_date AND end_date
---     GROUP BY 
---         c.course_id;
--- END; $$
--- LANGUAGE plpgsql;
-
+CREATE OR REPLACE FUNCTION list_top_courses_revenue(
+    in_course_id UUID,
+    start_date DATE,
+    end_date DATE,
+    limit_count INT
+)
+RETURNS TABLE (
+    course_id UUID,
+    title VARCHAR(100),
+    total_revenue DOUBLE PRECISION
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        c.course_id, 
+        c.title, 
+        SUM(sjc.current_price) AS total_revenue
+    FROM 
+        students_join_courses sjc
+    JOIN 
+        courses c ON sjc.course_id = c.course_id
+    WHERE 
+        c.course_id = in_course_id AND 
+        sjc.created_at BETWEEN start_date AND end_date
+    GROUP BY 
+        c.course_id
+    ORDER BY 
+        total_revenue DESC
+    LIMIT 
+        limit_count;
+END; $$
+LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION list_courses_bought(student_id UUID, start_date DATE, end_date DATE)
 RETURNS TABLE (
@@ -123,7 +127,7 @@ END; $$
 LANGUAGE plpgsql;
 
 -- Down Migration
-DROP PROCEDURE list_courses_and_revenue;
-DROP PROCEDURE calculate_totals_and_course_sales;
+DROP FUNCTION list_top_courses_revenue;
+DROP FUNCTION list_courses_bought;
 DROP FUNCTION filter_courses;
 DROP FUNCTION filter_courses_by_reviews;
