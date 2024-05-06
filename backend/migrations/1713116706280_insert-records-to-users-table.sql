@@ -10,7 +10,8 @@ INSERT INTO users (
         avatar_url,
         account_type,
         phone_no,
-        birthday
+        birthday,
+        account_balance
     )
 VALUES (
         '36a14986-5819-43ac-90af-b75eeb8dce27',
@@ -23,7 +24,8 @@ VALUES (
         NULL,
         'student',
         '0123456789',
-        '2004-01-01'
+        '2004-01-01', 
+        400
     );
 INSERT INTO students (
         user_id,
