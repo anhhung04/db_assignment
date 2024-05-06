@@ -59,6 +59,7 @@ class CourseRepo extends IRepo {
                     headline: result.rows[0].headline,
                     content_info: result.rows[0].content_info,
                     amount_price: result.rows[0].amount_price,
+                    rating: result.rows[0].rating,
                     currency: result.rows[0].currency,
                     teacher: {
                         id: result.rows[0].id,

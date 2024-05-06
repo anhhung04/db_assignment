@@ -35,6 +35,7 @@ class CourseService extends IService {
             content_info: r.content_info,
             amount_price: r.amount_price,
             currency: r.currency,
+            rating: r.rating,
             teacher: {
                 id: r.teacher_id,
                 display_name: r.display_name,
@@ -63,7 +64,26 @@ class CourseService extends IService {
             delete lesson.course_id;
             return lesson;
         });
+        let reviewResults = await this._courseRepo.exec({
+            query: `
+                SELECT r.*, u.*
+                FROM reviews r
+                JOIN user u ON r.student_id = u.id
+                WHERE r.course_id = $1;
+            `,
+            args: [course.course_id]
+        })
+        reviewResults = reviewResults.results.map(row => ({
+            comment: row.comment,
+            student_rate: row.rating,
+            student: {
+                id: row.id,
+                display_name: row.display_name,
+                avatar_url: row.avatar_url
+            }
+        }))
         course.lessons = lessons;
+        course.reviews = reviewResults;
         return course;
     }
 
