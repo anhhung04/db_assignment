@@ -15,11 +15,13 @@ const EditCourseBody = ({ courseId }) => {
     ];
     return (
         <>
-            <div>
+            <div className="form-container">
+                <h2>Chỉnh sửa khóa học</h2>
                 {editFields.map((field, key) => (
-                    <div key={key}>
+                    <div className="form-field" key={key}>
                         <label>{field}</label>
                         <input
+                            type="text"
                             onChange={(e) => {
                                 setPatchObj({
                                     ...patchObj,
@@ -29,33 +31,41 @@ const EditCourseBody = ({ courseId }) => {
                         />
                     </div>
                 ))}
-                <label>Price</label>
-                <input
-                    type="number"
-                    onChange={(e) => {
-                        setPatchObj({
-                            ...patchObj,
-                            amount_price: e.target.value,
-                        });
-                    }}
-                />
-                <label>Currency</label>
-                <section
-                    id="currency"
-                    onChange={(e) => {
-                        setPatchObj({ ...patchObj, currency: e.target.value });
-                    }}
-                >
-                    <option value="usd">USD</option>
-                    <option value="eur">EUR</option>
-                    <option value="vnd">VND</option>
-                </section>
+                <div className="form-field">
+                    <label>Price</label>
+                    <input
+                        type="number"
+                        onChange={(e) => {
+                            setPatchObj({
+                                ...patchObj,
+                                amount_price: e.target.value,
+                            });
+                        }}
+                    />
+                </div>
+                <div className="form-field">
+                    <label>Currency</label>
+                    <select
+                        id="currency"
+                        onChange={(e) => {
+                            setPatchObj({
+                                ...patchObj,
+                                currency: e.target.value,
+                            });
+                        }}
+                    >
+                        <option value="usd">USD</option>
+                        <option value="eur">EUR</option>
+                        <option value="vnd">VND</option>
+                    </select>
+                </div>
                 <button
                     onClick={() => {
-                        apiCall(`/api/course/${courseId}`, {
-                            method: "PATCH",
-                            body: JSON.stringify(patchObj),
-                        }).then((res) => {
+                        apiCall(
+                            `/api/course/${courseId}`,
+                            "PATCH",
+                            patchObj
+                        ).then((res) => {
                             if (res.status_code === 200) {
                                 window.location.reload();
                             } else {
@@ -136,7 +146,7 @@ const CourseDetailPage = () => {
                                     if (res.status_code === 200) {
                                         alert("Đăng ký thành công");
                                     } else {
-                                        alert(res.message);
+                                        alert(res.error);
                                     }
                                 }
                             );
@@ -146,15 +156,15 @@ const CourseDetailPage = () => {
                     </button>
                 </div>
             </div>
-            <div>
-                <h3>Mô tả khóa học</h3>
-                <p>{course.description}</p>
-            </div>
+            <div className="course-container">
+                <div className="course-section">
+                    <h3>Mô tả khóa học</h3>
+                    <p>{course.description}</p>
+                </div>
 
-            <div>
-                <h3>Nội dung khóa học</h3>
-                {course.lessons && course.lessons.length > 0 && (
-                    <>
+                <div className="course-section">
+                    <h3>Nội dung khóa học</h3>
+                    {course.lessons && course.lessons.length > 0 && (
                         <div>
                             {course.lessons.map((lesson, key) => (
                                 <div key={key}>
@@ -163,13 +173,14 @@ const CourseDetailPage = () => {
                                 </div>
                             ))}
                         </div>
-                    </>
-                )}
-            </div>
-            <div>
-                {user && user.role && user.role !== "student" && (
-                    <EditCourseBody courseId={course.id} />
-                )}
+                    )}
+                </div>
+
+                <div className="edit-course">
+                    {user && user.role && user.role !== "student" && (
+                        <EditCourseBody courseId={course.course_id} />
+                    )}
+                </div>
             </div>
         </>
     );
