@@ -62,53 +62,13 @@
             margin-right: 25px;
             border-radius: 3%;
         }
-    }
 
-    .course-container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
-        background-color: #f9f9f9;
-        font-family: Arial, sans-serif;
+        .price {
+            display: flex;
 
-        .course-section {
-            margin-bottom: 30px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-
-            h3 {
-                font-size: 24px;
-                margin-bottom: 15px;
-            }
-
-            h5 {
-                font-size: 20px;
-                margin-bottom: 10px;
-            }
-
-            p {
-                font-size: 16px;
-                line-height: 1.6;
-                margin-bottom: 20px;
-            }
-
-            .lesson-item {
-                margin-bottom: 15px;
-                padding: 10px;
-                border-radius: 5px;
-                background-color: #f0f0f0;
-
-                h5 {
-                    font-size: 18px;
-                    margin-bottom: 5px;
-                }
-
-                p {
-                    font-size: 14px;
-                    margin-bottom: 0;
-                }
+            .price-notsale {
+                margin-left: 10%;
+                text-decoration: line-through;
             }
         }
     }
@@ -152,16 +112,25 @@ button:hover {
 
 .course-container {
     margin-left: 77px;
-    
+    padding-top: 30px;
+    width: 60%;
+
     .course-content {
+        padding-left: 30px;
+        padding-bottom: 30px;
+        padding-right: 30px;
+        border: 2px solid #ccc;
+        max-height: fit-content;
         h3 {
             font-size: 27px;
-            padding-top: 20px;
+            padding-top: 10px;
             padding-bottom: 20px;
+            margin-left: 10px;
         }
 
         p {
-         width: 50%;
+            width:auto;
+            font-size: 20px;
         }
     }
 
@@ -181,6 +150,41 @@ button:hover {
             p {
                 padding-top: 10px;
                 list-style: decimal;
+            }
+        }
+    }
+    .review-container {
+        
+        .review-field {
+            padding-top: 10px;
+            padding-bottom: 10px;
+            
+            .course-review {
+                border: 2px solid #ccc;
+                width: 50%;
+                max-height: fit-content;
+                margin-bottom: 50px;
+                h3 {
+            font-size: 30px;
+            margin-left: 30px;
+            padding-top: 10px;
+        }
+                .comment-user {
+                    display: flex;
+                    padding-top: 50px;
+                    margin-left: 30px;
+                    
+                    .user-avatar {
+                        height: 20px;
+                        border-radius: 50%;
+                        margin-right: 10px;
+                    }
+                }
+                .comment-content {
+                    margin-left: 10px;
+                    padding-top: 5px;
+                    padding-bottom: 10px;
+                }
             }
         }
     }
