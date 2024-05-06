@@ -33,6 +33,7 @@ app.use(session({
     secret: cookieSecret,
     resave: false,
     saveUninitialized: false,
+    proxy: true,
     cookie: {
         httpOnly: false,
         maxAge: 1000 * 60 * 60,
