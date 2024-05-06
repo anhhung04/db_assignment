@@ -33,14 +33,15 @@ app.use(cors({
 
 app.use(session({
     secret: cookieSecret,
-    resave: false,
-    saveUninitialized: false,
+    resave: true,
+    saveUninitialized: true,
+    resave: true,
+    saveUninitialized: true,
     proxy: true,
     cookie: {
-        httpOnly: false,
+        httpOnly: true,
+        httpOnly: true,
         maxAge: 1000 * 60 * 60,
-        sameSite: 'none',
-        secure: false
     },
     store: new RedisStore({
         client: redisClient,
