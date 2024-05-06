@@ -1,0 +1,49 @@
+.course_card_list {
+    display: grid;
+    grid-auto-flow: column;
+    border: 0.3px solid #C0C0C0;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-top: 2%;
+
+    a {
+        font-weight: 800;
+        text-decoration: none;
+        color: #1c1c1c;
+    }
+    .course_image {
+        height: 150px;
+        margin-left: 14%;
+    }
+    .course_information {
+        margin-right: 200px;
+        padding-top: 1%;
+        font-size: 16px;
+        margin-left: 50px;
+    }
+    .teacher-field {
+        .ele-img{
+            display: flex;
+        margin-left: 5%;
+        padding-top: 10%;
+        }
+        
+    .price{
+        padding-top: 10%;
+        margin-left: 10%;
+        font-weight: 800;
+        font-size: 20px;
+    }
+
+        .teacher-img {
+            height: 20px;
+            border-radius: 50%;
+        }
+        .teacher-field-ele {
+            margin-left: 10px;
+            font-size: 16px;
+        }
+    }
+}
