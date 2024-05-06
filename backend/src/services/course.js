@@ -85,6 +85,13 @@ class CourseService extends IService {
         })) : [];
         course.lessons = lessons;
         course.reviews = reviewResults;
+        if (this._currentUser && this._currentUser.role == "student") {
+            let results = await this._courseRepo.exec({
+                query: `SELECT * FROM calculate_course_price($1, $2);`,
+                args: [this._currentUser.id, course.course_id]
+            });
+            course.price = results.rows[0];
+        }
         return course;
     }
 
