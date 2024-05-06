@@ -10,7 +10,7 @@ class CourseService extends IService {
     }
     async listCourses({ limit, page }) {
         limit = limit ? Math.abs(limit) : 10;
-        page = page ? Math.abs(page) : 0;
+        page = page ? Math.abs(page) : 1;
         const { rows: courses, error } = await this._courseRepo.exec({
             query: `
                 SELECT c.*, u.*
