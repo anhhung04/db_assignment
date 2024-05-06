@@ -1,5 +1,4 @@
-const MODE = import.meta.env.MODE;
-const BASE_URL = MODE == "development" ? "https://assigndb.hah4.id.vn" : "";
+const BASE_URL = "";
 
 async function apiCall(path, method = "GET", body = null) {
     let res = await fetch(BASE_URL + path, {

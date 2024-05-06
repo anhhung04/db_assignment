@@ -1,0 +1,7 @@
+FROM node:21.7-alpine3.18 as build
+
+WORKDIR /app
+COPY . /app
+
+RUN npm install --frozen-lockfile --skip-integrity-check
+CMD [ "npm", "run", "dev"]

@@ -23,13 +23,14 @@ const OwnCoursePage = () => {
                         <button
                             className="btn-delete"
                             onClick={() => {
-                                apiCall(`/api/course/${course.course_id}`, {
-                                    method: "DELETE",
-                                }).then((res) => {
+                                apiCall(
+                                    `/api/course/${course.course_id}`,
+                                    "DELETE"
+                                ).then((res) => {
                                     if (res.status_code === 200) {
                                         window.location.reload();
                                     } else {
-                                        alert(res.message);
+                                        alert(res.error);
                                     }
                                 });
                             }}
