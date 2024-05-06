@@ -90,7 +90,7 @@ class CourseService extends IService {
                 query: `SELECT * FROM calculate_course_price($1, $2);`,
                 args: [this._currentUser.id, course.course_id]
             });
-            course.price = results.rows[0];
+            course.end_price = results.rows[0].calculate_course_price;
         }
         return course;
     }
