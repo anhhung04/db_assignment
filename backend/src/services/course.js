@@ -49,7 +49,7 @@ class CourseService extends IService {
         let findObj = isSlug ? { course_slug: id } : { course_id: id };
         const { course, error } = await this._courseRepo.findOne(findObj);
         if (error) {
-            throw new Error(error);
+            throw new Error("Course not found");
         }
         if (!course) {
             throw new Error("Course not found");
@@ -85,6 +85,13 @@ class CourseService extends IService {
         })) : [];
         course.lessons = lessons;
         course.reviews = reviewResults;
+        if (this._currentUser && this._currentUser.role == "student") {
+            let results = await this._courseRepo.exec({
+                query: `SELECT calculate_course_price($1, $2);`,
+                args: [this._currentUser.id, course.course_id]
+            });
+            course.end_price = results.rows[0].calculate_course_price;
+        }
         return course;
     }
 
