@@ -10,8 +10,8 @@ server {
         location /api {
             proxy_set_header X-Forwarded-Proto https;
             proxy_set_header X-Forwarded-Proto https;
-            proxy_pass http://api:3000;
-            proxy_set_header Host http://api:3000;
+            proxy_pass http://docker.internal.host:3000;
+            proxy_set_header Host http://docker.internal.host:3000;
             proxy_set_header Cookie $http_cookie;
         }
 
