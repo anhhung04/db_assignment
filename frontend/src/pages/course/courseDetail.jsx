@@ -135,22 +135,37 @@ const CourseDetailPage = () => {
                         src={course.thumbnail_url}
                         alt={course.title}
                     />
-                    {course.end_price && <p>${course.end_price}</p>}
-                    <p>
-                        {course.amount_price} {course.currency}
-                    </p>
+                    <div className="price">
+                        {course.end_price ? (
+                            <>
+                                <p className="price-sale">
+                                    {course.end_price} usd
+                                </p>
+                                <p className="price-notsale">
+                                    {course.amount_price} {course.currency}
+                                </p>
+                            </>
+                        ) : (
+                            <>
+                                <p>
+                                    {course.amount_price} {course.currency}
+                                </p>
+                            </>
+                        )}
+                    </div>
+
                     <button
                         className="btn btn-primary"
                         onClick={() => {
-                            apiCall(`/api/course/${course.id}/join`).then(
-                                (res) => {
-                                    if (res.status_code === 200) {
-                                        window.location.href = "/my-courses";
-                                    } else {
-                                        alert(res.error);
-                                    }
+                            apiCall(
+                                `/api/course/${course.course_id}/join`
+                            ).then((res) => {
+                                if (res.status_code === 200) {
+                                    window.location.href = "/my-courses";
+                                } else {
+                                    alert(res.error);
                                 }
-                            );
+                            });
                         }}
                     >
                         Mua ngay
@@ -176,12 +191,41 @@ const CourseDetailPage = () => {
                         </div>
                     )}
                 </div>
-
-                <div className="edit-course">
-                    {user && user.role && user.role !== "student" && (
-                        <EditCourseBody courseId={course.course_id} />
+                <div className="review-container">
+                    {course.reviews && course.reviews.length > 0 && (
+                        <div className="review-field">
+                            {course.reviews.map((review, key) => (
+                                <div className="course-review" key={key}>
+                                    <h3>Bình luận và nhận xét</h3>
+                                    <div className="comment-user">
+                                        <img
+                                            className="user-avatar"
+                                            src={review.student.avatar_url}
+                                            alt={review.student.display_name}
+                                        />
+                                        <p>{review.student.display_name}</p>
+                                    </div>
+                                    <div className="comment-content">
+                                        <div>
+                                            <p>{review.comment}</p>
+                                        </div>
+                                        <div>
+                                            <p>
+                                                Đánh giá: {review.student_rate}
+                                                /5
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     )}
                 </div>
+            </div>
+            <div className="edit-course">
+                {user && user.role && user.role !== "student" && (
+                    <EditCourseBody courseId={course.course_id} />
+                )}
             </div>
         </>
     );
