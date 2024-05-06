@@ -1,0 +1,13 @@
+.ownCourse {
+    .btn-delete {
+        margin-left: 10px;
+        background-color: rgb(32, 54, 142);
+        border-color: red;
+        color: rgb(187, 0, 0);
+        &:hover {
+            background-color: red;
+            border-color: red;
+            color: white;
+        }
+    }
+}
