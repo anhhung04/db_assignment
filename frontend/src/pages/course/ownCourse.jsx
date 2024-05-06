@@ -5,11 +5,13 @@ import apiCall from "../../utils/api";
 const OwnCoursePage = () => {
     const [courses, setCourses] = useState([]);
     useEffect(() => {
-        fetch("/api/course/mine")
-            .then((res) => res.json())
-            .then((data) => {
-                setCourses(data);
-            });
+        apiCall("/api/course/mine").then((res) => {
+            if (res.status_code === 200) {
+                setCourses(res.data);
+            } else {
+                alert(res.error);
+            }
+        });
     }, [setCourses]);
     return (
         <>

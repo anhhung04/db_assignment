@@ -4,9 +4,11 @@ import { CiUser } from "react-icons/ci";
 import { IoIosNotifications } from "react-icons/io";
 import { Link } from "react-router-dom";
 import { ROUTERS } from "../../../utils/router";
+import useCookie from "react-use-cookie";
 
 const Header = () => {
-
+    const [session] = useCookie("session");
+    const isLogin = session ? true : false;
     const [menus, setFilter] = useState([
         {
             name: "Thể loại",
@@ -26,7 +28,7 @@ const Header = () => {
                 },
             ],
         },
-    ])
+    ]);
 
     return (
         <div className="header_top">
@@ -93,14 +95,22 @@ const Header = () => {
                                 <IoIosNotifications />
                             </li>
                             <li>
-                                <span>
-                                    <button
-                                        type="submit"
-                                        className="login_summit"
-                                    >
-                                        Đăng nhập
-                                    </button>
-                                </span>
+                                {isLogin ? (
+                                    <>
+                                        <span>
+                                            <button
+                                                type="submit"
+                                                className="login_summit"
+                                                onClick={() => {
+                                                    window.location.href =
+                                                        ROUTERS.USER.LOGIN;
+                                                }}
+                                            >
+                                                Đăng nhập
+                                            </button>
+                                        </span>
+                                    </>
+                                ) : null}
                                 <CiUser />
                             </li>
                         </ul>
@@ -109,7 +119,7 @@ const Header = () => {
             </div>
         </div>
     );
-}
+};
 
 const MemoizedHeader = memo(Header);
 export default MemoizedHeader;
