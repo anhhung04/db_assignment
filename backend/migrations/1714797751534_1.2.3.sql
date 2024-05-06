@@ -67,7 +67,7 @@ BEGIN
     FROM courses c
     INNER JOIN teachers t ON c.teacher_id = t.user_id
     INNER JOIN users u ON t.user_id = u.id
-    WHERE u.display_name LIKE '%' || p_teacher_name || '%' OR c.content_info LIKE '%' || p_tag || '%'
+    WHERE u.display_name LIKE '%' || p_teacher_name || '%' AND c.content_info LIKE '%' || p_tag || '%'
     AND EXTRACT(YEAR FROM age(NOW(), t.created_at)) * 12 + EXTRACT(MONTH FROM age(NOW(), t.created_at)) >= p_teacher_exp
     AND t.educational_level LIKE '%' || p_teacher_edulevel || '%'
     LIMIT limit_course OFFSET (paging - 1) * limit_course;
