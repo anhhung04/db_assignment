@@ -56,7 +56,6 @@ const EditCourseBody = ({ courseId }) => {
                             body: JSON.stringify(patchObj),
                         }).then((res) => {
                             if (res.status_code === 200) {
-                                hide();
                                 window.location.reload();
                             } else {
                                 alert(res.message);
