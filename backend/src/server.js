@@ -30,8 +30,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: process.env.NODE_ENV === 'production',
-        httpOnly: true,
+        httpOnly: false,
         maxAge: 1000 * 60 * 60,
     },
     store: new RedisStore({
