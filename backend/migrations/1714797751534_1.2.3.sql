@@ -42,17 +42,35 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION filter_courses(p_teacher_name VARCHAR(100), p_teacher_exp INT, p_teacher_level VARCHAR)
-RETURNS TABLE(course_title VARCHAR(100), teacher_name VARCHAR(100), teacher_exp INT) AS $$
+CREATE OR REPLACE FUNCTION filter_courses(p_tag VARCHAR(50), p_teacher_name VARCHAR(100), p_teacher_exp INT, p_teacher_edulevel VARCHAR(100), limit_course INT, paging INT)
+RETURNS TABLE(course_id uuid, course_slug VARCHAR(100), thumbnail_url TEXT, title varchar(100), type course_type, description varchar(200), rating double precision, level varchar(20), headline varchar(100), content_info varchar(50), amount_price double precision, currency currency_type, total_students integer, teacher_name VARCHAR(100), teacher_id uuid, teacher_avatar TEXT, teacher_edu_level VARCHAR(50)) AS $$
 BEGIN
     RETURN QUERY
-    SELECT c.title, u.display_name, EXTRACT(YEAR FROM age(NOW(), t.created_at)) * 12 + EXTRACT(MONTH FROM age(NOW(), t.created_at))
+    SELECT 
+        c.course_id,
+        c.course_slug,
+        c.thumbnail_url,
+        c.title,
+        c.type,
+        c.description,
+        c.rating,
+        c.level,
+        c.headline,
+        c.content_info,
+        c.amount_price,
+        c.currency,
+        c.total_students,
+        u.display_name AS teacher_name,
+        u.id AS teacher_id,
+        u.avatar_url AS teacher_avatar,
+        t.educational_level AS teacher_edu_level
     FROM courses c
     INNER JOIN teachers t ON c.teacher_id = t.user_id
     INNER JOIN users u ON t.user_id = u.id
-    WHERE u.display_name LIKE '%' || p_teacher_name || '%' 
-    AND EXTRACT(YEAR FROM age(NOW(), t.created_at)) * 12 + EXTRACT(MONTH FROM age(NOW(), t.created_at)) >= p_teacher_exp 
-    AND t.level = p_teacher_level;
+    WHERE u.display_name LIKE '%' || p_teacher_name || '%' OR u.content_info LIKE '%' || p_tag || '%'
+    AND EXTRACT(YEAR FROM age(NOW(), t.created_at)) * 12 + EXTRACT(MONTH FROM age(NOW(), t.created_at)) >= p_teacher_exp
+    AND t.educational_level LIKE '%' || p_teacher_edulevel || '%'
+    LIMIT limit_course OFFSET (paging - 1) * limit_course;
 END;
 $$ LANGUAGE plpgsql;
 

@@ -304,17 +304,23 @@ class CourseService extends IService {
     async filterCourses({
         teacher_name,
         teacher_exp,
-        teacher_level
+        tag,
+        limit, 
+        page,
+        teacher_edulevel
     }) {
         teacher_name = teacher_name && typeof teacher_name == "string" ? teacher_name : "";
         teacher_exp = teacher_exp && typeof teacher_exp == "number" ? teacher_exp : 0;
-        teacher_level = teacher_level && typeof teacher_level == "string" ? teacher_level : "";
+        teacher_edulevel = teacher_edulevel && typeof teacher_edulevel == "string" ? teacher_edulevel : "";
+        tag = tag && typeof tag == "string" ? tag : "";
+        limit = limit ? Math.abs(limit) : 5;
+        page = page ? Math.abs(page) : 1;
         try {
             let results = await this._courseRepo.exec({
                 query: `
-                    SELECT * FROM filter_courses($1, $2, $3);
+                    SELECT * FROM filter_courses($1, $2, $3, $4, $5);
                 `,
-                args: [teacher_name, teacher_exp, teacher_level]
+                args: [tag, teacher_name, teacher_exp, teacher_edulevel, limit, page]
             });
             return results.map(row => ({
                 course_id: row.course_id,
@@ -325,7 +331,17 @@ class CourseService extends IService {
                 headline: row.headline,
                 content_info: row.content_info,
                 amount_price: row.amount_price,
-                currency: row.currency
+                currency: row.currency,
+                total_students: row.total_students,
+                course_slug: row.course_slug,
+                type: row.type,
+                rating: row.rating,
+                teacher: {
+                    display_name: row.teacher_name,
+                    id: row.teacher_id,
+                    avatar_url: row.teacher_avatar,
+                    educational_level: row.teacher_edu_level
+                }
             }));
         } catch (err) {
             logger.debug(err);
