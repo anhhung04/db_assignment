@@ -31,9 +31,9 @@ router.get("/search", validate({
     limit: `isNumeric&optional=${JSON.stringify({ nullable: true })}`,
 }), async (req, res, next) => {
     try {
-        let { content, limit } = req.query;
+        let { content, limit, page } = req.query;
         content = String(atob(content));
-        const courses = await req.service.searchCourses({ content, limit });
+        const courses = await req.service.searchCourses({ content, limit, page });
         return wrapResponse(res, {
             code: STATUS_CODE.HTTP_200_OK,
             message: "Courses fetched successfully",
