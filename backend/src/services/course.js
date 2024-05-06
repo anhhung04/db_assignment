@@ -318,7 +318,7 @@ class CourseService extends IService {
         try {
             let results = await this._courseRepo.exec({
                 query: `
-                    SELECT * FROM filter_courses($1, $2, $3, $4, $5);
+                    SELECT * FROM filter_courses($1, $2, $3, $4, $5, $6);
                 `,
                 args: [tag, teacher_name, teacher_exp, teacher_edulevel, limit, page]
             });
