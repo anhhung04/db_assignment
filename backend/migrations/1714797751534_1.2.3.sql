@@ -42,6 +42,20 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION filter_courses(p_teacher_name VARCHAR(100), p_teacher_exp INT, p_teacher_level VARCHAR(100))
+RETURNS TABLE(id UUID, title VARCHAR(100), teacher_id UUID, created_at TIMESTAMP) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT c.id, c.title, c.teacher_id, c.created_at
+    FROM courses c
+    INNER JOIN teachers t ON c.teacher_id = t.id
+    INNER JOIN users u ON t.user_id = u.id
+    WHERE u.display_name LIKE '%' || p_teacher_name || '%' AND t.experience = p_teacher_exp AND t.level = p_teacher_level;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
 -- Down Migration
 DROP PROCEDURE list_courses_and_revenue;
 DROP PROCEDURE calculate_totals_and_course_sales;
