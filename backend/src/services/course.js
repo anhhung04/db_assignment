@@ -251,7 +251,8 @@ class CourseService extends IService {
         }
     }
 
-    async searchCourses({ content, limit }) {
+    async searchCourses({ content, limit, page }) {
+        page = page ? Math.abs(page) : 1;
         limit = limit ? Math.abs(limit) : 20;
         const { courses, error } = await this._courseRepo.search({ content, limit });
         if (error) {

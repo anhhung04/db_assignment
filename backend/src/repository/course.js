@@ -12,10 +12,10 @@ class CourseRepo extends IRepo {
             const result = await this.exec({
                 query: `
                     SELECT * FROM courses
-                    WHERE title LIKE $1 OR description LIKE $1 OR content_info LIKE $1
+                    WHERE LOWER(title) LIKE $1 OR LOWER(description) LIKE $1 OR LOWER(content_info) LIKE $1
                     LIMIT $2;
                 `,
-                args: [`%${content}%`, limit]
+                args: [`%${content.toLowerCase()}%`, limit]
             });
             return {
                 courses: result.rows,

@@ -11,9 +11,9 @@ $bannerImg: "/assets/users/image/logo/logo.png";
     ul {
         display: flex;
         align-items: center;
-        padding: 10px 0 13px;
+        padding: 5px 0 5px;
         list-style: none;
-        column-gap: 30px;
+        column-gap: 5px;
     }
 
     li {
@@ -31,7 +31,7 @@ $bannerImg: "/assets/users/image/logo/logo.png";
         color: black;
         padding-left: 20px;
         border: 1px solid white;
-        width: 400px;
+        width: 300px;
     }
 
     button {
@@ -42,7 +42,6 @@ $bannerImg: "/assets/users/image/logo/logo.png";
         border: none;
         height: 35px;
         width: 85px;
-
     }
 
     .header_logo {
@@ -52,7 +51,7 @@ $bannerImg: "/assets/users/image/logo/logo.png";
 
     .header_filter {
         padding: 24px 0;
-        margin-left: 30px;
+        margin-left: 50px;
 
         ul {
             display: flex;
@@ -109,12 +108,10 @@ $bannerImg: "/assets/users/image/logo/logo.png";
 }
 
 .header_top_right {
-
     display: flex;
     justify-content: end;
     align-items: center;
     padding: 10px 0 13px;
-
 
     ul {
         display: flex;
