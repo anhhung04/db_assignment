@@ -1,6 +1,5 @@
 const request = require('supertest');
 const { app } = require('../src/server');
-const { faker } = require('@faker-js/faker');
 
 describe("POST /api/auth/login", () => {
     test("It should login successfully", async () => {
