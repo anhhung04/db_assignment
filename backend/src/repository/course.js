@@ -59,6 +59,7 @@ class CourseRepo extends IRepo {
                     headline: result.rows[0].headline,
                     content_info: result.rows[0].content_info,
                     amount_price: result.rows[0].amount_price,
+                    rating: result.rows[0].rating,
                     currency: result.rows[0].currency,
                     teacher: {
                         id: result.rows[0].id,
@@ -210,27 +211,6 @@ class CourseRepo extends IRepo {
             logger.debug(err);
             return {
                 course: null,
-                error: err
-            };
-        }
-    }
-
-    async getHightlightCourses({ min_rating = 0.0, limit }) {
-        try {
-            const result = await this.exec({
-                query: `
-                    SELECT * FROM get_top_highlight_courses($1, $2);
-                `,
-                args: [limit, min_rating]
-            });
-            return {
-                courses: result.rows,
-                error: null
-            };
-        } catch (err) {
-            logger.debug(err);
-            return {
-                courses: [],
                 error: err
             };
         }

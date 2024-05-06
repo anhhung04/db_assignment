@@ -18,7 +18,10 @@ jobs:
       - name: Navigate to Code Directory
         run: cd ${{ github.workspace }}
 
-      - name: Run Docker Compose Up with Sudo
+      - name: Clean up
+        run: sudo -E docker compose down --volumes
+
+      - name: Run Docker Compose Up
         env:
           CF_TOKEN: ${{ secrets.CF_TOKEN }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}

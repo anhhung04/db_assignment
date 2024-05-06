@@ -11,15 +11,38 @@ class CourseService extends IService {
     async listCourses({ limit, page }) {
         limit = limit ? Math.abs(limit) : 10;
         page = page ? Math.abs(page) : 0;
-        const { rows: courses, error } = await this._courseRepo.findInTable({
-            table: "courses",
-            limit,
-            page
+        const { rows: courses, error } = await this._courseRepo.exec({
+            query: `
+                SELECT c.*, u.*
+                FROM courses c
+                JOIN users u ON c.teacher_id = u.id
+                LIMIT $1 OFFSET $2;
+            `,
+            args: [limit, (page - 1) * limit]
         });
         if (error) {
             throw new Error(error);
         }
-        return courses;
+        return courses.map(r => ({
+            course_id: r.course_id,
+            course_slug: r.course_slug,
+            title: r.title,
+            type: r.type,
+            description: r.description,
+            level: r.level,
+            thumbnail_url: r.thumbnail_url,
+            headline: r.headline,
+            content_info: r.content_info,
+            amount_price: r.amount_price,
+            currency: r.currency,
+            total_students: r.total_students,
+            rating: r.rating,
+            teacher: {
+                id: r.teacher_id,
+                display_name: r.display_name,
+                avatar_url: r.avatar_url
+            }
+        }));
     }
 
     async findCourse({ id, isSlug = false }) {
@@ -42,7 +65,26 @@ class CourseService extends IService {
             delete lesson.course_id;
             return lesson;
         });
+        let reviewResults = await this._courseRepo.exec({
+            query: `
+                SELECT r.*, u.*
+                FROM reviews r
+                JOIN users u ON r.student_id = u.id
+                WHERE r.course_id = $1;
+            `,
+            args: [course.course_id]
+        })
+        reviewResults = reviewResults?.rows ? reviewResults.rows.map(row => ({
+            comment: row.comment,
+            student_rate: row.rating,
+            student: {
+                id: row.id,
+                display_name: row.display_name,
+                avatar_url: row.avatar_url
+            }
+        })) : [];
         course.lessons = lessons;
+        course.reviews = reviewResults;
         return course;
     }
 
@@ -288,19 +330,25 @@ class CourseService extends IService {
     async filterCourses({
         teacher_name,
         teacher_exp,
-        teacher_level
+        tag,
+        limit, 
+        page,
+        teacher_edulevel
     }) {
         teacher_name = teacher_name && typeof teacher_name == "string" ? teacher_name : "";
         teacher_exp = teacher_exp && typeof teacher_exp == "number" ? teacher_exp : 0;
-        teacher_level = teacher_level && typeof teacher_level == "string" ? teacher_level : "";
+        teacher_edulevel = teacher_edulevel && typeof teacher_edulevel == "string" ? teacher_edulevel : "";
+        tag = tag && typeof tag == "string" ? tag : "";
+        limit = limit ? Math.abs(limit) : 5;
+        page = page ? Math.abs(page) : 1;
         try {
             let results = await this._courseRepo.exec({
                 query: `
-                    SELECT * FROM filter_courses($1, $2, $3);
+                    SELECT * FROM filter_courses($1, $2, $3, $4, $5, $6);
                 `,
-                args: [teacher_name, teacher_exp, teacher_level]
+                args: [tag, teacher_name, teacher_exp, teacher_edulevel, limit, page]
             });
-            return results.map(row => ({
+            return results.rows.map(row => ({
                 course_id: row.course_id,
                 title: row.title,
                 description: row.description,
@@ -309,7 +357,17 @@ class CourseService extends IService {
                 headline: row.headline,
                 content_info: row.content_info,
                 amount_price: row.amount_price,
-                currency: row.currency
+                currency: row.currency,
+                total_students: row.total_students,
+                course_slug: row.course_slug,
+                type: row.type,
+                rating: row.rating,
+                teacher: {
+                    display_name: row.teacher_name,
+                    id: row.teacher_id,
+                    avatar_url: row.teacher_avatar,
+                    educational_level: row.teacher_edu_level
+                }
             }));
         } catch (err) {
             logger.debug(err);
@@ -358,14 +416,34 @@ class CourseService extends IService {
     async listHighlightCourses({ limit, min_rating }) {
         limit = limit ? Math.abs(limit) : 10;
         min_rating = min_rating ? Math.abs(min_rating) : 0;
-        const { courses, error } = await this._courseRepo.getHightlightCourses({
-            limit,
-            min_rating
-        });
-        if (error) {
-            throw new Error(error);
-        }
-        return courses;
+        const result = await this._courseRepo.exec(
+            {
+                query: `
+                    SELECT * FROM get_top_highlight_courses($1, $2);
+                `,
+                args: [limit, min_rating]
+            }
+        );
+        return result.rows.map(row => ({
+            course_id: row.course_id,
+            course_slug: row.course_slug,
+            title: row.title,
+            description: row.description,
+            level: row.level,
+            thumbnail_url: row.thumbnail_url,
+            headline: row.headline,
+            content_info: row.content_info,
+            amount_price: row.amount_price,
+            currency: row.currency,
+            total_students: row.total_students,
+            rating: row.rating,
+            total_reviews: row.total_reviews,
+            teacher: {
+                id: row.teacher_id,
+                avatar_url: row.teacher_avatar,
+                display_name: row.teacher_name
+            }
+        }));
     }
 }
 

@@ -63,9 +63,9 @@ router.get("/highlight", async (req, res, next) => {
 
 router.get("/filter", async (req, res, next) => {
     try {
-        let { teacher_name, teacher_exp, teacher_level } = req.query;
+        let { teacher_name, teacher_exp, tag, limit, page, teacher_edulevel } = req.query;
         const courses = await req.service.filterCourses({
-            teacher_name, teacher_exp, teacher_level
+            teacher_name, teacher_exp, tag, limit, page, teacher_edulevel
         });
         return wrapResponse(res, {
             code: STATUS_CODE.HTTP_200_OK,
@@ -345,7 +345,7 @@ router.get("/:id/join", async (req, res, next) => {
         let { id } = req.params;
         id = String(id);
         let isSlug = !isUUID(id);
-        const reviews = await req.service.joinCourse({
+        await req.service.joinCourse({
             courseId: id,
             isSlug,
             acl: [UserRole.STUDENT]
@@ -353,7 +353,6 @@ router.get("/:id/join", async (req, res, next) => {
         return wrapResponse(res, {
             code: STATUS_CODE.HTTP_200_OK,
             message: "Join course successfully",
-            data: reviews
         });
     } catch (err) {
         next(err);

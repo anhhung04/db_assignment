@@ -43,22 +43,71 @@ END;
 $$ LANGUAGE plpgsql;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 CREATE OR REPLACE FUNCTION filter_courses(p_teacher_name VARCHAR(100), p_teacher_exp INT, p_teacher_level VARCHAR(100))
 RETURNS TABLE(id UUID, title VARCHAR(100), teacher_id UUID, created_at TIMESTAMP) AS $$
+=======
+CREATE OR REPLACE FUNCTION filter_courses(p_tag VARCHAR(50), p_teacher_name VARCHAR(100), p_teacher_exp INT, p_teacher_edulevel VARCHAR(100), limit_course INT, paging INT)
+RETURNS TABLE(course_id uuid, course_slug VARCHAR(100), thumbnail_url TEXT, title varchar(100), type course_type, description text, rating double precision, level varchar(20), headline varchar(100), content_info varchar(50), amount_price double precision, currency currency_type, total_students integer, teacher_name VARCHAR(100), teacher_id uuid, teacher_avatar TEXT, teacher_edu_level VARCHAR(50)) AS $$
+>>>>>>> 40e7d62d622b7f67967322f4cc36f041f836ba8c
 BEGIN
     RETURN QUERY
-    SELECT c.id, c.title, c.teacher_id, c.created_at
+    SELECT
+        c.course_id,
+        c.course_slug,
+        c.thumbnail_url,
+        c.title,
+        c.type,
+        c.description,
+        c.rating,
+        c.level,
+        c.headline,
+        c.content_info,
+        c.amount_price,
+        c.currency,
+        c.total_students,
+        u.display_name AS teacher_name,
+        u.id AS teacher_id,
+        u.avatar_url AS teacher_avatar,
+        t.educational_level AS teacher_edu_level
     FROM courses c
-    INNER JOIN teachers t ON c.teacher_id = t.id
+    INNER JOIN teachers t ON c.teacher_id = t.user_id
     INNER JOIN users u ON t.user_id = u.id
-    WHERE u.display_name LIKE '%' || p_teacher_name || '%' AND t.experience = p_teacher_exp AND t.level = p_teacher_level;
+    WHERE LOWER(u.display_name) LIKE '%' || LOWER(p_teacher_name) || '%' AND LOWER(c.content_info) LIKE '%' || LOWER(p_tag) || '%'
+    AND EXTRACT(YEAR FROM age(NOW(), t.created_at)) * 12 + EXTRACT(MONTH FROM age(NOW(), t.created_at)) >= p_teacher_exp
+    AND LOWER(t.educational_level) LIKE '%' || LOWER(p_teacher_edulevel) || '%'
+    LIMIT limit_course OFFSET (paging - 1) * limit_course;
 END;
 $$ LANGUAGE plpgsql;
 
-
+CREATE OR REPLACE FUNCTION filter_courses_by_reviews(min_reviews INT, min_rating DOUBLE PRECISION)
+RETURNS TABLE (
+    course_title VARCHAR(100),
+    total_reviews INT,
+    avg_rating DOUBLE PRECISION
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        c.title AS course_title,
+        COUNT(r.id) AS total_reviews,
+        AVG(r.rating) AS avg_rating
+    FROM 
+        courses c
+    LEFT JOIN 
+        reviews r ON c.course_id = r.course_id
+    GROUP BY 
+        c.course_id
+    HAVING 
+        COUNT(r.id) >= min_reviews AND 
+        AVG(r.rating) >= min_rating;
+END; $$
+LANGUAGE plpgsql;
 
 >>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0
 -- Down Migration
 DROP PROCEDURE list_courses_and_revenue;
 DROP PROCEDURE calculate_totals_and_course_sales;
+DROP FUNCTION filter_courses;
+DROP FUNCTION filter_courses_by_reviews;

@@ -69,7 +69,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION get_top_highlight_courses(limit_count INTEGER DEFAULT 5, min_avg_review DOUBLE PRECISION DEFAULT 0)
-RETURNS TABLE(course_id uuid, title varchar(100), type course_type, description varchar(200), rating double precision, level varchar(20), headline varchar(100), content_info varchar(50), amount_price double precision, currency currency_type, total_students integer, recent_students integer, total_reviews integer, avg_review double precision) AS $$
+RETURNS TABLE(course_id uuid, course_slug VARCHAR(100), thumbnail_url TEXT, title varchar(100), type course_type, description TEXT, rating double precision, level varchar(20), headline varchar(100), content_info varchar(50), amount_price double precision, currency currency_type, total_students integer, recent_students integer, total_reviews integer, teacher_name VARCHAR(100), teacher_id uuid, teacher_avatar TEXT) AS $$
 DECLARE
     course_count INT;
     recent_months INT := 1;
@@ -84,6 +84,8 @@ BEGIN
     RETURN QUERY 
     SELECT
         c.course_id,
+        c.course_slug,
+        c.thumbnail_url,
         c.title,
         c.type,
         c.description,
@@ -96,31 +98,31 @@ BEGIN
         c.total_students,
         (SELECT COUNT(DISTINCT sjc.student_id)::integer FROM students_join_courses sjc WHERE sjc.course_id = c.course_id AND sjc.created_at > NOW() - INTERVAL '1 month') AS recent_students,
         COUNT(r.id)::integer AS total_reviews,
-        COALESCE(AVG(r.rating), 0) AS avg_review
+        u.display_name AS teacher_name,
+        u.id AS teacher_id,
+        u.avatar_url AS teacher_avatar
     FROM
         courses c
     LEFT JOIN
         reviews r ON c.course_id = r.course_id
     LEFT JOIN
         students_join_courses sjc ON c.course_id = sjc.course_id AND sjc.created_at > NOW() - INTERVAL '1 month' * recent_months
+    LEFT JOIN
+        users u ON c.teacher_id = u.id
     GROUP BY
-        c.course_id, c.title, c.type, c.description, c.rating, c.level, c.headline, c.content_info, c.amount_price, c.currency, c.total_students
+        c.course_id, c.course_slug, c.thumbnail_url, c.title, c.type, c.description, c.rating, c.level, c.headline, c.content_info, c.amount_price, c.currency, c.total_students, u.display_name, u.id, u.avatar_url
     HAVING
         COALESCE(AVG(r.rating), 0) >= min_avg_review
     ORDER BY
         recent_students DESC,
         c.total_students DESC,
         c.rating DESC,
-        total_reviews DESC,
-        avg_review DESC
+        total_reviews DESC
     LIMIT
         limit_count;
 END; 
 $$ LANGUAGE plpgsql;
 
-<<<<<<< HEAD
-
-=======
 CREATE OR REPLACE FUNCTION calculate_course_price(
     in_student_id UUID,
     in_course_id UUID
@@ -187,17 +189,12 @@ BEGIN
     VALUES (in_student_id, in_course_id, in_current_price);
 END;
 $$ LANGUAGE plpgsql;
->>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0
 
 
 -- Down Migration
 DROP FUNCTION IF EXISTS calculate_exam_score;
 DROP FUNCTION IF EXISTS check_course_eligibility;
 DROP FUNCTION IF EXISTS get_top_students;
-<<<<<<< HEAD
-DROP FUNCTION IF EXISTS get_top_highlight_courses;
-=======
 DROP FUNCTION IF EXISTS get_top_highlight_courses;
 DROP FUNCTION IF EXISTS calculate_course_price;
 DROP PROCEDURE IF EXISTS join;
->>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0

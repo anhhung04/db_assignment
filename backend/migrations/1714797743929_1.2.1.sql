@@ -304,7 +304,7 @@ CREATE OR REPLACE PROCEDURE insert_courses(
 >>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0
     in_title VARCHAR(100),
     in_type course_type,
-    in_description VARCHAR(200),
+    in_description TEXT,
     in_level VARCHAR(20),
     in_thumbnail_url TEXT,
     in_headline VARCHAR(100),
@@ -397,7 +397,7 @@ $$ LANGUAGE plpgsql;
 >>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0
 CREATE OR REPLACE PROCEDURE update_courses(
     in_id UUID,
-    in_description VARCHAR(200),
+    in_description TEXT,
     in_level VARCHAR(20),
     in_thumbnail_url TEXT,
     in_headline VARCHAR(100),
