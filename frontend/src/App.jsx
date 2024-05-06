@@ -1,17 +1,11 @@
-import { useState, useEffect } from "react"
+import RouterCustom from './router.jsx';
+import { BrowserRouter } from "react-router-dom";
+import "./style/style.scss";
 
 export default function App() {
-  const [state, setState] = useState("error")
-  useEffect(() => {
-    async function fetchData(){
-      const data = await fetch("/api/demo").then(res => res.json())
-      if(data?.data) setState(data.data.message)
-    }
-    fetchData()
-  }, [state])
   return (
-    <>
-      <h1>{state}</h1>
-    </>
-  )
+    <BrowserRouter>
+      <RouterCustom />
+    </BrowserRouter>
+  );
 }
