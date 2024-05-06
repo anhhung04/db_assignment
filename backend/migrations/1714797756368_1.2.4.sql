@@ -29,10 +29,12 @@ CREATE OR REPLACE FUNCTION check_course_eligibility(student_id uuid, course_id u
 DECLARE
     account_balance DOUBLE PRECISION;
     course_price DOUBLE PRECISION;
+    money_type currency_type;
 BEGIN
     SELECT account_balance INTO account_balance FROM users WHERE id = student_id;
     SELECT amount_price INTO course_price FROM courses WHERE course_id = course_id;
-
+    SELECT currency INTO money_type FROM courses WHERE course_id = course_id;
+    course_price := change_currency(course_price, money_type);
     IF account_balance >= course_price THEN
         RETURN TRUE;
     ELSE
@@ -190,11 +192,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
 -- Down Migration
 DROP FUNCTION IF EXISTS calculate_exam_score;
 DROP FUNCTION IF EXISTS check_course_eligibility;
 DROP FUNCTION IF EXISTS get_top_students;
 DROP FUNCTION IF EXISTS get_top_highlight_courses;
 DROP FUNCTION IF EXISTS calculate_course_price;
-DROP PROCEDURE IF EXISTS join;
+DROP PROCEDURE IF EXISTS join_course;

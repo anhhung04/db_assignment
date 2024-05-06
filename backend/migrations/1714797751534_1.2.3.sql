@@ -1,4 +1,33 @@
 -- Up Migration
+-- CREATE OR REPLACE FUNCTION list_course_revenue(
+--     in_course_id UUID,
+--     start_date DATE,
+--     end_date DATE
+-- )
+-- RETURNS TABLE (
+--     course_id UUID,
+--     title VARCHAR(100),
+--     total_revenue DOUBLE PRECISION
+-- ) AS $$
+-- BEGIN
+--     RETURN QUERY
+--     SELECT 
+--         c.course_id, 
+--         c.title, 
+--         SUM(sjc.current_price) AS total_revenue
+--     FROM 
+--         students_join_courses sjc
+--     JOIN 
+--         courses c ON sjc.course_id = c.course_id
+--     WHERE 
+--         c.course_id = in_course_id AND 
+--         sjc.created_at BETWEEN start_date AND end_date
+--     GROUP BY 
+--         c.course_id;
+-- END; $$
+-- LANGUAGE plpgsql;
+
+
 CREATE OR REPLACE FUNCTION list_courses_bought(student_id UUID, start_date DATE, end_date DATE)
 RETURNS TABLE (
     course_title VARCHAR(100),
@@ -66,7 +95,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION filter_courses_by_reviews(min_reviews INT, min_rating DOUBLE PRECISION, course_type VARCHAR(100))
+CREATE OR REPLACE FUNCTION filter_courses_by_reviews(min_reviews INT, min_rating DOUBLE PRECISION)
 RETURNS TABLE (
     course_title VARCHAR(100),
     total_reviews INT,
@@ -82,13 +111,14 @@ BEGIN
         courses c
     LEFT JOIN 
         reviews r ON c.course_id = r.course_id
-    WHERE
-        c.type = course_type
     GROUP BY 
         c.course_id
     HAVING 
         COUNT(r.id) >= min_reviews AND 
-        AVG(r.rating) >= min_rating;
+        AVG(r.rating) >= min_rating
+    ORDER BY 
+        avg_rating DESC, 
+        total_reviews DESC;
 END; $$
 LANGUAGE plpgsql;
 

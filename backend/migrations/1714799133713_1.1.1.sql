@@ -18,9 +18,6 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER enforce_price_constraint_students_join_courses
 BEFORE INSERT OR UPDATE ON students_join_courses
 FOR EACH ROW EXECUTE FUNCTION check_price_constraint();
-CREATE TRIGGER enforce_price_constraint_students_join_courses
-BEFORE INSERT OR UPDATE ON students_join_courses
-FOR EACH ROW EXECUTE FUNCTION check_price_constraint();
 
 
 -- UPDATED_AT >= CREATED_AT
@@ -85,18 +82,7 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER check_balance_before_register
 BEFORE INSERT ON students_join_courses
 FOR EACH ROW EXECUTE PROCEDURE check_account_balance();
-CREATE TRIGGER check_balance_before_register
-BEFORE INSERT ON students_join_courses
-FOR EACH ROW EXECUTE PROCEDURE check_account_balance();
 
---
-CREATE OR REPLACE FUNCTION grant_view_permissions() RETURNS TRIGGER AS $$
-DECLARE
-    total_courses INTEGER;
-    registered_courses INTEGER;
-BEGIN
-    SELECT COUNT(*) INTO total_courses FROM COURSES;
-    SELECT COUNT(*) INTO registered_courses FROM students_join_courses WHERE student_id = NEW.student_id;
 --
 CREATE OR REPLACE FUNCTION grant_view_permissions() RETURNS TRIGGER AS $$
 DECLARE
@@ -119,9 +105,6 @@ BEGIN
         SELECT NEW.student_id, true, document_id FROM DOCUMENTS;
     END IF;
 
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
