@@ -35,6 +35,7 @@ class CourseService extends IService {
             content_info: r.content_info,
             amount_price: r.amount_price,
             currency: r.currency,
+            total_students: r.total_students,
             rating: r.rating,
             teacher: {
                 id: r.teacher_id,
@@ -73,7 +74,7 @@ class CourseService extends IService {
             `,
             args: [course.course_id]
         })
-        reviewResults = reviewResults.results.map(row => ({
+        reviewResults = reviewResults?.rows ? reviewResults.rows.map(row => ({
             comment: row.comment,
             student_rate: row.rating,
             student: {
@@ -81,7 +82,7 @@ class CourseService extends IService {
                 display_name: row.display_name,
                 avatar_url: row.avatar_url
             }
-        }))
+        })) : [];
         course.lessons = lessons;
         course.reviews = reviewResults;
         return course;
