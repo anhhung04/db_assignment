@@ -215,27 +215,6 @@ class CourseRepo extends IRepo {
         }
     }
 
-    async getHightlightCourses({ min_rating = 0.0, limit }) {
-        try {
-            const result = await this.exec({
-                query: `
-                    SELECT * FROM get_top_highlight_courses($1, $2);
-                `,
-                args: [limit, min_rating]
-            });
-            return {
-                courses: result.rows,
-                error: null
-            };
-        } catch (err) {
-            logger.debug(err);
-            return {
-                courses: [],
-                error: err
-            };
-        }
-    }
-
     async joinCourse({ studentId, courseId }) {
         try {
             await this.exec({

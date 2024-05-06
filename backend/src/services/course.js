@@ -11,15 +11,36 @@ class CourseService extends IService {
     async listCourses({ limit, page }) {
         limit = limit ? Math.abs(limit) : 10;
         page = page ? Math.abs(page) : 0;
-        const { rows: courses, error } = await this._courseRepo.findInTable({
-            table: "courses",
-            limit,
-            page
+        const { rows: courses, error } = await this._courseRepo.exec({
+            query: `
+                SELECT c.*, u.*
+                FROM courses c
+                JOIN users u ON c.teacher_id = u.id
+                LIMIT $1 OFFSET $2;
+            `,
+            args: [limit, (page - 1) * limit]
         });
         if (error) {
             throw new Error(error);
         }
-        return courses;
+        return courses.map(r => ({
+            course_id: r.course_id,
+            course_slug: r.course_slug,
+            title: r.title,
+            type: r.type,
+            description: r.description,
+            level: r.level,
+            thumbnail_url: r.thumbnail_url,
+            headline: r.headline,
+            content_info: r.content_info,
+            amount_price: r.amount_price,
+            currency: r.currency,
+            teacher: {
+                id: r.teacher_id,
+                display_name: r.display_name,
+                avatar_url: r.avatar_url
+            }
+        }));
     }
 
     async findCourse({ id, isSlug = false }) {
@@ -331,14 +352,33 @@ class CourseService extends IService {
     async listHighlightCourses({ limit, min_rating }) {
         limit = limit ? Math.abs(limit) : 10;
         min_rating = min_rating ? Math.abs(min_rating) : 0;
-        const { courses, error } = await this._courseRepo.getHightlightCourses({
-            limit,
-            min_rating
-        });
-        if (error) {
-            throw new Error(error);
-        }
-        return courses;
+        const result = await this._courseRepo.exec(
+            {
+                query: `
+                    SELECT * FROM get_top_highlight_courses($1, $2);
+                `,
+                args: [limit, min_rating]
+            }
+        );
+        return result.rows.map(row => ({
+            course_id: row.course_id,
+            title: row.title,
+            description: row.description,
+            level: row.level,
+            thumbnail_url: row.thumbnail_url,
+            headline: row.headline,
+            content_info: row.content_info,
+            amount_price: row.amount_price,
+            currency: row.currency,
+            total_students: row.total_students,
+            rating: row.rating,
+            total_reviews: row.total_reviews,
+            teacher: {
+                id: row.teacher_id,
+                avatar_url: row.teacher_avatar,
+                display_name: row.teacher_name
+            }
+        }));
     }
 }
 
