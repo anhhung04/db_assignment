@@ -1,0 +1,22 @@
+-- Up Migration
+INSERT INTO sections (id, material_uri, exam_id) VALUES ('28e2d343-af5c-431f-8b13-4a99c3fe0640', 'https://example.com/english_exam/question1.pdf', '5df41881-50a8-4e0f-8155-af5a3d8dc6b3');
+INSERT INTO sections (id, material_uri, exam_id) VALUES ('4c142109-3f47-41c7-8b36-d5e8719b1528', 'https://example.com/english_exam/question2.pdf', '5df41881-50a8-4e0f-8155-af5a3d8dc6b3');
+INSERT INTO sections (id, material_uri, exam_id) VALUES ('d1862b7f-634e-4c43-a312-5974d7e438a7', 'https://example.com/english_exam/question3.pdf', '5df41881-50a8-4e0f-8155-af5a3d8dc6b3');
+INSERT INTO sections (id, material_uri, exam_id) VALUES ('3f7d95d3-b436-4dbb-a2f5-89467b0f4385', 'https://example.com/english_exam/question4.pdf', '5df41881-50a8-4e0f-8155-af5a3d8dc6b3');
+INSERT INTO sections (id, material_uri, exam_id) VALUES ('0eaf8c46-64e8-4b38-9e0e-05b7f75a92f7', 'https://example.com/english_exam/question1.pdf', 'e7c2a0fc-b46f-4d27-a1d8-69ed8e93b9a2');
+INSERT INTO sections (id, material_uri, exam_id) VALUES ('f021f6f7-5f45-4de2-b7ad-82d8d8903b5b', 'https://example.com/english_exam/question2.pdf', 'e7c2a0fc-b46f-4d27-a1d8-69ed8e93b9a2');
+INSERT INTO sections (id, material_uri, exam_id) VALUES ('5d0a4df3-d7c4-49f6-aeed-4d0f6c4b1c45', 'https://example.com/english_exam/question3.pdf', 'e7c2a0fc-b46f-4d27-a1d8-69ed8e93b9a2');
+INSERT INTO sections (id, material_uri, exam_id) VALUES ('9b79bc86-30eb-43bb-aad5-c6dd52bc19ff', 'https://example.com/english_exam/question4.pdf', 'e7c2a0fc-b46f-4d27-a1d8-69ed8e93b9a2');
+INSERT INTO sections (id, material_uri, exam_id) VALUES ('b1c97f1f-3dd2-4e45-b097-d029ed4cf158', 'https://example.com/english_exam/question1.pdf', '6c84fb90-12c4-11e1-840d-7b25c5ee775a');
+INSERT INTO sections (id, material_uri, exam_id) VALUES ('7b18d876-3db9-4a88-8597-f5cc8760c0c3', 'https://example.com/english_exam/question2.pdf', '6c84fb90-12c4-11e1-840d-7b25c5ee775a');
+INSERT INTO sections (id, material_uri, exam_id) VALUES ('c8dc84b1-5862-4f32-8fcb-35b77a0a5e7d', 'https://example.com/english_exam/question3.pdf', '6c84fb90-12c4-11e1-840d-7b25c5ee775a');
+INSERT INTO sections (id, material_uri, exam_id) VALUES ('bb0e3926-6928-42de-baf6-2b9cfb4ccf0a', 'https://example.com/english_exam/question4.pdf', '6c84fb90-12c4-11e1-840d-7b25c5ee775a');
+INSERT INTO sections (id, material_uri, exam_id) VALUES ('d573cb64-6c68-4928-a3b7-67434c6f29d8', 'https://example.com/english_exam/question1.pdf', '9452bb2e-0b73-4704-b7f4-7286d6f7d9a0');
+INSERT INTO sections (id, material_uri, exam_id) VALUES ('a12df93b-3c19-43ad-b144-fc47d19785b5', 'https://example.com/english_exam/question2.pdf', '9452bb2e-0b73-4704-b7f4-7286d6f7d9a0');
+INSERT INTO sections (id, material_uri, exam_id) VALUES ('0858992e-9f11-42bb-b4a9-fcc9f66d9174', 'https://example.com/english_exam/question3.pdf', '9452bb2e-0b73-4704-b7f4-7286d6f7d9a0');
+INSERT INTO sections (id, material_uri, exam_id) VALUES ('05b42163-8b4a-4f38-a29c-c9cf8f5900c9', 'https://example.com/english_exam/question4.pdf', '9452bb2e-0b73-4704-b7f4-7286d6f7d9a0');
+INSERT INTO sections (id, material_uri, exam_id) VALUES ('fe068fe7-9ba2-40b6-943f-e1f58e24b12b', 'https://example.com/english_exam/question1.pdf', 'f47ac10b-58cc-4372-a567-0e02b2c3d479');
+INSERT INTO sections (id, material_uri, exam_id) VALUES ('96a982e5-96d3-4b20-b57e-cf28ec443cfc', 'https://example.com/english_exam/question2.pdf', 'f47ac10b-58cc-4372-a567-0e02b2c3d479');
+INSERT INTO sections (id, material_uri, exam_id) VALUES ('47de5e5a-73cf-4385-aa3e-2c13d33bc9b7', 'https://example.com/english_exam/question3.pdf', 'f47ac10b-58cc-4372-a567-0e02b2c3d479');
+-- Down Migration
+DELETE FROM sections WHERE id IN ('28e2d343-af5c-431f-8b13-4a99c3fe0640', '4c142109-3f47-41c7-8b36-d5e8719b1528', 'd1862b7f-634e-4c43-a312-5974d7e438a7', '3f7d95d3-b436-4dbb-a2f5-89467b0f4385', '0eaf8c46-64e8-4b38-9e0e-05b7f75a92f7', 'f021f6f7-5f45-4de2-b7ad-82d8d8903b5b', '5d0a4df3-d7c4-49f6-aeed-4d0f6c4b1c45', '9b79bc86-30eb-43bb-aad5-c6dd52bc19ff', 'b1c97f1f-3dd2-4e45-b097-d029ed4cf158', '7b18d876-3db9-4a88-8597-f5cc8760c0c3', 'c8dc84b1-5862-4f32-8fcb-35b77a0a5e7d', 'bb0e3926-6928-42de-baf6-2b9cfb4ccf0a', 'd573cb64-6c68-4928-a3b7-67434c6f29d8', 'a12df93b-3c19-43ad-b144-fc47d19785b5', '0858992e-9f11-42bb-b4a9-fcc9f66d9174', '05b42163-8b4a-4f38-a29c-c9cf8f5900c9', 'fe068fe7-9ba2-40b6-943f-e1f58e24b12b', '96a982e5-96d3-4b20-b57e-cf28ec443cfc', '47de5e5a-73cf-4385-aa3e-2c13d33bc9b7');
