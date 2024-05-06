@@ -60,10 +60,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE PROCEDURE insert_user(
-<<<<<<< HEAD
-=======
 in_id UUID,
->>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0
     in_username TEXT,
     in_password VARCHAR(100),
     in_fname VARCHAR(100),
@@ -77,10 +74,6 @@ in_id UUID,
 )
 AS $$
 DECLARE
-<<<<<<< HEAD
-    in_id UUID := uuid_generate_v4();
-=======
->>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0
     v_error_message VARCHAR;
 BEGIN 
     IF in_username IS NULL THEN
@@ -195,10 +188,7 @@ DECLARE
     in_id UUID := uuid_generate_v4();
 BEGIN 
 CALL insert_user(
-<<<<<<< HEAD
-=======
 in_id,
->>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0
     in_username,
     in_password,
     in_fname,
@@ -256,10 +246,7 @@ DECLARE
     in_id UUID := uuid_generate_v4();
 BEGIN
 CALL insert_user(
-<<<<<<< HEAD
-=======
 in_id,
->>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0
     in_username,
     in_password,
     in_fname,
@@ -298,10 +285,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE PROCEDURE insert_courses(
-<<<<<<< HEAD
-=======
     in_teacher_id UUID,
->>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0
     in_title VARCHAR(100),
     in_type course_type,
     in_description TEXT,
@@ -339,11 +323,7 @@ BEGIN
         RAISE EXCEPTION 'Currency is required.';
     END IF;
     CALL check_valid_url(in_thumbnail_url);
-<<<<<<< HEAD
-    INSERT INTO courses (course_id, title, type, description, rating, level, thumbnail_url, headline, content_info, amount_price, currency, course_slug, access_count, total_students)
-=======
     INSERT INTO courses (course_id, title, type, description, rating, level, thumbnail_url, headline, content_info, amount_price, currency, course_slug, access_count, total_students, teacher_id)
->>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0
 VALUES (
         in_id,
         in_title,
@@ -358,12 +338,8 @@ VALUES (
         in_currency,
         in_course_slug,
         in_access_count,
-<<<<<<< HEAD
-        in_total_students
-=======
         in_total_students,
         in_teacher_id
->>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0
 );
 END;
 $$ LANGUAGE plpgsql;
@@ -372,10 +348,6 @@ CREATE OR REPLACE PROCEDURE delete_courses(in_id UUID)
 AS $$
 BEGIN
     IF NOT EXISTS (SELECT * FROM courses WHERE course_id = in_id) THEN
-<<<<<<< HEAD
-        RAISE EXCEPTION 'Cannot delete none exist course';
-    END IF;
-=======
         RAISE EXCEPTION 'Cannot delete non-existent course';
     END IF;
 
@@ -386,15 +358,11 @@ BEGIN
     );
 
     DELETE FROM lessons WHERE course_id = in_id;
->>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0
     DELETE FROM courses WHERE course_id = in_id;
 END;
 $$ LANGUAGE plpgsql;
 
-<<<<<<< HEAD
-=======
 
->>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0
 CREATE OR REPLACE PROCEDURE update_courses(
     in_id UUID,
     in_description TEXT,
@@ -467,20 +435,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-<<<<<<< HEAD
--- CREATE OR REPLACE PROCEDURE insert_student_into_course(
---     in_student_id UUID,
---     in_course_id UUID
--- )
--- AS $$
--- BEGIN
---     INSERT INTO students_join_courses (student_id, course_id)
---     VALUES (in_student_id, in_course_id);
--- END;
--- $$ LANGUAGE plpgsql;
-
-=======
->>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0
 -- Down Migration
 DROP PROCEDURE IF EXISTS check_password;
 DROP PROCEDURE IF EXISTS check_valid_email;
@@ -501,9 +455,4 @@ DROP PROCEDURE IF EXISTS delete_courses;
 DROP PROCEDURE IF EXISTS update_courses;
 DROP PROCEDURE IF EXISTS insert_lessons;
 DROP PROCEDURE IF EXISTS delete_lessons;
-<<<<<<< HEAD
 DROP PROCEDURE IF EXISTS update_lessons;
--- DROP PROCEDURE IF EXISTS insert_student_into_course;
-=======
-DROP PROCEDURE IF EXISTS update_lessons;
->>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0

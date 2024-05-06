@@ -11,10 +11,6 @@ CREATE TABLE students_join_courses
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     current_price DOUBLE PRECISION,
-<<<<<<< HEAD
-    currency currency_type,
-=======
->>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0
     CONSTRAINT students_join_courses_pk
         PRIMARY KEY (course_id, student_id)
 );

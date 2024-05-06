@@ -42,64 +42,6 @@ describe("Edge case", () => {
     });
 })
 
-<<<<<<< HEAD
-describe("POST /api/auth/register", () => {
-    test("It should return registered success after registered as a student", async () => {
-        await request(app).post('/api/auth/register').send({
-            username: faker.internet.userName(),
-            password: "123AAAaaa#",
-            email: faker.internet.email(),
-            phone_no: "12345678901",
-            address: faker.location.streetAddress(),
-            birthday: '2004-01-01',
-            fname: faker.person.firstName(),
-            lname: faker.person.lastName(),
-            avatar_url: faker.image.url(),
-            isTeacher: false,
-            studentInfo: {
-                english_level: "A1",
-                study_history: "I have studied English for 2 years",
-                target: "I want to improve my English"
-            }
-        }).expect(200).expect(res => {
-            expect(res.body).toEqual({
-                status_code: 200,
-                message: "Register successfully",
-                data: {
-                    success: true
-                }
-            });
-        });
-    });
-
-    test("It should return registered success after registered as a teacher", async () => {
-        await request(app).post('/api/auth/register').send({
-            username: faker.internet.userName(),
-            password: faker.internet.password(),
-            email: faker.internet.email(),
-            phoneNo: "12345678901",
-            address: faker.location.streetAddress(),
-            birthday: '2004-01-01',
-            fname: faker.person.firstName(),
-            lname: faker.person.lastName(),
-            isTeacher: true,
-            teacherInfo: {
-                educational_level: "Bachelor"
-            }
-        }).expect(200).expect(res => {
-            expect(res.body).toEqual({
-                status_code: 200,
-                message: "Register successfully",
-                data: {
-                    success: true
-                }
-            });
-        });
-    });
-})
-
-=======
->>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0
 describe("GET /api/auth/me", () => {
     let agent = request.agent(app);
 
