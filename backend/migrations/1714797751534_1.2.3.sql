@@ -42,7 +42,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION filter_courses(p_teacher_name VARCHAR(100), p_teacher_exp INT, p_teacher_level VARCHAR)
+CREATE OR REPLACE FUNCTION filter_courses(p_tag VARCHAR(50), p_teacher_name VARCHAR(100), p_teacher_exp INT)
 RETURNS TABLE(course_title VARCHAR(100), teacher_name VARCHAR(100), teacher_exp INT) AS $$
 BEGIN
     RETURN QUERY
@@ -50,9 +50,8 @@ BEGIN
     FROM courses c
     INNER JOIN teachers t ON c.teacher_id = t.user_id
     INNER JOIN users u ON t.user_id = u.id
-    WHERE u.display_name LIKE '%' || p_teacher_name || '%' 
-    AND EXTRACT(YEAR FROM age(NOW(), t.created_at)) * 12 + EXTRACT(MONTH FROM age(NOW(), t.created_at)) >= p_teacher_exp 
-    AND t.level = p_teacher_level;
+    WHERE u.display_name LIKE '%' || p_teacher_name || '%' OR u.content_info LIKE '%' || p_tag || '%'
+    AND EXTRACT(YEAR FROM age(NOW(), t.created_at)) * 12 + EXTRACT(MONTH FROM age(NOW(), t.created_at)) >= p_teacher_exp;
 END;
 $$ LANGUAGE plpgsql;
 
