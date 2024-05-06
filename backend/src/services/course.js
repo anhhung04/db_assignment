@@ -304,17 +304,17 @@ class CourseService extends IService {
     async filterCourses({
         teacher_name,
         teacher_exp,
-        teacher_level
+        tag
     }) {
         teacher_name = teacher_name && typeof teacher_name == "string" ? teacher_name : "";
         teacher_exp = teacher_exp && typeof teacher_exp == "number" ? teacher_exp : 0;
-        teacher_level = teacher_level && typeof teacher_level == "string" ? teacher_level : "";
+        tag = tag && typeof tag == "string" ? tag : "";
         try {
             let results = await this._courseRepo.exec({
                 query: `
                     SELECT * FROM filter_courses($1, $2, $3);
                 `,
-                args: [teacher_name, teacher_exp, teacher_level]
+                args: [tag, teacher_name, teacher_exp]
             });
             return results.map(row => ({
                 course_id: row.course_id,
