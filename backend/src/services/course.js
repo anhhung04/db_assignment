@@ -68,7 +68,7 @@ class CourseService extends IService {
             query: `
                 SELECT r.*, u.*
                 FROM reviews r
-                JOIN user u ON r.student_id = u.id
+                JOIN users u ON r.student_id = u.id
                 WHERE r.course_id = $1;
             `,
             args: [course.course_id]
