@@ -1,6 +1,7 @@
 const { IService } = require("../utils/service");
 const { CourseRepo } = require("../repository/course");
 const { v4: uuidv4 } = require('uuid');
+const logger = require("../utils/log");
 
 class CourseService extends IService {
     constructor(request) {
@@ -154,6 +155,10 @@ class CourseService extends IService {
             content_info,
             amount_price,
             currency,
+<<<<<<< HEAD
+=======
+            teacherId: this._currentUser.id
+>>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0
         });
         if (error) {
             throw new Error(error);
@@ -216,6 +221,7 @@ class CourseService extends IService {
             comment
         }, isSlug
     }) {
+<<<<<<< HEAD
         let studentBoughtCourse = await this._courseRepo.findStudentCourses({
             studentId: this._currentUser.id,
             courseId,
@@ -234,37 +240,84 @@ class CourseService extends IService {
 
         if (error) {
             throw new Error(error);
+=======
+        try {
+            if (isSlug) {
+                const { row: course, error } = await this._courseRepo.findOneInTable({
+                    table: "courses",
+                    findObj: { course_slug: courseId }
+                });
+                if (error) {
+                    throw new Error(error);
+                }
+                courseId = course.course_id;
+            }
+            await this._courseRepo.exec({
+                query: `CALL rate_course($1, $2, $3, $4);`,
+                args: [courseId, this._currentUser.id, comment, rating]
+            });
+        } catch (err) {
+            logger.debug(err);
+            throw new Error(err);
+>>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0
         }
     }
 
     async joinCourse({ courseId, isSlug }) {
-        let { row: course, error } = await this._courseRepo.findOneInTable({
+        let { rows, error: err } = await this._courseRepo.findInTable({
             table: "courses",
-            findObj: {
-                [`${isSlug ? "course_slug" : "course_id"}`]: courseId
+            findObj: isSlug ? { course_slug: courseId } : {
+                course_id: courseId
             }
+        });
+        if (err) {
+            throw new Error("Course not found");
+        }
+        let { error } = await this._courseRepo.joinCourse({
+            studentId: this._currentUser.id,
+            courseId: rows[0].course_id
         });
 
         if (error) {
             throw new Error(error);
         }
-
-        let { row: join, error: err } = await this._courseRepo.createInTable({
-            table: "students_join_course",
-            createObj: {
-                course_id: course.course_id,
-                student_id: this._currentUser.id,
-                current_price: course.amount_price,
-            }
-        });
-
-        if (err) {
-            throw new Error(err);
-        }
-
-        return join;
     }
 
+<<<<<<< HEAD
+=======
+    async filterCourses({
+        teacher_name,
+        teacher_exp,
+        teacher_level
+    }) {
+        teacher_name = teacher_name && typeof teacher_name == "string" ? teacher_name : "";
+        teacher_exp = teacher_exp && typeof teacher_exp == "number" ? teacher_exp : 0;
+        teacher_level = teacher_level && typeof teacher_level == "string" ? teacher_level : "";
+        try {
+            let results = await this._courseRepo.exec({
+                query: `
+                    SELECT * FROM filter_courses($1, $2, $3);
+                `,
+                args: [teacher_name, teacher_exp, teacher_level]
+            });
+            return results.map(row => ({
+                course_id: row.course_id,
+                title: row.title,
+                description: row.description,
+                level: row.level,
+                thumbnail_url: row.thumbnail_url,
+                headline: row.headline,
+                content_info: row.content_info,
+                amount_price: row.amount_price,
+                currency: row.currency
+            }));
+        } catch (err) {
+            logger.debug(err);
+            throw new Error(err);
+        }
+    }
+
+>>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0
     async listMyCourses({
         limit,
         page

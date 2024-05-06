@@ -95,7 +95,7 @@ const Header = () => {
                                 <IoIosNotifications />
                             </li>
                             <li>
-                                {isLogin ? (
+                                {!isLogin ? (
                                     <>
                                         <span>
                                             <button

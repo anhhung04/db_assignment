@@ -66,7 +66,6 @@ router.post('/register', validate({
         english_level: `isString&optional=${JSON.stringify({ nullable: true })}`,
         target: `isString&optional=${JSON.stringify({ nullable: true })}`,
     }
-
 }), async (req, res, next) => {
     try {
         const {

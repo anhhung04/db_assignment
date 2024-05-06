@@ -61,6 +61,25 @@ router.get("/highlight", async (req, res, next) => {
     }
 })
 
+<<<<<<< HEAD
+=======
+router.get("/filter", async (req, res, next) => {
+    try {
+        let { teacher_name, teacher_exp, teacher_level } = req.query;
+        const courses = await req.service.filterCourses({
+            teacher_name, teacher_exp, teacher_level
+        });
+        return wrapResponse(res, {
+            code: STATUS_CODE.HTTP_200_OK,
+            message: "Courses fetched successfully",
+            data: courses
+        });
+    } catch (err) {
+        next(err);
+    }
+})
+
+>>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0
 router.get("/mine", async (req, res, next) => {
     try {
         let { page, limit } = req.query;

@@ -118,11 +118,86 @@ BEGIN
 END; 
 $$ LANGUAGE plpgsql;
 
+<<<<<<< HEAD
 
+=======
+CREATE OR REPLACE FUNCTION calculate_course_price(
+    in_student_id UUID,
+    in_course_id UUID
+)
+RETURNS DOUBLE PRECISION AS $$
+DECLARE
+    bought_course RECORD;
+    course RECORD;
+    course_price DOUBLE PRECISION;
+    max_points DOUBLE PRECISION := 0.2; 
+    solve_threshold DOUBLE PRECISION := 0;
+    x DOUBLE PRECISION := 0;
+    discount_amount DOUBLE PRECISION;
+BEGIN
+    FOR course IN (SELECT * FROM courses)
+    LOOP
+        solve_threshold := solve_threshold + change_currency(course.amount_price, course.currency);
+    END LOOP;
+
+    FOR bought_course IN (SELECT course_id, current_price FROM students_join_courses WHERE student_id = in_student_id)
+    LOOP
+        IF EXISTS (SELECT 1 FROM reviews WHERE course_id = bought_course.course_id AND student_id = in_student_id) THEN
+            x := x + bought_course.current_price;
+        ELSE
+            x := x + bought_course.current_price * 0.5;
+        END IF;
+    END LOOP;
+
+    discount_amount := max_points / (solve_threshold^2) * (x^2);
+    SELECT change_currency(amount_price, currency) INTO course_price
+    FROM courses
+    WHERE course_id = in_course_id;
+    course_price := course_price * (1 - discount_amount);
+
+    RETURN course_price;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE PROCEDURE join_course(
+    in_student_id UUID,
+    in_course_id UUID
+)
+AS $$
+DECLARE
+    in_current_price DOUBLE PRECISION;
+    student_balance DOUBLE PRECISION;
+    course_type course_type;
+BEGIN
+    IF EXISTS (SELECT 1 FROM students_join_courses WHERE student_id = in_student_id AND course_id = in_course_id) THEN
+        RAISE EXCEPTION 'The student has already registered for this course';
+    END IF;
+
+    in_current_price := calculate_course_price(in_student_id, in_course_id);
+    SELECT account_balance INTO student_balance FROM users WHERE id = in_student_id;
+    SELECT type INTO course_type FROM courses WHERE course_id = in_course_id;
+    IF course_type = 'paid' THEN
+        IF student_balance < in_current_price THEN
+            RAISE EXCEPTION 'The student does not have enough money to join the course';
+        END IF;
+        UPDATE users SET account_balance = account_balance - in_current_price WHERE id = in_student_id;
+    END IF;
+    
+    INSERT INTO students_join_courses (student_id, course_id, current_price)
+    VALUES (in_student_id, in_course_id, in_current_price);
+END;
+$$ LANGUAGE plpgsql;
+>>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0
 
 
 -- Down Migration
 DROP FUNCTION IF EXISTS calculate_exam_score;
 DROP FUNCTION IF EXISTS check_course_eligibility;
 DROP FUNCTION IF EXISTS get_top_students;
+<<<<<<< HEAD
 DROP FUNCTION IF EXISTS get_top_highlight_courses;
+=======
+DROP FUNCTION IF EXISTS get_top_highlight_courses;
+DROP FUNCTION IF EXISTS calculate_course_price;
+DROP PROCEDURE IF EXISTS join;
+>>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0

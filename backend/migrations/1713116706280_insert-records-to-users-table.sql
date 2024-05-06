@@ -13,6 +13,7 @@ INSERT INTO users (
         birthday
     )
 VALUES (
+<<<<<<< HEAD
         '90f5c3b5-6b82-4b6d-85b5-9c1d414e9a1f',
         'user1',
         '$2a$10$oBeKExPjakvzWN0qJ.Q10.zctuE86a.cMewA..zJr8.DC3E6rj9mm',
@@ -49,6 +50,8 @@ INSERT INTO users (
         birthday
     )
 VALUES (
+=======
+>>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0
         '36a14986-5819-43ac-90af-b75eeb8dce27',
         'user2',
         '$2a$10$oBeKExPjakvzWN0qJ.Q10.zctuE86a.cMewA..zJr8.DC3E6rj9mm',

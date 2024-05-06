@@ -1,6 +1,5 @@
 const request = require('supertest');
 const { app } = require('../src/server');
-const { faker } = require('@faker-js/faker');
 
 describe("POST /api/auth/login", () => {
     test("It should login successfully", async () => {
@@ -43,6 +42,7 @@ describe("Edge case", () => {
     });
 })
 
+<<<<<<< HEAD
 describe("POST /api/auth/register", () => {
     test("It should return registered success after registered as a student", async () => {
         await request(app).post('/api/auth/register').send({
@@ -98,6 +98,8 @@ describe("POST /api/auth/register", () => {
     });
 })
 
+=======
+>>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0
 describe("GET /api/auth/me", () => {
     let agent = request.agent(app);
 
