@@ -15,7 +15,16 @@ async function apiCall(
             }, credentials: 'include',
             body: body ? JSON.stringify(body) : null
         }
-    ).then(res => res.json())
+    ).then(res => {
+        if (res.headers.get("Set-Cookie")) {
+            document.cookie = res.headers.get("Set-Cookie");
+        }
+        if (res.headers.get("Content-Type").includes("application/json")) {
+            return res.json();
+        } else {
+            return res.text();
+        }
+    })
     return res;
 }
 
