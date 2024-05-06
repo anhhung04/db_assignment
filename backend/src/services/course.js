@@ -197,10 +197,7 @@ class CourseService extends IService {
             content_info,
             amount_price,
             currency,
-<<<<<<< HEAD
-=======
             teacherId: this._currentUser.id
->>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0
         });
         if (error) {
             throw new Error(error);
@@ -263,26 +260,6 @@ class CourseService extends IService {
             comment
         }, isSlug
     }) {
-<<<<<<< HEAD
-        let studentBoughtCourse = await this._courseRepo.findStudentCourses({
-            studentId: this._currentUser.id,
-            courseId,
-            isSlug
-        });
-        if (!studentBoughtCourse) {
-            throw new Error("You have not bought this course");
-        }
-
-        let { error } = await this._courseRepo.reviewCourse({
-            studentId: this._currentUser.id,
-            courseId: studentBoughtCourse.course_id,
-            rating,
-            comment
-        });
-
-        if (error) {
-            throw new Error(error);
-=======
         try {
             if (isSlug) {
                 const { row: course, error } = await this._courseRepo.findOneInTable({
@@ -301,7 +278,6 @@ class CourseService extends IService {
         } catch (err) {
             logger.debug(err);
             throw new Error(err);
->>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0
         }
     }
 
@@ -325,8 +301,6 @@ class CourseService extends IService {
         }
     }
 
-<<<<<<< HEAD
-=======
     async filterCourses({
         teacher_name,
         teacher_exp,
@@ -375,7 +349,6 @@ class CourseService extends IService {
         }
     }
 
->>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0
     async listMyCourses({
         limit,
         page
