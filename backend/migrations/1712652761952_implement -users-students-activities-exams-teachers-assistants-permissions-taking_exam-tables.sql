@@ -1,15 +1,18 @@
 -- Up Migration
 CREATE TYPE account_type AS ENUM ('operator', 'teacher', 'student', 'user', 'admin');
-
 CREATE TYPE status AS ENUM ('active', 'inactive');
+CREATE TYPE document_type AS ENUM ('book', 'dictionary', 'mock_test');
+CREATE TYPE ebook_type AS ENUM ('theory', 'practical');
+CREATE TYPE currency_type AS ENUM ('usd', 'vnd', 'eur');
+CREATE TYPE course_type AS ENUM ('free', 'paid');
+CREATE TYPE resource_type as ENUM ('videos', 'documents');
 
 CREATE TABLE users
 (
     username     TEXT         NOT NULL UNIQUE,
-    password     VARCHAR(100) NOT NULL,
+    password     VARCHAR(100) NOT NULL CHECK (LENGTH(password) > 5),
     fname        VARCHAR(100) NOT NULL,
     lname        VARCHAR(100) NOT NULL,
-    display_name VARCHAR(100) NOT NULL DEFAULT '',
     email        VARCHAR(100) NOT NULL UNIQUE,
     address      TEXT         NOT NULL,
     id           UUID         NOT NULL
@@ -17,11 +20,12 @@ CREATE TABLE users
             PRIMARY KEY,
     avatar_url   TEXT,
     account_type account_type NOT NULL,
-    status       status       NOT NULL,
     phone_no     VARCHAR(11),
     birthday     DATE,
     created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at   TIMESTAMP NOT NULL DEFAULT NOW()
+    updated_at   TIMESTAMP NOT NULL DEFAULT NOW(),
+    account_balance DOUBLE PRECISION DEFAULT 0,
+    display_name VARCHAR(100) NOT NULL DEFAULT ''
 );
 
 CREATE TABLE students
@@ -47,23 +51,24 @@ CREATE TABLE activities
     action          VARCHAR(200)  NOT NULL,
     resource_id     UUID,
     note            TEXT,
-    activist_id     UUID,
+    activist_id     UUID
+        CONSTRAINT activity_activist_id_fk
+            REFERENCES users
+            ON DELETE CASCADE,
     created_at      TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
--- CREATE TABLE exams
--- (
---     exam_id    UUID    NOT NULL
---         CONSTRAINT exam_id
---             PRIMARY KEY,
---     questions  TEXT    NOT NULL,
---     answers    TEXT    NOT NULL,
---     duration   INTEGER NOT NULL,
---     course_id UUID    NOT NULL,
---     created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
---     updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
--- );
+CREATE TABLE exams
+(
+    exam_id    UUID    NOT NULL
+        CONSTRAINT exam_id
+            PRIMARY KEY,
+    duration  INTERVAL NOT NULL,
+    title    VARCHAR(100) NOT NULL,
+    created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
+);
 
 
 CREATE TABLE teachers
@@ -91,16 +96,6 @@ CREATE TABLE teachers
 --         PRIMARY KEY (teacher_id, assistant_id)
 -- );
 
--- CREATE TABLE libraries
--- (
---     library_id UUID        NOT NULL
---         CONSTRAINT library_id
---             PRIMARY KEY,
---     name       VARCHAR(50) NOT NULL,
---     created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
---     updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
--- );
-
 CREATE TABLE permissions
 (
     user_id     UUID
@@ -111,42 +106,47 @@ CREATE TABLE permissions
     "create"    BOOLEAN DEFAULT FALSE,
     update      BOOLEAN DEFAULT FALSE,
     delete      BOOLEAN DEFAULT FALSE,
-    resource_id UUID,
+    resource_id UUID DEFAULT '00000000-0000-0000-0000-000000000000',
     created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at   TIMESTAMP NOT NULL DEFAULT NOW(),
     CONSTRAINT permissions_id
         PRIMARY KEY (user_id, resource_id)
 );
 
--- CREATE TABLE taking_exam
--- (
---     user_id UUID    NOT NULL
---         CONSTRAINT taking_exam_students_student_id_fk
---             REFERENCES students
---             ON DELETE CASCADE
---             ON UPDATE CASCADE,
---     exam_id    UUID    NOT NULL
---         CONSTRAINT taking_exam_exams_exam_id_fk
---             REFERENCES exams
---             ON DELETE CASCADE
---             ON UPDATE CASCADE,
---     score      NUMERIC NOT NULL,
---     ranking    NUMERIC NOT NULL,
---     created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
---     updated_at  TIMESTAMP NOT NULL DEFAULT NOW(),
---     CONSTRAINT taking_id
---         PRIMARY KEY (user_id, exam_id)
--- );
+CREATE TABLE taking_exam
+(
+    id UUID NOT NULL UNIQUE,
+    student_id UUID    NOT NULL
+        CONSTRAINT taking_exam_students_student_id_fk
+            REFERENCES students
+            ON DELETE CASCADE,
+    exam_id    UUID    NOT NULL
+        CONSTRAINT taking_exam_exams_exam_id_fk
+            REFERENCES exams
+            ON DELETE CASCADE,
+    score      NUMERIC NOT NULL,
+    ranking    NUMERIC NOT NULL,
+    created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at  TIMESTAMP NOT NULL DEFAULT NOW(),
+    CONSTRAINT taking_id
+        PRIMARY KEY (student_id, exam_id, id)
+);
 
 -- Down Migration
 DROP TABLE IF EXISTS taking_exam;
 DROP TABLE IF EXISTS permissions;
--- DROP TABLE IF EXISTS libraries;
+DROP TABLE IF EXISTS libraries;
 -- DROP TABLE IF EXISTS assistants;
 DROP TABLE IF EXISTS teachers;
--- DROP TABLE IF EXISTS exams;
+DROP TABLE IF EXISTS exams;
 DROP TABLE IF EXISTS activities;
 DROP TABLE IF EXISTS students;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS pgmigrations;
 DROP TYPE IF EXISTS status;
 DROP TYPE IF EXISTS account_type;
+DROP TYPE IF EXISTS document_type;
+DROP TYPE IF EXISTS ebook_type;
+DROP TYPE IF EXISTS currency_type;
+DROP TYPE IF EXISTS course_type;
+DROP TYPE IF EXISTS resource_type;

@@ -152,7 +152,7 @@ class IRepo {
         try {
             if (!findObj) {
                 findObj = {
-                    "1": "1"
+                    "1": 1
                 };
             }
             let { filterQuery, args } = convertObjectToFilterQuery(findObj);

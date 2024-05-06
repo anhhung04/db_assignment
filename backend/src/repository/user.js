@@ -1,5 +1,5 @@
 const { IRepo } = require('./index');
-const { v4: uuidv4, validate } = require('uuid');
+const { validate } = require('uuid');
 const logger = require("../utils/log");
 const { convertObjectToInsertQuery } = require("../utils/db");
 class UserRepo extends IRepo {
@@ -97,38 +97,67 @@ class UserRepo extends IRepo {
         }
     }
 
-    async create(newUser) {
-        Object.assign(newUser, {
-            id: uuidv4(),
-            account_type: "user",
-            status: "active",
-        });
-        let { columns, values, args } = convertObjectToInsertQuery(newUser);
+    async create({
+        username,
+        password,
+        email,
+        phone_no,
+        address,
+        avatar_url,
+        birthday,
+        fname,
+        lname,
+        isTeacher,
+        data
+    }) {
         try {
-            let results = await this.exec({
-                query: `
-                    INSERT INTO users(${columns})
-                    VALUES(${values})
-                    RETURNING *;
-                `,
-                args
-            });
-            if (results.rowCount !== 1) {
-                throw new Error("Query database error");
+            let result = {};
+            if (isTeacher) {
+                result = await this.exec({
+                    query: `
+                        CALL insert_teacher($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
+                    `, args: [
+                        data.educational_level,
+                        username,
+                        password,
+                        fname,
+                        lname,
+                        email,
+                        address,
+                        avatar_url,
+                        phone_no,
+                        birthday,
+                    ]
+                });
+            } else {
+                result = await this.exec({
+                    query: `
+                        CALL insert_student($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12);
+                    `, args: [
+                        data.english_level,
+                        data.study_history,
+                        data.target,
+                        username,
+                        password,
+                        fname,
+                        lname,
+                        email,
+                        address,
+                        avatar_url,
+                        phone_no,
+                        birthday,
+                    ]
+                });
             }
-            let userId = results.rows[0].id;
-            await this.exec({
-                query: `
-                    INSERT INTO permissions(user_id, resource_id, "read", "create", "delete", "update")
-                    VALUES($1, '00000000-0000-0000-0000-000000000000', false, false, false, false);
-                `,
-                args: [userId]
-            });
-            return this.findById(userId);
+            if (result.error) {
+                throw new Error(result.error);
+            }
+            return {
+                error: null
+            };
         } catch (err) {
             logger.debug(err);
             return {
-                user: null,
                 error: err
             };
         }

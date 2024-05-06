@@ -1,36 +1,29 @@
 -- Up Migration
-CREATE TYPE document_type AS ENUM ('book', 'dictionary', 'mock_test');
-CREATE TYPE ebook_type AS ENUM ('theory', 'practical');
-CREATE TYPE currency_type AS ENUM ('usd', 'vnd', 'eur');
-CREATE TYPE course_type AS ENUM ('free', 'paid');
-CREATE TYPE level_type AS ENUM ('A1', 'A2', 'B1', 'B2', 'C1', 'C2');
-CREATE TYPE resource_type as ENUM ('videos', 'documents');
-
 CREATE TABLE courses
 (
     course_id   UUID NOT NULL
         CONSTRAINT course_pk
             PRIMARY KEY,
-    title        VARCHAR(50),
+    title        VARCHAR(100) CHECK (LENGTH(title) > 10 AND LENGTH(title) <= 100) NOT NULL,
     type        course_type,
     description VARCHAR(200),
-    rating FLOAT,
-    level       level_type,
+    rating FLOAT CHECK (rating >= 0 AND rating <= 5) NOT NULL DEFAULT 0,
+    level       VARCHAR(20),
     thumbnail_url TEXT,
     headline   VARCHAR(100)  ,
-    content_info VARCHAR(20) NOT NULL,
+    content_info VARCHAR(50) NOT NULL,
     amount_price DOUBLE PRECISION NOT NULL,
     currency currency_type NOT NULL,
     course_slug VARCHAR(100) NOT NULL UNIQUE,
     access_count integer NOT NULL DEFAULT 0,
-    total_students integer NOT NULL DEFAULT 0
+    total_students integer NOT NULL DEFAULT 0,
+    created_at  TIMESTAMP DEFAULT NOW() NOT NULL,
+    updated_at  TIMESTAMP DEFAULT NOW() NOT NULL,
+    teacher_id UUID
+        CONSTRAINT courses_teachers_teacher_id_fk
+            REFERENCES teachers
+            ON DELETE CASCADE
 );
-
--- ALTER TABLE exams
---     ADD CONSTRAINT exams_course_id_fk
---         FOREIGN KEY (course_id)
---             REFERENCES courses
---             ON DELETE CASCADE;
 
 -- CREATE TABLE classes
 -- (
@@ -142,10 +135,3 @@ DROP TABLE IF EXISTS courses;
 DROP TABLE IF EXISTS lessons;
 DROP TABLE IF EXISTS lesson_resources;
 DROP TABLE IF EXISTS learning_resources;
-
-DROP TYPE IF EXISTS ebook_type;
-DROP TYPE IF EXISTS document_type;
-DROP TYPE IF EXISTS course_type;
-DROP TYPE IF EXISTS currency_type;
-DROP TYPE IF EXISTS level_type;
-DROP TYPE IF EXISTS resource_type;

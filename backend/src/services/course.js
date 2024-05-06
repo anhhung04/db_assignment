@@ -1,6 +1,7 @@
 const { IService } = require("../utils/service");
 const { CourseRepo } = require("../repository/course");
 const { v4: uuidv4 } = require('uuid');
+const logger = require("../utils/log");
 
 class CourseService extends IService {
     constructor(request) {
@@ -9,7 +10,7 @@ class CourseService extends IService {
     }
     async listCourses({ limit, page }) {
         limit = limit ? Math.abs(limit) : 10;
-        page = page ? Math.abs(page) * (limit - 1) : 0;
+        page = page ? Math.abs(page) : 0;
         const { rows: courses, error } = await this._courseRepo.findInTable({
             table: "courses",
             limit,
@@ -23,12 +24,12 @@ class CourseService extends IService {
 
     async findCourse({ id, isSlug = false }) {
         let findObj = isSlug ? { course_slug: id } : { course_id: id };
-        const { row: course, error } = await this._courseRepo.findOneInTable({
-            table: "courses",
-            findObj
-        });
+        const { course, error } = await this._courseRepo.findOne(findObj);
         if (error) {
             throw new Error(error);
+        }
+        if (!course) {
+            throw new Error("Course not found");
         }
         let { rows: lessons, error: err } = await this._courseRepo.findInTable({
             table: "lessons",
@@ -144,38 +145,21 @@ class CourseService extends IService {
             currency
         }
     }) {
-        let course_slug = title.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9 ]/g, "").replace(/ /g, "-").toLowerCase();
-        course_slug = course_slug + "-" + Math.random().toString(36).substring(2, 7);
-        const { row: course, error } = await this._courseRepo.createInTable({
-            table: "courses",
-            createObj: {
-                course_id: uuidv4(),
-                title,
-                type,
-                description,
-                level,
-                thumbnail_url,
-                headline,
-                content_info,
-                amount_price,
-                currency,
-                course_slug
-            }
+        const { error } = await this._courseRepo.createCourse({
+            title,
+            type,
+            description,
+            level,
+            thumbnail_url,
+            headline,
+            content_info,
+            amount_price,
+            currency,
+            teacherId: this._currentUser.id
         });
         if (error) {
             throw new Error(error);
         }
-        await this._courseRepo.modifyPermission({
-            userId: this._currentUser.id,
-            resourceId: course.course_id,
-            permissions: {
-                create: true,
-                read: true,
-                update: true,
-                delete: true
-            }, newPermissions: true
-        });
-        return course;
     }
 
     async updateCourse({
@@ -191,11 +175,8 @@ class CourseService extends IService {
             currency
         }
     }) {
-        const { rows: courses, error } = await this._courseRepo.updateInTable({
-            table: "courses",
-            indentify: {
-                course_id: courseId
-            },
+        const { error } = await this._courseRepo.update({
+            courseId,
             updateObj: {
                 type,
                 description,
@@ -210,7 +191,15 @@ class CourseService extends IService {
         if (error) {
             throw new Error(error);
         }
-        return courses[0];
+    }
+
+    async deleteCourse({ courseId }) {
+        const { error } = await this._courseRepo.delete({
+            courseId
+        });
+        if (error) {
+            throw new Error(error);
+        }
     }
 
     async searchCourses({ content, limit }) {
@@ -229,58 +218,122 @@ class CourseService extends IService {
             comment
         }, isSlug
     }) {
-        let studentBoughtCourse = await this._courseRepo.findStudentCourses({
-            studentId: this._currentUser.id,
-            courseId,
-            isSlug
-        });
-        if (!studentBoughtCourse) {
-            throw new Error("You have not bought this course");
-        }
-
-        let { error } = await this._courseRepo.reviewCourse({
-            studentId: this._currentUser.id,
-            courseId: studentBoughtCourse.course_id,
-            rating,
-            comment
-        })
-
-        if (error) {
-            throw new Error(error);
+        try {
+            if (isSlug) {
+                const { row: course, error } = await this._courseRepo.findOneInTable({
+                    table: "courses",
+                    findObj: { course_slug: courseId }
+                });
+                if (error) {
+                    throw new Error(error);
+                }
+                courseId = course.course_id;
+            }
+            await this._courseRepo.exec({
+                query: `CALL rate_course($1, $2, $3, $4);`,
+                args: [courseId, this._currentUser.id, comment, rating]
+            });
+        } catch (err) {
+            logger.debug(err);
+            throw new Error(err);
         }
     }
 
     async joinCourse({ courseId, isSlug }) {
-        let { row: course, error } = await this._courseRepo.findOneInTable({
+        let { rows, error: err } = await this._courseRepo.findInTable({
             table: "courses",
-            findObj: {
-                [`${isSlug ? "course_slug" : "course_id"}`]: courseId
+            findObj: isSlug ? { course_slug: courseId } : {
+                course_id: courseId
             }
+        });
+        if (err) {
+            throw new Error("Course not found");
+        }
+        let { error } = await this._courseRepo.joinCourse({
+            studentId: this._currentUser.id,
+            courseId: rows[0].course_id
         });
 
         if (error) {
             throw new Error(error);
         }
-
-        let { row: join, error: err } = await this._courseRepo.createInTable({
-            table: "students_join_course",
-            createObj: {
-                course_id: course.course_id,
-                student_id: this._currentUser.id,
-                current_price: course.amount_price,
-            }
-        });
-
-        if (err) {
-            throw new Error(err);
-        }
-
-        return join;
     }
 
-    async listMyCourses() {
-        const { courses, error } = await this._courseRepo.findStudentCourses({
-            studentId: this._currentUser.id
+    async filterCourses({
+        teacher_name,
+        teacher_exp,
+        teacher_level
+    }) {
+        teacher_name = teacher_name && typeof teacher_name == "string" ? teacher_name : "";
+        teacher_exp = teacher_exp && typeof teacher_exp == "number" ? teacher_exp : 0;
+        teacher_level = teacher_level && typeof teacher_level == "string" ? teacher_level : "";
+        try {
+            let results = await this._courseRepo.exec({
+                query: `
+                    SELECT * FROM filter_courses($1, $2, $3);
+                `,
+                args: [teacher_name, teacher_exp, teacher_level]
+            });
+            return results.map(row => ({
+                course_id: row.course_id,
+                title: row.title,
+                description: row.description,
+                level: row.level,
+                thumbnail_url: row.thumbnail_url,
+                headline: row.headline,
+                content_info: row.content_info,
+                amount_price: row.amount_price,
+                currency: row.currency
+            }));
+        } catch (err) {
+            logger.debug(err);
+            throw new Error(err);
+        }
+    }
+
+    async listMyCourses({
+        limit,
+        page
+    }) {
+        let courses = [];
+        if (!this._currentUser) {
+            throw new Error("You are not logged in");
+        }
+        if (this._currentUser.role == "student") {
+            let result = await this._courseRepo.findStudentCourses({
+                studentId: this._currentUser.id,
+                limit,
+                page
+            });
+            if (result.error) {
+                throw new Error(result.error);
+            }
+            courses = result.courses;
+        } else if (this._currentUser.role == "teacher") {
+            let result = await this._courseRepo.findInTable({
+                table: "courses",
+                findObj: {
+                    teacher_id: this._currentUser.id
+                },
+                limit,
+                page
+            });
+            if (result.error) {
+                throw new Error(result.error);
+            }
+            courses = result.rows;
+        } else {
+            throw new Error("You are not a student or teacher");
+        }
+        return courses;
+    }
+
+    async listHighlightCourses({ limit, min_rating }) {
+        limit = limit ? Math.abs(limit) : 10;
+        min_rating = min_rating ? Math.abs(min_rating) : 0;
+        const { courses, error } = await this._courseRepo.getHightlightCourses({
+            limit,
+            min_rating
         });
         if (error) {
             throw new Error(error);

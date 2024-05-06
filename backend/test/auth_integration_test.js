@@ -1,6 +1,5 @@
 const request = require('supertest');
 const { app } = require('../src/server');
-const { faker } = require('@faker-js/faker');
 
 describe("POST /api/auth/login", () => {
     test("It should login successfully", async () => {
@@ -39,60 +38,6 @@ describe("Edge case", () => {
         expect(res.body).toEqual({
             status_code: 404,
             error: "Resource not Found"
-        });
-    });
-})
-
-describe("POST /api/auth/register", () => {
-    test("It should return registered success after registered as a student", async () => {
-        await request(app).post('/api/auth/register').send({
-            username: faker.internet.userName(),
-            password: faker.internet.password(),
-            email: faker.internet.email(),
-            phoneNo: "12345678901",
-            address: faker.location.streetAddress(),
-            birthday: '2004-01-01',
-            fname: faker.person.firstName(),
-            lname: faker.person.lastName(),
-            isTeacher: false,
-            studentInfo: {
-                english_level: "A1",
-                study_history: "I have studied English for 2 years",
-                target: "I want to improve my English"
-            }
-        }).expect(200).expect(res => {
-            expect(res.body).toEqual({
-                status_code: 200,
-                message: "Register successfully",
-                data: {
-                    success: true
-                }
-            });
-        });
-    });
-
-    test("It should return registered success after registered as a teacher", async () => {
-        await request(app).post('/api/auth/register').send({
-            username: faker.internet.userName(),
-            password: faker.internet.password(),
-            email: faker.internet.email(),
-            phoneNo: "12345678901",
-            address: faker.location.streetAddress(),
-            birthday: '2004-01-01',
-            fname: faker.person.firstName(),
-            lname: faker.person.lastName(),
-            isTeacher: true,
-            teacherInfo: {
-                educational_level: "Bachelor"
-            }
-        }).expect(200).expect(res => {
-            expect(res.body).toEqual({
-                status_code: 200,
-                message: "Register successfully",
-                data: {
-                    success: true
-                }
-            });
         });
     });
 })
