@@ -138,7 +138,7 @@ CREATE TABLE wrong_answers
         CONSTRAINT wrong_answers_taking_exam_id_fk
             REFERENCES taking_exam (id)
             ON DELETE CASCADE,
-    answer_id      UUID         NOT NULL
+    question_id      UUID         NOT NULL
         CONSTRAINT wrong_answers_questions_id_fk
             REFERENCES questions
             ON DELETE CASCADE

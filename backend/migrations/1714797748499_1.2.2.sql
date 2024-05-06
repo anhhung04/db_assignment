@@ -1,40 +1,4 @@
 -- Up Migration
-CREATE OR REPLACE PROCEDURE rate_course(
-    in_course_id UUID,
-    in_student_id UUID,
-    in_comment TEXT,
-    in_rating DOUBLE PRECISION
-)
-AS $$
-DECLARE
-    new_avg_rating DOUBLE PRECISION;
-BEGIN
-    IF NOT EXISTS (
-        SELECT *
-        FROM students_join_courses
-        WHERE student_id = in_student_id AND course_id = in_course_id
-    ) THEN 
-        RAISE EXCEPTION 'Student with ID % is not enrolled in the course with ID %', in_student_id, in_course_id;
-    END IF;
-    IF in_rating < 1 OR in_rating > 5 THEN
-        RAISE EXCEPTION 'Rating must be between 1 and 5';
-    END IF;
-
-    INSERT INTO reviews (comment, rating, course_id, student_id)
-    VALUES (in_comment, in_rating, in_course_id, in_student_id);
-
-    new_avg_rating := (
-        SELECT AVG(rating)
-        FROM reviews
-        WHERE course_id = in_course_id
-    );
-
-    UPDATE courses
-    SET rating = new_avg_rating
-    WHERE course_id = in_course_id;
-END;
-$$ LANGUAGE plpgsql;
-
 CREATE OR REPLACE FUNCTION change_currency(
     in_price DOUBLE PRECISION,
     in_currency currency_type
@@ -310,6 +274,7 @@ DROP FUNCTION IF EXISTS prevent_course_deletion;
 DROP TRIGGER IF EXISTS prevent_course_deletion_trigger ON courses;
 DROP FUNCTION IF EXISTS process_course_purchase;
 DROP TRIGGER IF EXISTS process_course_purchase_trigger ON students_join_courses;
+
 
 
 

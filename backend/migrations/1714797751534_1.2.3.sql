@@ -1,5 +1,36 @@
 -- Up Migration
-CREATE OR REPLACE FUNCTION list_courses_bought(student_id UUID, start_date DATE, end_date DATE)
+CREATE OR REPLACE FUNCTION list_top_courses_revenue(
+    start_date DATE,
+    end_date DATE,
+    limit_count INT
+)
+RETURNS TABLE (
+    course_id UUID,
+    title VARCHAR(100),
+    total_revenue DOUBLE PRECISION
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        c.course_id, 
+        c.title, 
+        SUM(sjc.current_price) AS total_revenue
+    FROM 
+        students_join_courses sjc
+    JOIN 
+        courses c ON sjc.course_id = c.course_id
+    WHERE 
+        sjc.created_at BETWEEN start_date AND end_date
+    GROUP BY 
+        c.course_id
+    ORDER BY 
+        total_revenue DESC
+    LIMIT 
+        limit_count;
+END; $$
+LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION list_courses_bought(in_student_id UUID, start_date DATE, end_date DATE)
 RETURNS TABLE (
     course_title VARCHAR(100),
     time_bought TIMESTAMP,
@@ -24,10 +55,10 @@ BEGIN
     JOIN 
         users u ON t.user_id = u.id
     WHERE 
-        sjc.student_id = student_id AND
+        sjc.student_id = in_student_id AND
         sjc.created_at BETWEEN start_date AND end_date
     GROUP BY 
-        c.course_id, sjc.created_at, sjc.current_price, u.fname, u.lname
+        c.course_id, sjc.created_at, sjc.current_price, u.display_name
     ORDER BY 
         avg_rating DESC;
 END; $$
@@ -66,10 +97,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION filter_courses_by_reviews(min_reviews INT, min_rating DOUBLE PRECISION, course_type VARCHAR(100))
+CREATE OR REPLACE FUNCTION filter_courses_by_reviews(min_reviews INT, min_rating DOUBLE PRECISION)
 RETURNS TABLE (
     course_title VARCHAR(100),
-    total_reviews INT,
+    total_reviews BIGINT,
     avg_rating DOUBLE PRECISION
 ) AS $$
 BEGIN
@@ -82,18 +113,19 @@ BEGIN
         courses c
     LEFT JOIN 
         reviews r ON c.course_id = r.course_id
-    WHERE
-        c.type = course_type
     GROUP BY 
         c.course_id
     HAVING 
         COUNT(r.id) >= min_reviews AND 
-        AVG(r.rating) >= min_rating;
+        AVG(r.rating) >= min_rating
+    ORDER BY 
+        avg_rating DESC, 
+        total_reviews DESC;
 END; $$
 LANGUAGE plpgsql;
 
 -- Down Migration
-DROP PROCEDURE list_courses_and_revenue;
-DROP PROCEDURE calculate_totals_and_course_sales;
+DROP FUNCTION list_top_courses_revenue;
+DROP FUNCTION list_courses_bought;
 DROP FUNCTION filter_courses;
 DROP FUNCTION filter_courses_by_reviews;

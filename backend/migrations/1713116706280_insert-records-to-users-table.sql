@@ -11,7 +11,8 @@ INSERT INTO users (
         account_type,
         phone_no,
         birthday,
-        account_balance
+        account_balance,
+        display_name
     )
 VALUES (
         '36a14986-5819-43ac-90af-b75eeb8dce27',
@@ -21,11 +22,12 @@ VALUES (
         'Nguyễn Văn',
         'nguyenvana@gmail.com',
         'KTX Hòa Hảo, Quận 10, Tp.HCM',
-        NULL,
+        'https://www.w3schools.com/w3images/avatar2.png',
         'student',
         '0123456789',
         '2004-01-01', 
-        400
+        400,
+        'Nguyễn Văn A'
     );
 INSERT INTO students (
         user_id,
