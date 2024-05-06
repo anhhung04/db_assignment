@@ -42,15 +42,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-CREATE OR REPLACE FUNCTION filter_courses(p_teacher_name VARCHAR(100), p_teacher_exp INT, p_teacher_level VARCHAR(100))
-RETURNS TABLE(id UUID, title VARCHAR(100), teacher_id UUID, created_at TIMESTAMP) AS $$
-=======
 CREATE OR REPLACE FUNCTION filter_courses(p_tag VARCHAR(50), p_teacher_name VARCHAR(100), p_teacher_exp INT, p_teacher_edulevel VARCHAR(100), limit_course INT, paging INT)
 RETURNS TABLE(course_id uuid, course_slug VARCHAR(100), thumbnail_url TEXT, title varchar(100), type course_type, description text, rating double precision, level varchar(20), headline varchar(100), content_info varchar(50), amount_price double precision, currency currency_type, total_students integer, teacher_name VARCHAR(100), teacher_id uuid, teacher_avatar TEXT, teacher_edu_level VARCHAR(50)) AS $$
->>>>>>> 40e7d62d622b7f67967322f4cc36f041f836ba8c
 BEGIN
     RETURN QUERY
     SELECT
@@ -105,7 +98,6 @@ BEGIN
 END; $$
 LANGUAGE plpgsql;
 
->>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0
 -- Down Migration
 DROP PROCEDURE list_courses_and_revenue;
 DROP PROCEDURE calculate_totals_and_course_sales;
