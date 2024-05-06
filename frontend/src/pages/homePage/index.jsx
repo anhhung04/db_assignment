@@ -47,7 +47,7 @@ const HomePage = () => {
                 <Carousel responsive={responsive} className="courses_slider">
                     {sliderItems.map((item, key) => (
                         <div className="courses_slider_item" key={key}>
-                            <CourseCard course={item} />
+                            <CourseCard course={item} isHighLight={true} />
                         </div>
                     ))}
                 </Carousel>
