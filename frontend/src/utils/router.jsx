@@ -5,8 +5,10 @@ export const ROUTERS = {
         LOGIN: "/login",
     },
     COURSES: {
-        HOME: "/courses",
-        DETAIL: "/courses/:slug",
+        HOME: "/course",
+        DETAIL: "/course/:slug",
         MYCOURSES: "/my-courses",
+        FILTER: "/course/filter/:filterContent",
+        SEARCH: "/course/search",
     },
 };

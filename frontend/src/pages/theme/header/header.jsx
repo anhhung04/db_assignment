@@ -15,16 +15,28 @@ const Header = () => {
             isShowSubmenu: false,
             child: [
                 {
-                    name: "Tiếng Anh Cơ Bản",
-                    path: "",
+                    name: "TOEIC",
+                    path: "/course/filter/toeic",
                 },
                 {
-                    name: "Chuyên Ngành Y Khoa",
-                    path: "",
+                    name: "IELTS",
+                    path: "/course/filter/ielts",
                 },
                 {
-                    name: "Giao Tiếp Nâng Cao",
-                    path: "",
+                    name: "Communication",
+                    path: "/course/filter/communication",
+                },
+                {
+                    name: "Beginner",
+                    path: "/course/filter/beginner",
+                },
+                {
+                    name: "Intermediate",
+                    path: "/course/filter/intermediate",
+                },
+                {
+                    name: "Advance",
+                    path: "/course/filter/advance",
                 },
             ],
         },
@@ -36,16 +48,39 @@ const Header = () => {
                 <div className="row">
                     <div className="col-6 header_top_left">
                         <ul>
-                            <li className="header_logo">
-                                <h1>LOGO</h1>
+                            <li>
+                                <img
+                                    src="/assets/users/image/logo/logo.png"
+                                    alt="Dashboard"
+                                    className="header_logo"
+                                    onClick={() => {
+                                        window.location.href =
+                                            ROUTERS.USER.HOME;
+                                    }}
+                                />
                             </li>
                             <li>
                                 <input
+                                    id="searchInput"
                                     type="text"
                                     placeholder="Tìm kiếm nội dung bất kỳ"
                                     required
                                 />
-                                <button type="submit">Tìm kiếm</button>
+                                <button
+                                    type="submit"
+                                    onClick={() => {
+                                        window.location.href =
+                                            ROUTERS.COURSES.SEARCH +
+                                            "?content=" +
+                                            btoa(
+                                                document.querySelector(
+                                                    "searchInput"
+                                                ).value
+                                            );
+                                    }}
+                                >
+                                    Tìm kiếm
+                                </button>
                             </li>
                         </ul>
                         <nav className="header_filter">
@@ -69,7 +104,7 @@ const Header = () => {
                                                         >
                                                             <Link
                                                                 to={
-                                                                    childKey.path
+                                                                    childItem.path
                                                                 }
                                                             >
                                                                 {childItem.name}

@@ -12,7 +12,7 @@ async function apiCall(
             method,
             headers: {
                 "Content-Type": "application/json"
-            }, credentials: 'same-origin',
+            }, credentials: 'include',
             body: body ? JSON.stringify(body) : null
         }
     ).then(res => res.json())

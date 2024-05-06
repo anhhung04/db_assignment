@@ -5,6 +5,8 @@ import MasterLayout from "./pages/theme/masterLayout";
 import ProfilePage from "./pages/profilePage";
 import LoginPage from "./pages/LoginPage";
 import OwnCoursePage from "./pages/course/ownCourse";
+import CourseDetailPage from "./pages/course/courseDetail";
+import FilterCoursePage from "./pages/course/filterCourse";
 
 const renderUserRouter = () => {
     const userRouters = [
@@ -23,6 +25,14 @@ const renderUserRouter = () => {
         {
             path: ROUTERS.COURSES.MYCOURSES,
             component: <OwnCoursePage />,
+        },
+        {
+            path: ROUTERS.COURSES.DETAIL,
+            component: <CourseDetailPage />,
+        },
+        {
+            path: ROUTERS.COURSES.FILTER,
+            component: <FilterCoursePage />,
         },
     ];
 

@@ -1,6 +1,6 @@
 import { memo, useEffect, useState } from "react";
 import Carousel from "react-multi-carousel";
-import CourseCard from "../../component/course";
+import CourseCardHighlight from "../../component/highlightCourse";
 import apiCall from "../../utils/api";
 import AllCoursePage from "../course/allCourse";
 import "react-multi-carousel/lib/styles.css";
@@ -29,7 +29,7 @@ const HomePage = () => {
     };
 
     useEffect(() => {
-        apiCall("/api/course/highlight")
+        apiCall("/api/course/highlight?limit=5")
             .then((res) => {
                 setSliderItems(res.data);
             })
@@ -41,21 +41,23 @@ const HomePage = () => {
     return (
         <>
             {/* Categories Begin*/}
-            <div>Khóa học nổi bật</div>
-
+            <div>
+                <h1>Khóa học nổi bật</h1>
+            </div>
             <div className="container container__courses_slider">
                 <Carousel responsive={responsive} className="courses_slider">
                     {sliderItems.map((item, key) => (
                         <div className="courses_slider_item" key={key}>
-                            <CourseCard course={item} isHighLight={true} />
+                            <CourseCardHighlight course={item} />
                         </div>
                     ))}
                 </Carousel>
             </div>
-
             {/*Categories End */}
 
-            <div>Tất cả khóa học</div>
+            <div>
+                <h1>Khóa học hiện có</h1>
+            </div>
             <AllCoursePage />
         </>
     );

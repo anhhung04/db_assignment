@@ -46,20 +46,17 @@ $bannerImg: "/assets/users/image/logo/logo.png";
     }
 
     .header_logo {
-        background-image: url($bannerImg);
-        background-image: no-repeat;
-        height: 50px;
+        height: 100px;
         display: flex;
     }
 
     .header_filter {
         padding: 24px 0;
-        margin-left: 10px;
-        width: 200px;
+        margin-left: 30px;
 
         ul {
             display: flex;
-
+            padding-left: 5px;
             li {
                 list-style: none;
                 position: relative;
@@ -71,6 +68,7 @@ $bannerImg: "/assets/users/image/logo/logo.png";
                     transition: all 0.3s;
                     padding: 5px 0;
                     display: block;
+                    width: 50px;
                 }
             }
 
@@ -89,7 +87,6 @@ $bannerImg: "/assets/users/image/logo/logo.png";
                 position: absolute;
                 width: 180px;
                 z-index: 9;
-                //padding: 5px 0;
                 transition: all, 0.3s;
                 opacity: 0;
                 visibility: hidden;

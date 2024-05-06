@@ -1,4 +1,4 @@
-import CourseCard from "../../component/course";
+import CourseCard from "../../component/highlightCourse";
 import { useState, useEffect } from "react";
 import apiCall from "../../utils/api";
 
