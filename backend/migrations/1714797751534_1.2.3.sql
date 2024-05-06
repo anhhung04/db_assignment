@@ -1,6 +1,5 @@
 -- Up Migration
 CREATE OR REPLACE FUNCTION list_top_courses_revenue(
-    in_course_id UUID,
     start_date DATE,
     end_date DATE,
     limit_count INT
@@ -21,7 +20,6 @@ BEGIN
     JOIN 
         courses c ON sjc.course_id = c.course_id
     WHERE 
-        c.course_id = in_course_id AND 
         sjc.created_at BETWEEN start_date AND end_date
     GROUP BY 
         c.course_id
@@ -32,7 +30,7 @@ BEGIN
 END; $$
 LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION list_courses_bought(student_id UUID, start_date DATE, end_date DATE)
+CREATE OR REPLACE FUNCTION list_courses_bought(in_student_id UUID, start_date DATE, end_date DATE)
 RETURNS TABLE (
     course_title VARCHAR(100),
     time_bought TIMESTAMP,
@@ -57,10 +55,10 @@ BEGIN
     JOIN 
         users u ON t.user_id = u.id
     WHERE 
-        sjc.student_id = student_id AND
+        sjc.student_id = in_student_id AND
         sjc.created_at BETWEEN start_date AND end_date
     GROUP BY 
-        c.course_id, sjc.created_at, sjc.current_price, u.fname, u.lname
+        c.course_id, sjc.created_at, sjc.current_price, u.display_name
     ORDER BY 
         avg_rating DESC;
 END; $$
@@ -102,7 +100,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION filter_courses_by_reviews(min_reviews INT, min_rating DOUBLE PRECISION)
 RETURNS TABLE (
     course_title VARCHAR(100),
-    total_reviews INT,
+    total_reviews BIGINT,
     avg_rating DOUBLE PRECISION
 ) AS $$
 BEGIN

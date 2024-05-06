@@ -1,41 +1,49 @@
 -- Up Migration
-CREATE OR REPLACE FUNCTION calculate_exam_score(student_id uuid, exam_id uuid) RETURNS DOUBLE PRECISION AS $$
+CREATE OR REPLACE FUNCTION calculate_exam_score(in_student_id uuid, in_exam_id uuid) RETURNS DOUBLE PRECISION AS $$
 DECLARE
     question_score DOUBLE PRECISION;
     exam_score DOUBLE PRECISION := 0;
     question RECORD;
+    in_taking_exam_id uuid;
+    wrong_answer_exists BOOLEAN;
 BEGIN
+    SELECT id INTO in_taking_exam_id FROM taking_exam WHERE student_id = in_student_id AND exam_id = in_exam_id;
+
     FOR question IN SELECT * FROM questions WHERE id IN (
         SELECT questions.id FROM questions
         JOIN subsections ON questions.subsection_id = subsections.id
         JOIN sections ON subsections.section_id = sections.id
-        WHERE sections.exam_id = exam_id
+        WHERE sections.exam_id = in_exam_id
     ) LOOP
-        SELECT questions.score INTO question_score
-        FROM questions
-        LEFT JOIN wrong_answers ON questions.id = wrong_answers.answer_id
-        WHERE questions.id = question.id AND wrong_answers.answer_id IS NULL;
+        SELECT EXISTS (
+            SELECT 1
+            FROM wrong_answers
+            WHERE question_id = question.id AND taking_exam_id = in_taking_exam_id
+        ) INTO wrong_answer_exists;
 
-        IF question_score IS NOT NULL THEN
-            exam_score := exam_score + question_score;
+        IF NOT wrong_answer_exists THEN
+            exam_score := exam_score + question.score;
         END IF;
     END LOOP;
+    UPDATE taking_exam
+    SET score = exam_score, updated_at = now()
+    WHERE id = in_taking_exam_id;
 
     RETURN exam_score;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION check_course_eligibility(student_id uuid, course_id uuid) RETURNS BOOLEAN AS $$
+CREATE OR REPLACE FUNCTION check_course_eligibility(student_id uuid, in_course_id uuid) RETURNS BOOLEAN AS $$
 DECLARE
-    account_balance DOUBLE PRECISION;
+    in_account_balance DOUBLE PRECISION;
     course_price DOUBLE PRECISION;
     money_type currency_type;
 BEGIN
-    SELECT account_balance INTO account_balance FROM users WHERE id = student_id;
-    SELECT amount_price INTO course_price FROM courses WHERE course_id = course_id;
-    SELECT currency INTO money_type FROM courses WHERE course_id = course_id;
+    SELECT account_balance INTO in_account_balance FROM users WHERE id = student_id;
+    SELECT amount_price INTO course_price FROM courses WHERE course_id = in_course_id;
+    SELECT currency INTO money_type FROM courses WHERE course_id = in_course_id;
     course_price := change_currency(course_price, money_type);
-    IF account_balance >= course_price THEN
+    IF in_account_balance >= course_price THEN
         RETURN TRUE;
     ELSE
         RETURN FALSE;
@@ -43,32 +51,17 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION get_top_students(course_id uuid) RETURNS TABLE(student_id uuid, score double precision) AS $$
-DECLARE
-    exam RECORD;
-    student_score DOUBLE PRECISION;
-BEGIN
-    FOR exam IN SELECT * FROM exams LOOP
-        IF exam.id IN (
-            SELECT exam_id FROM sections
-            JOIN subsections ON sections.id = subsections.section_id
-            JOIN questions ON subsections.id = questions.subsection_id
-            JOIN lessons ON questions.lesson_id = lessons.id
-            WHERE lessons.course_id = course_id
-        ) THEN
-            SELECT student_id, score INTO student_score
-            FROM taking_exam
-            WHERE exam_id = exam.id
-            ORDER BY score DESC
-            LIMIT 5;
-
-            student_id := student_score.student_id;
-            score := student_score.score;
-            RETURN NEXT;
-        END IF;
-    END LOOP;
-END;
-$$ LANGUAGE plpgsql;
+-- CREATE OR REPLACE FUNCTION get_top_students(course_id uuid) RETURNS TABLE(student_id uuid, score double precision) AS $$
+-- DECLARE
+--     exam RECORD;
+--     student_score DOUBLE PRECISION;
+-- BEGIN
+--     FOR exam IN SELECT * FROM exams LOOP
+--         student_score := calculate_exam_score(student_id, exam.id);
+--         RETURN QUERY SELECT student_id, student_score;
+--     END LOOP;
+-- END;
+-- $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION get_top_highlight_courses(limit_count INTEGER DEFAULT 5, min_avg_review DOUBLE PRECISION DEFAULT 0)
 RETURNS TABLE(course_id uuid, course_slug VARCHAR(100), thumbnail_url TEXT, title varchar(100), type course_type, description TEXT, rating double precision, level varchar(20), headline varchar(100), content_info varchar(50), amount_price double precision, currency currency_type, total_students integer, recent_students integer, total_reviews integer, teacher_name VARCHAR(100), teacher_id uuid, teacher_avatar TEXT) AS $$
@@ -195,7 +188,7 @@ $$ LANGUAGE plpgsql;
 -- Down Migration
 DROP FUNCTION IF EXISTS calculate_exam_score;
 DROP FUNCTION IF EXISTS check_course_eligibility;
-DROP FUNCTION IF EXISTS get_top_students;
+-- DROP FUNCTION IF EXISTS get_top_students;
 DROP FUNCTION IF EXISTS get_top_highlight_courses;
 DROP FUNCTION IF EXISTS calculate_course_price;
 DROP PROCEDURE IF EXISTS join_course;
