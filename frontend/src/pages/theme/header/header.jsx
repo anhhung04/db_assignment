@@ -1,14 +1,21 @@
-import { memo, useState } from "react";
+import { memo, useState, useEffect } from "react";
 import "./style.scss";
 import { CiUser } from "react-icons/ci";
 import { IoIosNotifications } from "react-icons/io";
 import { Link } from "react-router-dom";
 import { ROUTERS } from "../../../utils/router";
-import useCookie from "react-use-cookie";
+import apiCall from "../../../utils/api";
 
 const Header = () => {
-    const [session] = useCookie("session");
-    const isLogin = session ? true : false;
+    const [user, setUser] = useState({});
+    useEffect(() => {
+        apiCall("/api/auth/me").then((res) => {
+            if (res.status_code === 200) {
+                setUser(res.data);
+            }
+        });
+    }, [setUser]);
+    const isLogin = user.id ? true : false;
     const [menus] = useState([
         {
             name: "Thể loại",
@@ -121,6 +128,16 @@ const Header = () => {
                     </div>
                     <div className="col-6 header_top_right">
                         <ul>
+                            <li>
+                                {isLogin && user.role === "teacher" && (
+                                    <a
+                                        href="/create-course"
+                                        className="my_course"
+                                    >
+                                        Tạo mới
+                                    </a>
+                                )}
+                            </li>
                             <li>
                                 <a href="/my-courses" className="my_course">
                                     Khóa học của tôi

@@ -10,5 +10,6 @@ export const ROUTERS = {
         MYCOURSES: "/my-courses",
         FILTER: "/course/filter/:filterContent",
         SEARCH: "/course/search",
+        CREATE: "/create-course",
     },
 };

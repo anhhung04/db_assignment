@@ -7,6 +7,7 @@ import LoginPage from "./pages/LoginPage";
 import OwnCoursePage from "./pages/course/ownCourse";
 import CourseDetailPage from "./pages/course/courseDetail";
 import FilterCoursePage from "./pages/course/filterCourse";
+import CreateCoursePage from "./pages/course/createCourse";
 
 const renderUserRouter = () => {
     const userRouters = [
@@ -33,6 +34,10 @@ const renderUserRouter = () => {
         {
             path: ROUTERS.COURSES.FILTER,
             component: <FilterCoursePage />,
+        },
+        {
+            path: ROUTERS.COURSES.CREATE,
+            component: <CreateCoursePage />,
         },
     ];
 
