@@ -69,7 +69,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION get_top_highlight_courses(limit_count INTEGER DEFAULT 5, min_avg_review DOUBLE PRECISION DEFAULT 0)
-RETURNS TABLE(course_id uuid, course_slug VARCHAR(100), thumbnail_url TEXT, title varchar(100), type course_type, description varchar(200), rating double precision, level varchar(20), headline varchar(100), content_info varchar(50), amount_price double precision, currency currency_type, total_students integer, recent_students integer, total_reviews integer, teacher_name VARCHAR(100), teacher_id uuid, teacher_avatar TEXT) AS $$
+RETURNS TABLE(course_id uuid, course_slug VARCHAR(100), thumbnail_url TEXT, title varchar(100), type course_type, description TEXT, rating double precision, level varchar(20), headline varchar(100), content_info varchar(50), amount_price double precision, currency currency_type, total_students integer, recent_students integer, total_reviews integer, teacher_name VARCHAR(100), teacher_id uuid, teacher_avatar TEXT) AS $$
 DECLARE
     course_count INT;
     recent_months INT := 1;
