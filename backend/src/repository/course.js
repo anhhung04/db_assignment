@@ -132,27 +132,6 @@ class CourseRepo extends IRepo {
         }
     }
 
-    async reviewCourse({ courseId, rating, comment, studentId }) {
-        try {
-            await this.exec({
-                query: `
-                    INSERT INTO reviews(course_id, student_id, rating, comment)
-                    VALUES($1, $2, $3, $4);
-                `,
-                args: [courseId, studentId, rating, comment]
-            });
-            return {
-                error: null
-            };
-        } catch (err) {
-            logger.debug(err);
-            return {
-                error: err
-            };
-        }
-
-    }
-
     async createCourse({
         title,
         type,
@@ -163,15 +142,16 @@ class CourseRepo extends IRepo {
         content_info,
         amount_price,
         currency,
+        teacherId
     }) {
         try {
             let course_slug = title.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9 ]/g, "").replace(/ /g, "-").toLowerCase();
             course_slug = course_slug + "-" + Math.random().toString(36).substring(2, 7);
             await this.exec({
                 query: `
-                    CALL insert_courses($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
+                    CALL insert_courses($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
                 `,
-                args: [title, type, description, level, thumbnail_url, headline, content_info, amount_price, currency, course_slug]
+                args: [teacherId, title, type, description, level, thumbnail_url, headline, content_info, amount_price, currency, course_slug]
             });
             return {
                 error: null

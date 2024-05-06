@@ -1,6 +1,7 @@
 const { IService } = require("../utils/service");
 const { CourseRepo } = require("../repository/course");
 const { v4: uuidv4 } = require('uuid');
+const logger = require("../utils/log");
 
 class CourseService extends IService {
     constructor(request) {
@@ -154,6 +155,7 @@ class CourseService extends IService {
             content_info,
             amount_price,
             currency,
+            teacherId: this._currentUser.id
         });
         if (error) {
             throw new Error(error);
@@ -216,24 +218,24 @@ class CourseService extends IService {
             comment
         }, isSlug
     }) {
-        let studentBoughtCourse = await this._courseRepo.findStudentCourses({
-            studentId: this._currentUser.id,
-            courseId,
-            isSlug
-        });
-        if (!studentBoughtCourse[0]) {
-            throw new Error("You have not bought this course");
-        }
-
-        let { error } = await this._courseRepo.reviewCourse({
-            studentId: this._currentUser.id,
-            courseId: studentBoughtCourse[0].course_id,
-            rating,
-            comment
-        });
-
-        if (error) {
-            throw new Error(error);
+        try {
+            if (isSlug) {
+                const { row: course, error } = await this._courseRepo.findOneInTable({
+                    table: "courses",
+                    findObj: { course_slug: courseId }
+                });
+                if (error) {
+                    throw new Error(error);
+                }
+                courseId = course.course_id;
+            }
+            await this._courseRepo.exec({
+                query: `CALL rate_course($1, $2, $3, $4);`,
+                args: [courseId, this._currentUser.id, comment, rating]
+            });
+        } catch (err) {
+            logger.debug(err);
+            throw new Error(err);
         }
     }
 
@@ -254,6 +256,38 @@ class CourseService extends IService {
 
         if (error) {
             throw new Error(error);
+        }
+    }
+
+    async filterCourses({
+        teacher_name,
+        teacher_exp,
+        teacher_level
+    }) {
+        teacher_name = teacher_name && typeof teacher_name == "string" ? teacher_name : "";
+        teacher_exp = teacher_exp && typeof teacher_exp == "number" ? teacher_exp : 0;
+        teacher_level = teacher_level && typeof teacher_level == "string" ? teacher_level : "";
+        try {
+            let results = await this._courseRepo.exec({
+                query: `
+                    SELECT * FROM filter_courses($1, $2, $3);
+                `,
+                args: [teacher_name, teacher_exp, teacher_level]
+            });
+            return results.map(row => ({
+                course_id: row.course_id,
+                title: row.title,
+                description: row.description,
+                level: row.level,
+                thumbnail_url: row.thumbnail_url,
+                headline: row.headline,
+                content_info: row.content_info,
+                amount_price: row.amount_price,
+                currency: row.currency
+            }));
+        } catch (err) {
+            logger.debug(err);
+            throw new Error(err);
         }
     }
 

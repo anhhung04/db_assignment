@@ -285,6 +285,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE PROCEDURE insert_courses(
+    in_teacher_id UUID,
     in_title VARCHAR(100),
     in_type course_type,
     in_description VARCHAR(200),
@@ -322,7 +323,7 @@ BEGIN
         RAISE EXCEPTION 'Currency is required.';
     END IF;
     CALL check_valid_url(in_thumbnail_url);
-    INSERT INTO courses (course_id, title, type, description, rating, level, thumbnail_url, headline, content_info, amount_price, currency, course_slug, access_count, total_students)
+    INSERT INTO courses (course_id, title, type, description, rating, level, thumbnail_url, headline, content_info, amount_price, currency, course_slug, access_count, total_students, teacher_id)
 VALUES (
         in_id,
         in_title,
@@ -337,7 +338,8 @@ VALUES (
         in_currency,
         in_course_slug,
         in_access_count,
-        in_total_students
+        in_total_students,
+        in_teacher_id
 );
 END;
 $$ LANGUAGE plpgsql;
