@@ -73,7 +73,7 @@ class CourseService extends IService {
                 WHERE r.course_id = $1;
             `,
             args: [course.course_id]
-        })
+        });
         reviewResults = reviewResults?.rows ? reviewResults.rows.map(row => ({
             comment: row.comment,
             student_rate: row.rating,
@@ -305,7 +305,7 @@ class CourseService extends IService {
         teacher_name,
         teacher_exp,
         tag,
-        limit, 
+        limit,
         page,
         teacher_edulevel
     }) {
@@ -383,6 +383,21 @@ class CourseService extends IService {
         } else {
             throw new Error("You are not a student or teacher");
         }
+        courses = courses.map(async (course) => {
+            let teacherResult = await this._courseRepo.exec({
+                query: `SELECT * FROM users WHERE id = $1;`,
+                args: [course.teacher_id]
+            });
+            if (teacherResult.rows[0]) {
+                course.teacher = {
+                    id: teacherResult.rows[0].id,
+                    display_name: teacherResult.rows[0].display_name,
+                    avatar_url: teacherResult.rows[0].avatar_url
+                };
+            };
+            return course;
+        });
+        courses = await Promise.all(courses);
         return courses;
     }
 

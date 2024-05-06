@@ -23,6 +23,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(cookieSecret));
 
+app.set("trust proxy", true);
+
 app.use(cors({
     origin: [
         "http://localhost:5173"
@@ -31,12 +33,15 @@ app.use(cors({
 
 app.use(session({
     secret: cookieSecret,
-    resave: false,
-    saveUninitialized: false,
+    resave: true,
+    saveUninitialized: true,
+    resave: true,
+    saveUninitialized: true,
+    proxy: true,
     cookie: {
-        httpOnly: false,
+        httpOnly: true,
+        httpOnly: true,
         maxAge: 1000 * 60 * 60,
-        sameSite: 'none'
     },
     store: new RedisStore({
         client: redisClient,
