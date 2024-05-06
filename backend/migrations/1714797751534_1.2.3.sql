@@ -43,10 +43,10 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION filter_courses(p_tag VARCHAR(50), p_teacher_name VARCHAR(100), p_teacher_exp INT, p_teacher_edulevel VARCHAR(100), limit_course INT, paging INT)
-RETURNS TABLE(course_id uuid, course_slug VARCHAR(100), thumbnail_url TEXT, title varchar(100), type course_type, description varchar(200), rating double precision, level varchar(20), headline varchar(100), content_info varchar(50), amount_price double precision, currency currency_type, total_students integer, teacher_name VARCHAR(100), teacher_id uuid, teacher_avatar TEXT, teacher_edu_level VARCHAR(50)) AS $$
+RETURNS TABLE(course_id uuid, course_slug VARCHAR(100), thumbnail_url TEXT, title varchar(100), type course_type, description text, rating double precision, level varchar(20), headline varchar(100), content_info varchar(50), amount_price double precision, currency currency_type, total_students integer, teacher_name VARCHAR(100), teacher_id uuid, teacher_avatar TEXT, teacher_edu_level VARCHAR(50)) AS $$
 BEGIN
     RETURN QUERY
-    SELECT 
+    SELECT
         c.course_id,
         c.course_slug,
         c.thumbnail_url,
@@ -67,9 +67,9 @@ BEGIN
     FROM courses c
     INNER JOIN teachers t ON c.teacher_id = t.user_id
     INNER JOIN users u ON t.user_id = u.id
-    WHERE u.display_name LIKE '%' || p_teacher_name || '%' AND c.content_info LIKE '%' || p_tag || '%'
+    WHERE LOWER(u.display_name) LIKE '%' || LOWER(p_teacher_name) || '%' AND LOWER(c.content_info) LIKE '%' || LOWER(p_tag) || '%'
     AND EXTRACT(YEAR FROM age(NOW(), t.created_at)) * 12 + EXTRACT(MONTH FROM age(NOW(), t.created_at)) >= p_teacher_exp
-    AND t.educational_level LIKE '%' || p_teacher_edulevel || '%'
+    AND LOWER(t.educational_level) LIKE '%' || LOWER(p_teacher_edulevel) || '%'
     LIMIT limit_course OFFSET (paging - 1) * limit_course;
 END;
 $$ LANGUAGE plpgsql;
