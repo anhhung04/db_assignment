@@ -362,6 +362,7 @@ class CourseService extends IService {
         );
         return result.rows.map(row => ({
             course_id: row.course_id,
+            course_slug: row.course_slug,
             title: row.title,
             description: row.description,
             level: row.level,
