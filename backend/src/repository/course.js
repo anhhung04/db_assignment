@@ -87,9 +87,9 @@ class CourseRepo extends IRepo {
             limit = limit ? Math.abs(limit) : 20;
             const result = await this.exec({
                 query: `
-                    SELECT c.*, j.current_price as buy_price, j.created_at as buy_at
+                    SELECT c.*, sjc.current_price as buy_price, sjc.created_at as buy_at
                     FROM students_join_courses sjc
-                    JOIN courses c ON sjc.course_id = courses.course_id AND sjc.student_id = $1${courseId ? ` WHERE ${isSlug ? "course_slug" : "course_id"} = $2` : ""}
+                    JOIN courses c ON sjc.course_id = c.course_id AND sjc.student_id = $1${courseId ? ` WHERE ${isSlug ? "course_slug" : "course_id"} = $2` : ""}
                     LIMIT $3 OFFSET $4;
                 `,
                 args: [studentId, courseId, limit, (page - 1) * limit]
