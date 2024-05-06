@@ -7,7 +7,6 @@ CREATE OR REPLACE PROCEDURE rate_course(
 )
 AS $$
 DECLARE
-    student_exists BOOLEAN;
     new_avg_rating DOUBLE PRECISION;
 BEGIN
     IF NOT EXISTS (
