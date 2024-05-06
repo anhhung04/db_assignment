@@ -11,7 +11,9 @@ INSERT INTO users (
         account_type,
         phone_no,
         birthday,
-        account_balance
+        account_balance,
+        display_name,
+        avatar_url
     )
 VALUES (
         '36a14986-5819-43ac-90af-b75eeb8dce27',
@@ -25,7 +27,9 @@ VALUES (
         'student',
         '0123456789',
         '2004-01-01', 
-        400
+        400,
+        'Nguyễn Văn A',
+        'https://www.w3schools.com/w3images/avatar2.png'
     );
 INSERT INTO students (
         user_id,

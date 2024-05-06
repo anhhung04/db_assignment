@@ -1,8 +1,14 @@
 -- Up Migration
 CREATE OR REPLACE FUNCTION check_price_constraint()
 RETURNS TRIGGER AS $$
+DECLARE 
+    course_price DOUBLE PRECISION;
+    money_type currency_type;
 BEGIN
-    IF NEW.current_price > (SELECT amount_price FROM courses WHERE course_id = NEW.course_id) THEN
+    SELECT amount_price INTO course_price FROM courses WHERE course_id = NEW.course_id;
+    SELECT currency INTO money_type FROM courses WHERE course_id = NEW.course_id;
+    course_price := change_currency(course_price, money_type);
+    IF NEW.current_price > course_price THEN
         RAISE EXCEPTION 'Current price cannot be greater than amount price';	
     END IF;
     RETURN NEW;
