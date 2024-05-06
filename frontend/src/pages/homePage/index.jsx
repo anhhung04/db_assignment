@@ -2,6 +2,7 @@ import { memo, useEffect, useState } from "react";
 import Carousel from "react-multi-carousel";
 import CourseCard from "../../component/course";
 import apiCall from "../../utils/api";
+import AllCoursePage from "../course/allCourse";
 import "react-multi-carousel/lib/styles.css";
 import "./style.scss";
 
@@ -53,6 +54,9 @@ const HomePage = () => {
             </div>
 
             {/*Categories End */}
+
+            <div>Tất cả khóa học</div>
+            <AllCoursePage />
         </>
     );
 };

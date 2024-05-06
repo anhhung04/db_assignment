@@ -38,54 +38,77 @@ const Header = () => {
                                 <h1>LOGO</h1>
                             </li>
                             <li>
-                                <input type="text" placeholder='Tìm kiếm nội dung bất kỳ' required />
+                                <input
+                                    type="text"
+                                    placeholder="Tìm kiếm nội dung bất kỳ"
+                                    required
+                                />
                                 <button type="submit">Tìm kiếm</button>
                             </li>
                         </ul>
                         <nav className="header_filter">
                             <ul>
-                                {
-                                    menus?.map((menu, menuKey) => (
-                                        <li key={menuKey} className={menuKey === 0 ? "active" : ""}>
-                                            <Link to={menu?.path}>{menu?.name}</Link>
-                                            {
-                                                menu.child && (
-                                                    <ul className="header_filter_dropform">
-                                                        {
-                                                            menu.child.map((childItem, childKey) => (
-                                                                <li key={`${menuKey}-${childKey}`}>
-                                                                    <Link to={childKey.path}>{childItem.name}</Link>
-                                                                </li>
-                                                            ))
-                                                        }
-                                                    </ul>
-                                                )
-                                            }
-                                        </li>
-                                    ))
-                                }
+                                {menus?.map((menu, menuKey) => (
+                                    <li
+                                        key={menuKey}
+                                        className={
+                                            menuKey === 0 ? "active" : ""
+                                        }
+                                    >
+                                        <Link to={menu?.path}>
+                                            {menu?.name}
+                                        </Link>
+                                        {menu.child && (
+                                            <ul className="header_filter_dropform">
+                                                {menu.child.map(
+                                                    (childItem, childKey) => (
+                                                        <li
+                                                            key={`${menuKey}-${childKey}`}
+                                                        >
+                                                            <Link
+                                                                to={
+                                                                    childKey.path
+                                                                }
+                                                            >
+                                                                {childItem.name}
+                                                            </Link>
+                                                        </li>
+                                                    )
+                                                )}
+                                            </ul>
+                                        )}
+                                    </li>
+                                ))}
                             </ul>
                         </nav>
                     </div>
                     <div className="col-6 header_top_right">
                         <ul>
                             <li>
-                                <a href="#" className="my_course" >Khóa học của tôi</a>
+                                <a href="/my-courses" className="my_course">
+                                    Khóa học của tôi
+                                </a>
                             </li>
                             <li>
                                 <IoIosNotifications />
                             </li>
                             <li>
-                                <span><button type="submit" className="login_summit">Đăng nhập</button></span>
+                                <span>
+                                    <button
+                                        type="submit"
+                                        className="login_summit"
+                                    >
+                                        Đăng nhập
+                                    </button>
+                                </span>
                                 <CiUser />
                             </li>
-
                         </ul>
                     </div>
                 </div>
             </div>
-        </div >
-    )
+        </div>
+    );
 }
 
 const MemoizedHeader = memo(Header);

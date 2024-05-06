@@ -4,6 +4,7 @@ import { ROUTERS } from "./utils/router";
 import MasterLayout from "./pages/theme/masterLayout";
 import ProfilePage from "./pages/profilePage";
 import LoginPage from "./pages/LoginPage";
+import OwnCoursePage from "./pages/course/ownCourse";
 
 const renderUserRouter = () => {
     const userRouters = [
@@ -18,6 +19,10 @@ const renderUserRouter = () => {
         {
             path: ROUTERS.USER.LOGIN,
             component: <LoginPage />,
+        },
+        {
+            path: ROUTERS.COURSES.MYCOURSES,
+            component: <OwnCoursePage />,
         },
     ];
 
