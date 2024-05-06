@@ -63,9 +63,9 @@ router.get("/highlight", async (req, res, next) => {
 
 router.get("/filter", async (req, res, next) => {
     try {
-        let { teacher_name, teacher_exp, tag } = req.query;
+        let { teacher_name, teacher_exp, tag, limit, page, teacher_edulevel } = req.query;
         const courses = await req.service.filterCourses({
-            teacher_name, teacher_exp, tag
+            teacher_name, teacher_exp, tag, limit, page, teacher_edulevel
         });
         return wrapResponse(res, {
             code: STATUS_CODE.HTTP_200_OK,
