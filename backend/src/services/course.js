@@ -322,7 +322,7 @@ class CourseService extends IService {
                 `,
                 args: [tag, teacher_name, teacher_exp, teacher_edulevel, limit, page]
             });
-            return results.map(row => ({
+            return results.rows.map(row => ({
                 course_id: row.course_id,
                 title: row.title,
                 description: row.description,
