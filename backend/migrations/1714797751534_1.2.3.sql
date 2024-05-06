@@ -54,8 +54,46 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION filter_courses(p_teacher_name VARCHAR(100), p_teacher_exp INT, p_teacher_level VARCHAR)
+RETURNS TABLE(course_title VARCHAR(100), teacher_name VARCHAR(100), teacher_exp INT) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT c.title, u.display_name, EXTRACT(YEAR FROM age(NOW(), t.created_at)) * 12 + EXTRACT(MONTH FROM age(NOW(), t.created_at))
+    FROM courses c
+    INNER JOIN teachers t ON c.teacher_id = t.user_id
+    INNER JOIN users u ON t.user_id = u.id
+    WHERE u.display_name LIKE '%' || p_teacher_name || '%' 
+    AND EXTRACT(YEAR FROM age(NOW(), t.created_at)) * 12 + EXTRACT(MONTH FROM age(NOW(), t.created_at)) >= p_teacher_exp 
+    AND t.level = p_teacher_level;
+END;
+$$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION filter_courses_by_reviews(min_reviews INT, min_rating DOUBLE PRECISION)
+RETURNS TABLE (
+    course_title VARCHAR(100),
+    total_reviews INT,
+    avg_rating DOUBLE PRECISION
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        c.title AS course_title,
+        COUNT(r.id) AS total_reviews,
+        AVG(r.rating) AS avg_rating
+    FROM 
+        courses c
+    LEFT JOIN 
+        reviews r ON c.course_id = r.course_id
+    GROUP BY 
+        c.course_id
+    HAVING 
+        COUNT(r.id) >= min_reviews AND 
+        AVG(r.rating) >= min_rating;
+END; $$
+LANGUAGE plpgsql;
 
 -- Down Migration
 DROP PROCEDURE list_courses_and_revenue;
 DROP PROCEDURE calculate_totals_and_course_sales;
+DROP FUNCTION filter_courses;
+DROP FUNCTION filter_courses_by_reviews;
