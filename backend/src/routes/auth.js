@@ -35,13 +35,7 @@ router.post('/login', validate({
             });
         }
         await saveSession(req, { user });
-        return wrapResponse(res, {
-            code: STATUS_CODE.HTTP_200_OK,
-            message: "Login successfully",
-            data: {
-                success: true
-            }
-        });
+        return res.redirect("/")
     } catch (err) {
         next(err);
     }
