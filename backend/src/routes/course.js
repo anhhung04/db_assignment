@@ -61,8 +61,6 @@ router.get("/highlight", async (req, res, next) => {
     }
 })
 
-<<<<<<< HEAD
-=======
 router.get("/filter", async (req, res, next) => {
     try {
         let { teacher_name, teacher_exp, teacher_level } = req.query;
@@ -79,7 +77,6 @@ router.get("/filter", async (req, res, next) => {
     }
 })
 
->>>>>>> ae8c95ef25ecef4ee08c098055e93948898e68c0
 router.get("/mine", async (req, res, next) => {
     try {
         let { page, limit } = req.query;

@@ -9,7 +9,7 @@ import useCookie from "react-use-cookie";
 const Header = () => {
     const [session] = useCookie("session");
     const isLogin = session ? true : false;
-    const [menus, setFilter] = useState([
+    const [menus] = useState([
         {
             name: "Thể loại",
             isShowSubmenu: false,
