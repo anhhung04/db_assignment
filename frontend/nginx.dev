@@ -1,0 +1,20 @@
+server {
+        listen 80;
+        root /var/www/html;
+
+        location /api {
+            proxy_set_header X-Forwarded-Proto https;
+            proxy_set_header X-Forwarded-Proto https;
+            proxy_pass http://docker.internal.host:3000;
+            proxy_set_header Host http://docker.internal.host:3000;
+            proxy_set_header Cookie $http_cookie;
+        }
+
+        location / {
+            proxy_pass http://docker.internal.host:5173;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "Upgrade";
+            proxy_set_header Host $host;
+        }
+    }

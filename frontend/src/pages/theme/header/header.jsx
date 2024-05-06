@@ -73,14 +73,16 @@ const Header = () => {
                                     placeholder="Tìm kiếm nội dung bất kỳ"
                                     required
                                 />
+                            </li>
+                            <li>
                                 <button
                                     type="submit"
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                        e.preventDefault();
                                         window.location.href =
-                                            ROUTERS.COURSES.SEARCH +
-                                            "?content=" +
+                                            "/course/search/" +
                                             btoa(
-                                                document.querySelector(
+                                                document.getElementById(
                                                     "searchInput"
                                                 ).value
                                             );

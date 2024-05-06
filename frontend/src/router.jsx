@@ -8,6 +8,7 @@ import OwnCoursePage from "./pages/course/ownCourse";
 import CourseDetailPage from "./pages/course/courseDetail";
 import FilterCoursePage from "./pages/course/filterCourse";
 import CreateCoursePage from "./pages/course/createCourse";
+import SearchCoursePage from "./pages/course/searchCourse";
 
 const renderUserRouter = () => {
     const userRouters = [
@@ -39,6 +40,10 @@ const renderUserRouter = () => {
             path: ROUTERS.COURSES.CREATE,
             component: <CreateCoursePage />,
         },
+        {
+            path: ROUTERS.COURSES.SEARCH,
+            component: <SearchCoursePage />,
+        }
     ];
 
     return (

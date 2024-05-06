@@ -9,7 +9,7 @@ export const ROUTERS = {
         DETAIL: "/course/:slug",
         MYCOURSES: "/my-courses",
         FILTER: "/course/filter/:filterContent",
-        SEARCH: "/course/search",
+        SEARCH: "/course/search/:searchContent",
         CREATE: "/create-course",
     },
 };
