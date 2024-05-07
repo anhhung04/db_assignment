@@ -10,7 +10,7 @@ CREATE TYPE resource_type as ENUM ('videos', 'documents');
 CREATE TABLE users
 (
     username     TEXT         NOT NULL UNIQUE,
-    password     VARCHAR(100) NOT NULL CHECK (LENGTH(password) > 5),
+    password     VARCHAR(100) NOT NULL,
     fname        VARCHAR(100) NOT NULL,
     lname        VARCHAR(100) NOT NULL,
     email        VARCHAR(100) NOT NULL UNIQUE,
