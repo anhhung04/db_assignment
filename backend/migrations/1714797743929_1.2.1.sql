@@ -88,7 +88,6 @@ BEGIN
         v_error_message := 'Password is required.';
         RAISE EXCEPTION '%', v_error_message;
     END IF;
-    CALL check_password(in_password);
 	
     IF in_email IS NULL THEN
         v_error_message := 'Email is required.';
