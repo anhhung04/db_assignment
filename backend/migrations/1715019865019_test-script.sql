@@ -26,6 +26,11 @@
 -- CALL join_course('90f5c3b5-6b82-4b6d-85b5-9c1d414e9a75', '90f5c3b5-6b82-4b6d-85b5-9c1d414e0014');
 -- CALL join_course('90f5c3b5-6b82-4b6d-85b5-9c1d414e9a75', '90f5c3b5-6b82-4b6d-85b5-9c1d414e0015');
 -- CALL join_course('90f5c3b5-6b82-4b6d-85b5-9c1d414e9a75', '90f5c3b5-6b82-4b6d-85b5-9c1d414e0002');
+-- CALL join_course('90f5c3b5-6b82-4b6d-85b5-9c1d414e9a75', '90f5c3b5-6b82-4b6d-85b5-9c1d414e0020');
+-- CALL join_course('90f5c3b5-6b82-4b6d-85b5-9c1d414e9a75', '90f5c3b5-6b82-4b6d-85b5-9c1d414e0030');
+-- CALL join_course('90f5c3b5-6b82-4b6d-85b5-9c1d414e9a75', '90f5c3b5-6b82-4b6d-85b5-9c1d414e0040');
+-- CALL join_course('90f5c3b5-6b82-4b6d-85b5-9c1d414e9a75', '90f5c3b5-6b82-4b6d-85b5-9c1d414e0050');
+-- CALL join_course('90f5c3b5-6b82-4b6d-85b5-9c1d414e9a75', '90f5c3b5-6b82-4b6d-85b5-9c1d414e0060');
 
 -- -- Check permissions before register
 -- SELECT * FROM permissions WHERE user_id = '90f5c3b5-6b82-4b6d-85b5-9c1d414e9a75';
@@ -39,7 +44,7 @@
 -- SELECT * FROM permissions WHERE user_id = '90f5c3b5-6b82-4b6d-85b5-9c1d414e9a75';
 
 -- -- 1.2.2. Test Calculate Triggers
--- -- Testing the rate_course procedure and insert_review_trigger
+-- Testing the rate_course procedure and insert_review_trigger
 -- CALL rate_course('90f5c3b5-6b82-4b6d-85b5-9c1d414e0010', '550e8400-e29b-41d4-a716-446655440008', 'This is a comment', 3.2);
 -- CALL rate_course('90f5c3b5-6b82-4b6d-85b5-9c1d414e0010', '550e8400-e29b-41d4-a716-446655440015', 'This is another comment', 4.5);
 
@@ -75,8 +80,8 @@
 -- -- Testing the filter_courses function
 -- SELECT * FROM filter_courses('', 'Như Quỳnh', 0, 'Cử nhân', 5, 1);
 
--- -- Testing the filter_courses_by_reviews function
--- SELECT * FROM filter_courses_by_reviews(1, 4.5);
+    -- -- Testing the filter_courses_by_reviews function
+    -- SELECT * FROM filter_courses_by_reviews(1, 4.5);
 
 -- -- 1.2.4
 -- -- Testing the calculate_exam_score function
