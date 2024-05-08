@@ -1,20 +1,5 @@
 -- Up Migration
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE OR REPLACE PROCEDURE check_password(in_password VARCHAR(100))
-AS $$
-BEGIN
-    IF LENGTH(in_password) < 5 THEN
-        RAISE EXCEPTION 'Password must be at least 5 characters long.';
-    END IF;
-
-IF NOT (
-    in_password ~ '^(?=.*[A-Z])(?=.*[!@#$&*_])(?=.*[0-9)(?=.*[a-z]).{5,}$'
-) THEN
-        RAISE EXCEPTION 'Invalid password format';
-    END IF;
-END;
-$$ LANGUAGE plpgsql;
-
 CREATE OR REPLACE PROCEDURE check_valid_email(in_email TEXT)
 AS $$
 BEGIN
@@ -60,7 +45,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE PROCEDURE insert_user(
-in_id UUID,
+    in_id UUID,
     in_username TEXT,
     in_password VARCHAR(100),
     in_fname VARCHAR(100),
@@ -76,7 +61,7 @@ AS $$
 DECLARE
     v_error_message VARCHAR;
 BEGIN 
-    IF in_username IS NULL THEN
+    IF in_username IS NULL OR in_username = '' THEN
         v_error_message := 'Username is required.';
         RAISE EXCEPTION '%', v_error_message;
     END IF;
@@ -84,18 +69,18 @@ BEGIN
 		v_error_message := 'Username existed. Enter another username';
 		RAISE EXCEPTION '%', v_error_message;
 	END IF;
-    IF in_password IS NULL THEN
+    IF in_password IS NULL OR in_password = '' THEN
         v_error_message := 'Password is required.';
         RAISE EXCEPTION '%', v_error_message;
     END IF;
 	
-    IF in_email IS NULL THEN
+    IF in_email IS NULL OR in_email = '' THEN
         v_error_message := 'Email is required.';
         RAISE EXCEPTION '%', v_error_message;
     END IF;
     CALL check_valid_email(in_email);
 
-    IF in_phone_no IS NULL THEN
+    IF in_phone_no IS NULL OR in_phone_no = '' THEN
         v_error_message := 'Phone number is required.';
         RAISE EXCEPTION '%', v_error_message;
     END IF;
@@ -137,9 +122,6 @@ CREATE OR REPLACE PROCEDURE update_user(
 )
 AS $$
 BEGIN
-    IF in_password IS NOT NULL AND in_password != '' THEN
-        CALL check_password(in_password);
-    END IF;
     IF in_email IS NOT NULL AND in_email != '' THEN
         CALL check_valid_email(in_email);
     END IF;
@@ -407,12 +389,12 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE PROCEDURE delete_lessons(in_id UUID)
 AS $$
 DECLARE
-    course_id UUID;
+    in_course_id UUID;
 BEGIN
-    SELECT course_id INTO course_id FROM lessons WHERE id = in_id;
+    SELECT course_id INTO in_course_id FROM lessons WHERE id = in_id;
     DELETE FROM lessons WHERE id = in_id;
-    IF NOT EXISTS (SELECT 1 FROM lessons WHERE course_id = course_id) THEN
-        DELETE FROM courses WHERE id = course_id;
+    IF NOT EXISTS (SELECT 1 FROM lessons WHERE course_id = in_course_id) THEN
+        DELETE FROM courses WHERE id = in_course_id;
     END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -469,6 +451,36 @@ BEGIN
     WHERE course_id = in_course_id;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE PROCEDURE join_course(
+    in_student_id UUID,
+    in_course_id UUID
+)
+AS $$
+DECLARE
+    in_current_price DOUBLE PRECISION;
+    student_balance DOUBLE PRECISION;
+    course_type course_type;
+BEGIN
+    IF EXISTS (SELECT 1 FROM students_join_courses WHERE student_id = in_student_id AND course_id = in_course_id) THEN
+        RAISE EXCEPTION 'The student has already registered for this course';
+    END IF;
+
+    in_current_price := calculate_course_price(in_student_id, in_course_id);
+    SELECT account_balance INTO student_balance FROM users WHERE id = in_student_id;
+    SELECT type INTO course_type FROM courses WHERE course_id = in_course_id;
+    IF course_type = 'paid' THEN
+        IF student_balance < in_current_price THEN
+            RAISE EXCEPTION 'The student does not have enough money to join the course';
+        END IF;
+        UPDATE users SET account_balance = account_balance - in_current_price WHERE id = in_student_id;
+    END IF;
+    
+    INSERT INTO students_join_courses (student_id, course_id, current_price)
+    VALUES (in_student_id, in_course_id, in_current_price);
+END;
+$$ LANGUAGE plpgsql;
+
 -- Down Migration
 DROP PROCEDURE IF EXISTS check_password;
 DROP PROCEDURE IF EXISTS check_valid_email;
@@ -491,3 +503,4 @@ DROP PROCEDURE IF EXISTS insert_lessons;
 DROP PROCEDURE IF EXISTS delete_lessons;
 DROP PROCEDURE IF EXISTS update_lessons;
 DROP PROCEDURE IF EXISTS rate_course;
+DROP PROCEDURE IF EXISTS join_course;

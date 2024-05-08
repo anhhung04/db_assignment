@@ -156,34 +156,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE PROCEDURE join_course(
-    in_student_id UUID,
-    in_course_id UUID
-)
-AS $$
-DECLARE
-    in_current_price DOUBLE PRECISION;
-    student_balance DOUBLE PRECISION;
-    course_type course_type;
-BEGIN
-    IF EXISTS (SELECT 1 FROM students_join_courses WHERE student_id = in_student_id AND course_id = in_course_id) THEN
-        RAISE EXCEPTION 'The student has already registered for this course';
-    END IF;
 
-    in_current_price := calculate_course_price(in_student_id, in_course_id);
-    SELECT account_balance INTO student_balance FROM users WHERE id = in_student_id;
-    SELECT type INTO course_type FROM courses WHERE course_id = in_course_id;
-    IF course_type = 'paid' THEN
-        IF student_balance < in_current_price THEN
-            RAISE EXCEPTION 'The student does not have enough money to join the course';
-        END IF;
-        UPDATE users SET account_balance = account_balance - in_current_price WHERE id = in_student_id;
-    END IF;
-    
-    INSERT INTO students_join_courses (student_id, course_id, current_price)
-    VALUES (in_student_id, in_course_id, in_current_price);
-END;
-$$ LANGUAGE plpgsql;
 
 -- Down Migration
 DROP FUNCTION IF EXISTS calculate_exam_score;
@@ -191,4 +164,4 @@ DROP FUNCTION IF EXISTS check_course_eligibility;
 -- DROP FUNCTION IF EXISTS get_top_students;
 DROP FUNCTION IF EXISTS get_top_highlight_courses;
 DROP FUNCTION IF EXISTS calculate_course_price;
-DROP PROCEDURE IF EXISTS join_course;
+
